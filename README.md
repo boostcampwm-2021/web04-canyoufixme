@@ -6,3 +6,8 @@
 <div align="center">
   <img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/c52c0f32-022b-4734-a1ca-8a5b3657084c/canyoufixme_upscalex2.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAT73L2G45O3KS52Y5%2F20211026%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20211026T093902Z&X-Amz-Expires=86400&X-Amz-Signature=265f2670ba97c5e3b2d0301a3a971615c374e8fa6ceaae4fc1b6a43dc91d865d&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22canyoufixme_upscalex2.png%22"/>
 </div>
+
+## 구성원
+|**[J094 박춘화](https://github.com/winters0727)**|**[J165 이창엽](https://github.com/dlckdduq1107)**|**[J205 최낙훈](https://github.com/longnh214)**|**[J206 최영근](https://github.com/xvezda)**|
+|-------------------|-------------------|-------------------|-------------------|
+|<img width=100 height=100 src="https://github.com/winters0727.png" />|<img width=100 height=100 src="https://github.com/dlckdduq1107.png" />|<img width=100 height=100 src="https://github.com/longnh214.png" />|<img width=100 height=100 src="https://github.com/xvezda.png" />|
