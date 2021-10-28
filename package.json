@@ -5,5 +5,8 @@
   "repository": "https://github.com/boostcampwm-2021/web04-canyoufixme.git",
   "author": "naknak <cnh6123@naver.com>",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "yarn": "^1.22.17"
+  }
 }
