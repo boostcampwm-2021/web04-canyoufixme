@@ -1,0 +1,9 @@
+{
+  "name": "web04-canyoufixme",
+  "version": "0.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/boostcampwm-2021/web04-canyoufixme.git",
+  "author": "naknak <cnh6123@naver.com>",
+  "license": "MIT",
+  "private": true
+}
