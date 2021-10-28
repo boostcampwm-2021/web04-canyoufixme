@@ -9,6 +9,7 @@
   "dependencies": {
     "create-react-app": "^4.0.3",
     "express": "^4.17.1",
+    "pm2": "^5.1.2",
     "yarn": "^1.22.17"
   }
 }
