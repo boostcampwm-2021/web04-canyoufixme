@@ -5,12 +5,26 @@ on:
     branches:
       - main
       - dev
-      - [a-z]+/[a-z0-9-]+
+      - feat/*
+      - fix/*
+      - refactor/*
+      - style/*
+      - docs/*
+      - test/*
+      - chore/*
+      - wip/*
   pull_request:
     branches:
       - main
       - dev
-      - [a-z]+/[a-z0-9-]+
+      - feat/*
+      - fix/*
+      - refactor/*
+      - style/*
+      - docs/*
+      - test/*
+      - chore/*
+      - wip/*
 
 jobs:
   build:
