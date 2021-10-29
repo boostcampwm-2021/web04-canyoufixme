@@ -34,5 +34,9 @@
     "install-peerdeps": "^3.0.3",
     "tsc-watch": "^4.5.0",
     "typescript": "^4.4.4"
+  },
+  "engines": {
+    "node": ">=14.17.3",
+    "yarn": "1.22.x"
   }
 }
