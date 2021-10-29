@@ -1,0 +1,16 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+SHA1=$3
+
+# 프로젝트 최상위 경로
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+
+if [ "$COMMIT_SOURCE" != "message" ]; then
+    # 원본 메시지 파일 백업
+    mv "$COMMIT_MSG_FILE" "$COMMIT_MSG_FILE.bak"
+    # 템플릿으로 덮어쓰기
+    cat "$PROJECT_ROOT/.gitmessage" >> "$COMMIT_MSG_FILE"
+fi
