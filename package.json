@@ -7,6 +7,7 @@
   "private": true,
   "scripts": {
     "prepare": "husky install",
+    "postinstall": "lerna bootstrap",
     "start": "ts-node src/app.ts"
   },
   "dependencies": {
@@ -32,6 +33,7 @@
     "husky": "^7.0.4",
     "install-peerdeps": "^3.0.3",
     "jest": "26.6.0",
+    "lerna": "^4.0.0",
     "lint-staged": ">=10",
     "prettier": "^2.4.1",
     "sass": "^1.43.4",
@@ -47,5 +49,8 @@
       "prettier --write",
       "eslint --cache --fix"
     ]
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }
