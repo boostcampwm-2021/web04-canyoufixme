@@ -5,12 +5,24 @@ COMMIT_MSG_FILE=$1
 COMMIT_SOURCE=$2
 SHA1=$3
 
-# 프로젝트 최상위 경로
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+TEMPLATE_FILE="$PROJECT_ROOT/.gitmessage"
 
-if [ "$COMMIT_SOURCE" != "message" ]; then
+if [ "$COMMIT_SOURCE" = "commit" ]; then
+    # 템플릿의 변경사항이 있는지 체크섬 확인, 있는경우 종료
+    [ "$(cksum "$TEMPLATE_FILE" | cut -d' ' -f1)" != "2429101225" ] && exit
+
+    TITLE_LINENO=2
+    BODY_LINENO=5
+    # 제목, 본문 라인의 내용을 변경하여 덮어쓰기
+    awk "
+        NR==${TITLE_LINENO} { printf \"$(git show -s --format=%s $SHA1)\" }
+        NR==${BODY_LINENO} { printf \"$(git show -s --format=%b $SHA1)\" }
+        { print }" "$TEMPLATE_FILE" > "$COMMIT_MSG_FILE"
+
+elif [ -z "$COMMIT_SOURCE" ]; then
     # 원본 메시지 파일 백업
     mv "$COMMIT_MSG_FILE" "$COMMIT_MSG_FILE.bak"
-    # 템플릿으로 덮어쓰기
-    cat "$PROJECT_ROOT/.gitmessage" >> "$COMMIT_MSG_FILE"
+    # 덮어쓰기
+    cat "$TEMPLATE_FILE" > "$COMMIT_MSG_FILE"
 fi
