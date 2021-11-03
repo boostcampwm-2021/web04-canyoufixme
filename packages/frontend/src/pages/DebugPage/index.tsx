@@ -12,6 +12,15 @@ import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
 import Editor from '@toast-ui/editor';
 
+class FullWidthViewer extends Viewer {
+  componentDidMount(this: { rootEl: RefObject<HTMLElement> }) {
+    Viewer.prototype.componentDidMount?.call(this);
+    this.rootEl.current?.style.setProperty('width', '100%');
+    this.rootEl.current?.style.setProperty('background-color', '#2F333C');
+  }
+}
+
+
 const DebugPage: React.FC = () => {
   const viewerRef: MutableRefObject<Viewer | undefined> = useRef();
   const editorRef: MutableRefObject<AceEditor | string | undefined> = useRef();
@@ -81,13 +90,18 @@ const DebugPage: React.FC = () => {
 
   return (
     <FlexWrapper>
-      <ViewerWrapper>
-        <FullWidthViewer
-          initialValue={`#### 코드를 작성했는데 생각한대로 동작하지 않아요\n\n고쳐주실수 있을까요? 😥`}
-          ref={viewerRef as RefObject<FullWidthViewer>}
-        />
-      </ViewerWrapper>
-      <ConsoleWrapper></ConsoleWrapper>
+      <FlexColumnWrapper>
+        <ViewerWrapper>
+          <FullWidthViewer
+            initialValue={`#### 코드를 작성했는데 생각한대로 동작하지 않아요\n\n고쳐주실수 있을까요? 😥\n\n\`\`\`getTypeName([]) === 'array'\`\`\`?`}
+            theme="dark"
+            ref={viewerRef as RefObject<FullWidthViewer>}
+          />
+        </ViewerWrapper>
+        <ConsoleWrapper>
+          <div>{output}</div>
+        </ConsoleWrapper>
+      </FlexColumnWrapper>
       <FlexColumnWrapper>
         <EditorWrapper>
           <AceEditor
