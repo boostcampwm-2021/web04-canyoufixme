@@ -13,8 +13,6 @@ const WritePage = () => {
     markdownRef.current = this;
   }
 
-  const markdown = markdownRef.current?.getInstance().getMarkdown() as string;
-
   return (
     <>
       <Editor
