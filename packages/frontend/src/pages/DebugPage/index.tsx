@@ -1,5 +1,6 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { MutableRefObject, RefObject } from 'react';
+import { useRouteMatch } from 'react-router-dom';
 
 import AceEditor from 'react-ace';
 import { Viewer } from '@toast-ui/react-editor';
@@ -70,18 +71,24 @@ const ButtonFooter = styled.div`
 `;
 
 const DebugPage: React.FC = () => {
-  const [output, setOutput] = useState('');
-
-  const initialProblem = `function getTypeName(arrayOrObject) {
-    if (typeof arrayOrObject === 'object') {
-      return 'object';
-    } else {
-      return 'array';
-    }
-  }`;
+  const [, setContent] = useState('');
+  const [code, setCode] = useState('');
 
   const viewerRef: MutableRefObject<Viewer | undefined> = useRef();
   const editorRef: MutableRefObject<AceEditor | string | undefined> = useRef();
+
+  const match = useRouteMatch<{ id: string }>('/debug/:id');
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_URL}/api/debug/${match?.params.id}`)
+      .then(res => res.json())
+      .then(({ content, code }) => {
+        setContent(content);
+        setCode(code);
+        viewerRef.current?.getInstance().setMarkdown(content);
+      });
+  }, [match]);
+
+  const [output, setOutput] = useState('');
 
   const onChange = useCallback(
     (newValue: string) => {
@@ -112,7 +119,6 @@ const DebugPage: React.FC = () => {
       <FlexColumnWrapper>
         <ViewerWrapper>
           <FullWidthViewer
-            initialValue={`#### 코드를 작성했는데 생각한대로 동작하지 않아요\n\n고쳐주실수 있을까요? 😥\n\n\`\`\`getTypeName([]) === 'array'\`\`\`?`}
             theme="dark"
             ref={viewerRef as RefObject<FullWidthViewer>}
           />
@@ -132,7 +138,7 @@ const DebugPage: React.FC = () => {
             theme="twilight"
             name="test"
             fontSize={16}
-            defaultValue={initialProblem}
+            value={code}
             editorProps={{ $blockScrolling: true }}
             setOptions={{
               tabSize: 2,

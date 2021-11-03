@@ -51,9 +51,6 @@ const App: React.FC = () => {
             <NavLink activeClassName="active-router" to="/">
               홈으로
             </NavLink>
-            <NavLink activeClassName="active-router" to="/debug">
-              문제 풀이
-            </NavLink>
             <NavLink activeClassName="active-router" to="/write">
               문제 제출
             </NavLink>
@@ -61,7 +58,7 @@ const App: React.FC = () => {
         </Header>
         <Switch>
           <Route path="/" exact component={ListPage} />
-          <Route path="/debug" exact component={DebugPage} />
+          <Route path="/debug/:id" component={DebugPage} />
           <Route path="/write" exact component={WritePage} />
           <Redirect path="*" to="/notfound" />
         </Switch>

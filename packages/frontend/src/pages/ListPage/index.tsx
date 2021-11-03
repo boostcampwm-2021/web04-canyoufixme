@@ -29,22 +29,37 @@ const Sign = styled.div`
   font-size: 1.5em;
 `;
 
+interface Item {
+  id: number;
+  title: string;
+  author: string;
+  category: string;
+  level: number;
+}
+
 const ListPage: React.FC = () => {
-  const [items] = useState(Array(100).fill(null));
+  const [items, setItems] = useState<Item[]>([]);
+
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_URL}/api/list`)
+      .then(res => res.json())
+      .then(json => setItems(json.items));
+  }, []);
 
   return (
     <Background>
       <ListWrapper>
-        {items.map(_ => (
+        {items.map((item: Item) => (
           <Link
             style={{
               textDecoration: 'none',
               color: 'black',
               fontWeight: 900,
             }}
-            to="/debug"
+            to={`/debug/${item.id}`}
+            key={item.id}
           >
-            <Sign>array? object?</Sign>
+            <Sign>{item.title}</Sign>
           </Link>
         ))}
       </ListWrapper>
