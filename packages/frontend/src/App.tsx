@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 import './App.css';
 
+import DebugPage from './pages/DebugPage';
+
 const App: React.FC = () => {
   return (
     <div className="App">
@@ -11,7 +13,7 @@ const App: React.FC = () => {
       <BrowserRouter>
         <Switch>
           <Route path="/" exact />
-          <Route path="/debug" exact />
+          <Route path="/debug" exact component={DebugPage} />
           <Redirect path="*" to="/notfound" />
         </Switch>
       </BrowserRouter>
