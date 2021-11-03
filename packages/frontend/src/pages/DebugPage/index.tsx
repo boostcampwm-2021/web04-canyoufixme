@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import type { MutableRefObject, RefObject } from 'react';
 
 import AceEditor from 'react-ace';
@@ -90,9 +90,12 @@ const DebugPage: React.FC = () => {
     [editorRef],
   );
 
-  const onLoad = useCallback(editor => {
-    onChange(editor.getValue());
-  }, []);
+  const onLoad = useCallback(
+    editor => {
+      onChange(editor.getValue());
+    },
+    [onChange],
+  );
 
   function getValue() {
     return editorRef.current;
