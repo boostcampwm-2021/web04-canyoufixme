@@ -3,6 +3,7 @@ import {
   BrowserRouter,
   Switch,
   Route,
+  Link,
   NavLink,
   Redirect,
 } from 'react-router-dom';
@@ -11,6 +12,7 @@ import './App.css';
 import styled from '@cyfm/styled';
 import logo from './assets/images/upscale.png';
 
+import ListPage from './pages/ListPage';
 import DebugPage from './pages/DebugPage';
 import WritePage from './pages/WritePage';
 
@@ -42,13 +44,12 @@ const App: React.FC = () => {
     <div className="App">
       <BrowserRouter>
         <Header>
-          <Logo src={logo} alt="canyoufixme logo" />
+          <Link to="/">
+            <Logo src={logo} alt="canyoufixme logo" />
+          </Link>
           <Nav>
             <NavLink activeClassName="active-router" to="/">
               홈으로
-            </NavLink>
-            <NavLink activeClassName="active-router" to="/debug">
-              문제 풀이
             </NavLink>
             <NavLink activeClassName="active-router" to="/write">
               문제 제출
@@ -56,8 +57,8 @@ const App: React.FC = () => {
           </Nav>
         </Header>
         <Switch>
-          <Route path="/" exact />
-          <Route path="/debug" exact component={DebugPage} />
+          <Route path="/" exact component={ListPage} />
+          <Route path="/debug/:id" component={DebugPage} />
           <Route path="/write" exact component={WritePage} />
           <Redirect path="*" to="/notfound" />
         </Switch>
