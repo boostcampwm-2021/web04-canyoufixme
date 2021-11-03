@@ -3,6 +3,7 @@ import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 import './App.css';
 
 import DebugPage from './pages/DebugPage';
+import WritePage from './pages/WritePage';
 
 const App: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ const App: React.FC = () => {
         <Switch>
           <Route path="/" exact />
           <Route path="/debug" exact component={DebugPage} />
+          <Route path="/write" exact component={WritePage} />
           <Redirect path="*" to="/notfound" />
         </Switch>
       </BrowserRouter>
