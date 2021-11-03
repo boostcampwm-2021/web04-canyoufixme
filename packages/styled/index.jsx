@@ -1,6 +1,6 @@
 import React from 'react';
 
-const tags = [
+export const tags = [
   'a',
   'abbr',
   'address',
@@ -109,6 +109,7 @@ const styled = tags.reduce((acc, tag) => {
                 ]),
             ),
           },
+          /* eslint-disable-next-line react/prop-types, react/destructuring-assignment */
           props.children,
         );
       };
