@@ -1,21 +1,19 @@
-const runner = (code, setter) => {
-  const setupCode = `
-    const expect = function (expected) {
-      return {
-        toBe(value) {
-          if (expected !== value)
-            throw new Error('expected !== value');
-        }
-      };
-    };
-  `;
-  const testCode = `
-    expect(getTypeName({})).toBe('object');
-    expect(getTypeName([])).toBe('array');
-  `;
+const runner = async ({ code, setter, testCode }) => {
+  const setup = () => {
+    return new Promise(resolve => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js';
+
+      script.onload = resolve;
+      document.head.appendChild(script);
+    });
+  };
   try {
+    // FIXME: iframe sandbox로 변경
+    await setup();
+    /* eslint-disable-next-line no-new-func */
     const codeRunner = new Function(`
-      ${setupCode}
+      const { expect } = chai;
       ${code}
       ${testCode}
     `);

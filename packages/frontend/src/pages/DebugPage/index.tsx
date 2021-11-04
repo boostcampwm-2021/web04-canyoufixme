@@ -3,7 +3,11 @@ import type { MutableRefObject, RefObject } from 'react';
 import { useRouteMatch } from 'react-router-dom';
 
 import AceEditor from 'react-ace';
+import { Ace } from 'ace-builds';
 import { Viewer } from '@toast-ui/react-editor';
+
+import babelParser from 'prettier/parser-babel';
+import prettier from 'prettier/standalone';
 
 import runner from './debug';
 import styled from '@cyfm/styled';
@@ -73,46 +77,57 @@ const ButtonFooter = styled.div`
 const DebugPage: React.FC = () => {
   const [, setContent] = useState('');
   const [code, setCode] = useState('');
+  const [testCode, setTestCode] = useState('');
 
   const viewerRef: MutableRefObject<Viewer | undefined> = useRef();
-  const editorRef: MutableRefObject<AceEditor | string | undefined> = useRef();
+  const editorRef: MutableRefObject<(AceEditor & Ace.Document) | undefined> =
+    useRef();
 
   const match = useRouteMatch<{ id: string }>('/debug/:id');
+  const id = match?.params.id;
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/debug/${match?.params.id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/debug/${id}`)
       .then(res => res.json())
-      .then(({ content, code }) => {
+      .then(({ content, code, testCode }) => {
         setContent(content);
-        setCode(code);
+        setCode(
+          prettier.format(code, {
+            singleQuote: true,
+            semi: true,
+            tabWidth: 2,
+            trailingComma: 'all',
+            arrowParens: 'avoid',
+            parser: 'babel',
+            plugins: [babelParser],
+          }),
+        );
+        setTestCode(testCode);
         viewerRef.current?.getInstance().setMarkdown(content);
       });
-  }, [match]);
+  }, [id]);
 
   const [output, setOutput] = useState('');
 
-  const onChange = useCallback(
-    (newValue: string) => {
-      editorRef.current = newValue;
+  const onChange = useCallback(setCode, [setCode]);
+
+  const onLoad = useCallback(
+    editor => {
+      editorRef.current = editor;
     },
     [editorRef],
   );
 
-  const onLoad = useCallback(
-    editor => {
-      onChange(editor.getValue());
-    },
-    [onChange],
-  );
-
-  function getValue() {
-    return editorRef.current;
-  }
-
-  const onExecute = useCallback(() => {
-    if (runner(getValue() as string, setOutput)) {
+  const onExecute = useCallback(async () => {
+    if (
+      await runner({
+        code: (editorRef.current as Ace.Document).getValue() as string,
+        setter: setOutput,
+        testCode,
+      })
+    ) {
       setOutput('축하합니다. 멋지게 해내셨네요! 🥳');
     }
-  }, [setOutput]);
+  }, [testCode, editorRef, setOutput]);
 
   return (
     <FlexWrapper>
