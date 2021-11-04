@@ -4,7 +4,7 @@ const app: express.Application = express();
 
 app.use(
   (
-    req: express.Request,
+    _: express.Request,
     res: express.Response,
     next: (reason?: Error) => void,
   ) => {
@@ -45,27 +45,13 @@ const items = [
   },
   {
     id: 5,
-    title: 'My new keyboard',
-    author: 'Xvezda',
-    category: 'JavaScript',
-    level: 1,
-  },
-  {
-    id: 6,
-    title: 'var loop',
-    author: 'Xvezda',
-    category: 'JavaScript',
-    level: 2,
-  },
-  {
-    id: 7,
     title: 'Not a number',
     author: 'Xvezda',
     category: 'JavaScript',
     level: 2,
   },
   {
-    id: 8,
+    id: 6,
     title: '나는 4가 싫어!',
     author: 'longnh214',
     category: 'JavaScript',
@@ -91,6 +77,10 @@ const datas = [
                 return 'array';
             }
           }`,
+    testCode: `
+      expect(getTypeName({})).to.equal('object');
+      expect(getTypeName([])).to.equal('array');
+    `,
   },
   // 2
   {
@@ -100,18 +90,27 @@ const datas = [
               const str = 'baNaNa는 적지 말자!';
               return str;
           }`,
+    testCode: `
+      expect(makeBanana()).toBe('baNaNa');
+    `,
   },
   // 3
   {
-    content: `실수로 numArr배열 마지막에 새로운 요소를 추가하였다. \n\n
+    content: `실수로 numArr배열 마지막에 새로운 요소를 추가하였다.\n\n
     기존 배열에 담긴 값을 출력하기 위해서 어떻게 해야할까?`,
     code: `
       function iterate(numArr){
+        let result = [];
         numArr.last = "endPoint"
         for(let i in numArr){
-          console.log(i)
+          result.push(i)
         }
+        return result;
       }`,
+    testCode: `
+      expect(iterate([1,2,3,4,5])).to.deep.equal([1,2,3,4,5]);
+      expect(iterate(['a','b','c','d'])).to.deep.equal(['a','b','c','d']);
+    `,
   },
   // 4
   {
@@ -147,44 +146,13 @@ const datas = [
     var getMyLaptop = function () {
       // 이 곳에 코드를 자유롭게 작성하시면 됩니다. :)
       return developer.laptop;
-    };
-    
-    getMyLaptop();      
+    };      
+    `,
+    testCode: `
+      expect(getMyLaptop()).to.oneOf(["Apple M1", "MS Surface"])
     `,
   },
   // 5
-  {
-    content: `새 키보드를 사서 메모장으로 코딩을 하고 있는데 switch case가 자꾸 이상한곳으로 가네요... 해결해 주실 수 있나요?`,
-    code: `
-      function impossible() {
-        throw 'what?';
-      }
-
-      const supercalifragilisticexpialidociou = 42;
-      switch (typeof supercalifragilistiexpialidociou) {
-        case 'number':
-          correct();
-          break;
-        case 'object':
-        case 'undefined':
-        case 'string':
-          impossible();
-          break;
-      }
-    `,
-  },
-  // 6
-  {
-    content: `### 오늘 setTimeout에 대해 배워서 1 부터 10까지 1초씩 기다리면서 출력하는 코드를 짰는데 이상하게 출력되네요. 왜 이럴까요?`,
-    code: `
-    for (var i = 1; i <= 10; ++i) {
-       setTimeout(function() {
-        console.log(i);
-      }, i * 1000);
-    }
-    `,
-  },
-  // 7
   {
     content: `### 코드를 작성했는데 생각한대로 동작하지 않아요... \n\n ### 고쳐주실 수 있을까요? 😥 \n\n
       숫자를 입력하면 \`number\`가, 숫자가 아닌걸 입력하면 \`NaN\`이 나와야해요!
@@ -198,16 +166,25 @@ const datas = [
         }
       }
     `,
+    testCode: `
+      expect(getTypeName(1)).to.equal('number');
+      expect(getTypeName(1/'number')).to.equal('NaN');
+    `,
   },
-  // 8
+  // 6
   {
-    content: `\`낙낙\`이는 세상에서 제일 싫어하는 숫자가 있다. \`4\`다. \n\n \`4\`라는 숫자를 전부 지우고 싶다. 주어진 배열에서 \`4\`가 포함된 숫자를 전부 지워줘!`,
+    content: `\`낙낙\`이는 세상에서 제일 싫어하는 숫자가 있다. \`4\`다. \n\n \`4\`가 포함되는 숫자를 전부 지우고 싶다. 주어진 배열에서 \`4\`가 포함된 숫자를 전부 지워줘!`,
     code: `
       const array = [123,4454,1234,435,3456,45,75245,66,2457,46,86,8,5,26,1345,2,48,2,62,4,65,248,2546,8,59,2,567];
-      function hateNumberFour(array){
+      function hateNumberFour(){
         let newArray = array;
+        // TODO: newArray에 array 중에서 4를 제외한 숫자들만 남도록 남기고 return 한다.
         return newArray;
       }
+    `,
+    testCode: `
+      //배열 같은 지 비교
+      expect(hateNumberFour()).to.deep.equal([123,66,86,8,5,26,2,2,62,65,8,59,2,567]);
     `,
   },
 ];
