@@ -6,6 +6,9 @@ import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds';
 import { Viewer } from '@toast-ui/react-editor';
 
+import babelParser from 'prettier/parser-babel';
+import prettier from 'prettier/standalone';
+
 import runner from './debug';
 import styled from '@cyfm/styled';
 
@@ -74,6 +77,7 @@ const ButtonFooter = styled.div`
 const DebugPage: React.FC = () => {
   const [, setContent] = useState('');
   const [code, setCode] = useState('');
+  const [testCode, setTestCode] = useState('');
 
   const viewerRef: MutableRefObject<Viewer | undefined> = useRef();
   const editorRef: MutableRefObject<(AceEditor & Ace.Document) | undefined> =
@@ -84,9 +88,20 @@ const DebugPage: React.FC = () => {
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/debug/${id}`)
       .then(res => res.json())
-      .then(({ content, code }) => {
+      .then(({ content, code, testCode }) => {
         setContent(content);
-        setCode(code);
+        setCode(
+          prettier.format(code, {
+            singleQuote: true,
+            semi: true,
+            tabWidth: 2,
+            trailingComma: 'all',
+            arrowParens: 'avoid',
+            parser: 'babel',
+            plugins: [babelParser],
+          }),
+        );
+        setTestCode(testCode);
         viewerRef.current?.getInstance().setMarkdown(content);
       });
   }, [id]);
@@ -102,16 +117,17 @@ const DebugPage: React.FC = () => {
     [editorRef],
   );
 
-  const onExecute = useCallback(() => {
+  const onExecute = useCallback(async () => {
     if (
-      runner(
-        (editorRef.current as Ace.Document).getValue() as string,
-        setOutput,
-      )
+      await runner({
+        code: (editorRef.current as Ace.Document).getValue() as string,
+        setter: setOutput,
+        testCode,
+      })
     ) {
       setOutput('축하합니다. 멋지게 해내셨네요! 🥳');
     }
-  }, [editorRef, setOutput]);
+  }, [testCode, editorRef, setOutput]);
 
   return (
     <FlexWrapper>
