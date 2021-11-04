@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  BrowserRouter,
-  Switch,
-  Route,
-  Link,
-  NavLink,
-  Redirect,
-} from 'react-router-dom';
+import { BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom';
 import './App.css';
 
 import styled from '@cyfm/styled';
@@ -15,6 +8,7 @@ import logo from './assets/images/upscale.png';
 import ListPage from './pages/ListPage';
 import DebugPage from './pages/DebugPage';
 import WritePage from './pages/WritePage';
+import NavLinkComponent from './components/NavLinkComponent';
 
 const Header = styled.header`
   color: white;
@@ -48,12 +42,8 @@ const App: React.FC = () => {
             <Logo src={logo} alt="canyoufixme logo" />
           </Link>
           <Nav>
-            <NavLink activeClassName="active-router" to="/">
-              홈으로
-            </NavLink>
-            <NavLink activeClassName="active-router" to="/write">
-              문제 제출
-            </NavLink>
+            <NavLinkComponent label="홈으로" to="/" />
+            <NavLinkComponent label="문제 출제" to="/write" />
           </Nav>
         </Header>
         <Switch>
