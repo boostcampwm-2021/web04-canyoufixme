@@ -6,7 +6,7 @@ interface NavLinkProps {
   to: string;
 }
 
-const NavLinkComponent = (props: NavLinkProps) => {
+const NavLinkComponent: React.FC<NavLinkProps> = (props: NavLinkProps) => {
   return (
     <NavLink
       style={{ fontWeight: 800, color: 'white', textDecoration: 'none' }}
