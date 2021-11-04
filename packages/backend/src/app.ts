@@ -91,7 +91,7 @@ const datas = [
               return str;
           }`,
     testCode: `
-      expect(makeBanana()).toBe('baNaNa');
+      expect(makeBanana()).to.equal('baNaNa');
     `,
   },
   // 3
