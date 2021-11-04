@@ -8,7 +8,9 @@
     "prepare": "husky install",
     "bootstrap": "lerna bootstrap",
     "postinstall": "yarn bootstrap",
-    "start": "ts-node src/app.ts"
+    "build:frontend": "yarn workspace @cyfm/frontend build",
+    "start:frontend": "yarn workspace @cyfm/frontend start",
+    "start:backend": "yarn workspace @cyfm/backend start"
   },
   "dependencies": {
     "express": "^4.17.1",

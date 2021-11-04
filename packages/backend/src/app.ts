@@ -8,7 +8,7 @@ app.use(
     res: express.Response,
     next: (reason?: Error) => void,
   ) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Origin', process.env.ORIGIN_URL);
     next();
   },
 );
