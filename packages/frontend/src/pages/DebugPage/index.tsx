@@ -3,6 +3,7 @@ import type { MutableRefObject, RefObject } from 'react';
 import { useRouteMatch } from 'react-router-dom';
 
 import AceEditor from 'react-ace';
+import { Ace } from 'ace-builds';
 import { Viewer } from '@toast-ui/react-editor';
 
 import runner from './debug';
@@ -75,44 +76,42 @@ const DebugPage: React.FC = () => {
   const [code, setCode] = useState('');
 
   const viewerRef: MutableRefObject<Viewer | undefined> = useRef();
-  const editorRef: MutableRefObject<AceEditor | string | undefined> = useRef();
+  const editorRef: MutableRefObject<(AceEditor & Ace.Document) | undefined> =
+    useRef();
 
   const match = useRouteMatch<{ id: string }>('/debug/:id');
+  const id = match?.params.id;
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/debug/${match?.params.id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/debug/${id}`)
       .then(res => res.json())
       .then(({ content, code }) => {
         setContent(content);
         setCode(code);
         viewerRef.current?.getInstance().setMarkdown(content);
       });
-  }, [match]);
+  }, [id]);
 
   const [output, setOutput] = useState('');
 
-  const onChange = useCallback(
-    (newValue: string) => {
-      editorRef.current = newValue;
+  const onChange = useCallback(setCode, [setCode]);
+
+  const onLoad = useCallback(
+    editor => {
+      editorRef.current = editor;
     },
     [editorRef],
   );
 
-  const onLoad = useCallback(
-    editor => {
-      onChange(editor.getValue());
-    },
-    [onChange],
-  );
-
-  function getValue() {
-    return editorRef.current;
-  }
-
   const onExecute = useCallback(() => {
-    if (runner(getValue() as string, setOutput)) {
+    if (
+      runner(
+        (editorRef.current as Ace.Document).getValue() as string,
+        setOutput,
+      )
+    ) {
       setOutput('축하합니다. 멋지게 해내셨네요! 🥳');
     }
-  }, [setOutput]);
+  }, [editorRef, setOutput]);
 
   return (
     <FlexWrapper>
