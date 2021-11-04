@@ -3,6 +3,8 @@ import { Editor } from '@toast-ui/react-editor';
 import AceEditor from 'react-ace';
 import type { MutableRefObject, RefObject } from 'react';
 
+import 'ace-builds/src-noconflict/theme-twilight';
+
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
 
@@ -28,7 +30,7 @@ const WritePage = () => {
       />
       <AceEditor
         mode="javascript"
-        theme="xcode"
+        theme="twilight"
         name="test"
         editorProps={{ $blockScrolling: true }}
       />
