@@ -1,18 +1,13 @@
-import { tags } from './index';
-
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-type Props = { [key: string]: any };
-type StyledComponent = (
+type Props = { [key: string]: string | number | React.ReactNode };
+type StyledComponentArg<T> = number | string | ((props: T) => string);
+type StyledComponent = <T>(
   strings: TemplateStringsArray,
-  ...args
+  ...args: StyledComponentArg<T>[]
 ) => React.FC<Props>;
 
-namespace styled {
-  export const button: StyledComponent;
-  export const div: StyledComponent;
-  export const header: StyledComponent;
-  export const img: StyledComponent;
-  export const nav: StyledComponent;
+interface IStyled {
+  [name: string]: StyledComponent;
 }
+declare const styled: IStyled;
 
-export default styled;
+export = styled;
