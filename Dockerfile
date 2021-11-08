@@ -8,7 +8,6 @@ COPY packages/ packages/
 
 RUN yarn --frozen-lockfile
 RUN yarn bootstrap
-RUN yarn build:frontend
 
 RUN apt-get update
 RUN apt-get -yq install nginx
@@ -16,6 +15,7 @@ RUN apt-get -yq install nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
 COPY . .
+RUN yarn build:frontend
 
 EXPOSE 80
 EXPOSE 3000
