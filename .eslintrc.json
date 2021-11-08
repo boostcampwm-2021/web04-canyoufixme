@@ -1,14 +1,20 @@
 {
-  "parser": "@typescript-eslint/parser",
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx"],
+      "rules": {
+        "no-use-before-define": "off",
+        "@typescript-eslint/no-use-before-define": ["error"]
+      },
+      "parser": "@typescript-eslint/parser",
+      "extends": ["plugin:@typescript-eslint/recommended"]
+    }
+  ],
   "env": {
     "browser": true,
     "commonjs": true,
     "es6": true,
     "node": true
   },
-  "extends": [
-    "airbnb",
-    "plugin:prettier/recommended",
-    "plugin:@typescript-eslint/recommended"
-  ]
+  "extends": ["airbnb", "plugin:prettier/recommended"]
 }

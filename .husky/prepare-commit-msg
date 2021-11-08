@@ -19,8 +19,7 @@ if [ "$COMMIT_SOURCE" = "commit" ]; then
         NR==${TITLE_LINENO} { printf \"$(git show -s --format=%s $SHA1)\" }
         NR==${BODY_LINENO} { printf \"$(git show -s --format=%b $SHA1)\" }
         { print }" "$TEMPLATE_FILE" > "$COMMIT_MSG_FILE"
-
-elif [ -z "$COMMIT_SOURCE" ]; then
+elif [ "$COMMIT_SOURCE" = "template" ] || [ -z "$COMMIT_SOURCE" ]; then
     # 원본 메시지 파일 백업
     mv "$COMMIT_MSG_FILE" "$COMMIT_MSG_FILE.bak"
     # 덮어쓰기
