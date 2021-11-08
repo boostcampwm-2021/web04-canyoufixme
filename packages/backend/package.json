@@ -2,8 +2,8 @@
   "name": "@cyfm/backend",
   "version": "0.0.0",
   "scripts": {
-    "start": "ts-node -r dotenv/config src/app.ts dotenv_config_path=.env.production",
-    "dev": "ts-node -r dotenv/config src/app.ts dotenv_config_path=.env.development"
+    "start": "ts-node -r dotenv/config src/app.ts dotenv_config_path=.env.development",
+    "build": "exit 1"
   },
   "dependencies": {
     "dotenv": "^10.0.0",
