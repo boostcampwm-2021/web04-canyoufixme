@@ -20,8 +20,9 @@ import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
 class FullWidthViewer extends Viewer {
   componentDidMount(this: { rootEl: RefObject<HTMLElement> }) {
     Viewer.prototype.componentDidMount?.call(this);
-    this.rootEl.current?.style.setProperty('width', '100%');
-    this.rootEl.current?.style.setProperty('background-color', '#2F333C');
+    const rootElement = this.rootEl.current;
+    rootElement?.style.setProperty('width', '100%');
+    rootElement?.style.setProperty('background-color', '#2F333C');
   }
 }
 
@@ -29,13 +30,6 @@ const FlexWrapper = styled.div`
   display: flex;
   min-width: 100vw;
   min-height: 100vh;
-`;
-
-const FlexColumnWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex-basis: 100%;
-  width: 50%;
 `;
 
 const ViewerWrapper = styled.div`
@@ -74,10 +68,41 @@ const ButtonFooter = styled.div`
   background: #1c1d20;
 `;
 
+const minWidth = 250;
+const LeftFlexColumnWrapper = styled.div<{ width: string }>`
+  display: flex;
+  flex-direction: column;
+  flex-basis: ${props => props.width}px;
+  min-width: ${minWidth}px;
+`;
+
+const RightFlexColumnWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: ${minWidth}px;
+`;
+
+const controllerWidth = 5;
+const FlexColumnController = styled.div`
+  display: inline-block;
+  width: ${controllerWidth}px;
+  background-color: #999;
+  border-color: #444;
+  border-style: solid;
+  border-top: 2px;
+  border-bottom: 2px;
+  cursor: col-resize;
+`;
+
 const DebugPage: React.FC = () => {
   const [, setContent] = useState('');
   const [code, setCode] = useState('');
   const [testCode, setTestCode] = useState('');
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [leftFlexColumnWidth, setLeftFlexColumnWidth] = useState(
+    `${(window.innerWidth - controllerWidth) / 2}`,
+  );
 
   const viewerRef: MutableRefObject<Viewer | undefined> = useRef();
   const editorRef: MutableRefObject<(AceEditor & Ace.Document) | undefined> =
@@ -129,9 +154,29 @@ const DebugPage: React.FC = () => {
     }
   }, [testCode, editorRef, setOutput]);
 
+  const onControllerMouseDown = useCallback((event: MouseEvent): void => {
+    setIsMouseDown(true);
+  }, []);
+
+  const onControllerMouseMove = useCallback(
+    (event: MouseEvent): void => {
+      if (isMouseDown) {
+        setLeftFlexColumnWidth(`${event.pageX - controllerWidth / 2}`);
+      }
+    },
+    [isMouseDown],
+  );
+
+  const onControllerMouseUp = useCallback((event: MouseEvent): void => {
+    setIsMouseDown(false);
+  }, []);
+
   return (
-    <FlexWrapper>
-      <FlexColumnWrapper>
+    <FlexWrapper
+      onMouseMove={onControllerMouseMove}
+      onMouseUp={onControllerMouseUp}
+    >
+      <LeftFlexColumnWrapper width={leftFlexColumnWidth}>
         <ViewerWrapper>
           <FullWidthViewer
             theme="dark"
@@ -141,8 +186,9 @@ const DebugPage: React.FC = () => {
         <ConsoleWrapper>
           <div>{output}</div>
         </ConsoleWrapper>
-      </FlexColumnWrapper>
-      <FlexColumnWrapper>
+      </LeftFlexColumnWrapper>
+      <FlexColumnController onMouseDown={onControllerMouseDown} />
+      <RightFlexColumnWrapper>
         <EditorWrapper>
           <AceEditor
             onLoad={onLoad}
@@ -165,7 +211,7 @@ const DebugPage: React.FC = () => {
         <ButtonFooter>
           <Button onClick={onExecute}>실행</Button>
         </ButtonFooter>
-      </FlexColumnWrapper>
+      </RightFlexColumnWrapper>
     </FlexWrapper>
   );
 };
