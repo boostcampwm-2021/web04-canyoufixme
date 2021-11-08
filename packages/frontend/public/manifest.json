@@ -1,7 +1,12 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Canyoufixme",
+  "name": "Can you fix me?",
   "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "200x200",
+      "type": "image/png"
+    },
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
