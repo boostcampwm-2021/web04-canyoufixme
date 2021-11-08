@@ -192,7 +192,7 @@ app.get('/api/debug/:id', (req: express.Request, res: express.Response) => {
   res.json(datas[parseInt(req.params.id, 10) - 1]);
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 app.listen(port, () => {
   /* eslint-disable-next-line no-console */
   console.log(`Running Server port ${port}`);
