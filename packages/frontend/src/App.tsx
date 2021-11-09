@@ -6,6 +6,7 @@ import styled from '@cyfm/styled';
 import logo from './assets/images/upscale.png';
 
 import ListPage from './pages/ListPage';
+import LoginPage from './pages/LoginPage';
 import DebugPage from './pages/DebugPage';
 import WritePage from './pages/WritePage';
 import TopNavLink from './components/TopNavLink';
@@ -48,6 +49,7 @@ const App: React.FC = () => {
         </Header>
         <Switch>
           <Route path="/" exact component={ListPage} />
+          <Route path="/login" exact component={LoginPage} />
           <Route path="/debug/:id" component={DebugPage} />
           <Route path="/write" exact component={WritePage} />
           <Redirect path="*" to="/notfound" />
