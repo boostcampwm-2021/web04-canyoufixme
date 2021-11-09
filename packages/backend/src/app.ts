@@ -1,4 +1,11 @@
-import * as express from 'express';
+import express from 'express';
+import 'reflect-metadata';
+import { createConnection } from 'typeorm';
+
+import { User } from './model/User';
+import mysqlConnectionOptions from '../settings/ormConfig';
+
+import '../settings/mongoConfig';
 
 const app: express.Application = express();
 
@@ -192,8 +199,14 @@ app.get('/api/debug/:id', (req: express.Request, res: express.Response) => {
   res.json(datas[parseInt(req.params.id, 10) - 1]);
 });
 
-const port = process.env.PORT || 3001;
-app.listen(port, () => {
-  /* eslint-disable-next-line no-console */
-  console.log(`Running Server port ${port}`);
+app.get('/api/user', (req: express.Request, res: express.Response) => {
+  return res.json(User.find());
+});
+
+createConnection(mysqlConnectionOptions).then(() => {
+  const port = process.env.PORT || 3001;
+  app.listen(port, () => {
+    /* eslint-disable-next-line no-console */
+    console.log(`Running Server port ${port}`);
+  });
 });
