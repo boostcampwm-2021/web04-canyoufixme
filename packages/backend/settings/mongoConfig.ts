@@ -1,4 +1,7 @@
-import { connect } from 'mongoose';
+import { connect, model } from 'mongoose';
+
+import { ProblemCode } from '../src/model/ProblemCode';
+import { SubmitCode } from '../src/model/SubmitCode';
 
 async function mongoConnection(): Promise<void> {
   await connect(
@@ -9,3 +12,11 @@ async function mongoConnection(): Promise<void> {
 mongoConnection().catch(err => {
   throw new Error(err);
 });
+
+const ProblemCodeModel = model('problemCode', ProblemCode);
+const SubmitCodeModel = model('submitCode', SubmitCode);
+
+ProblemCodeModel.createCollection();
+SubmitCodeModel.createCollection();
+
+export { ProblemCodeModel, SubmitCodeModel };
