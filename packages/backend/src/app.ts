@@ -3,7 +3,9 @@ import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 
 import { User } from './model/User';
-import mysqlConnectionOptions from '../settings/ormconfig';
+import mysqlConnectionOptions from '../settings/ormConfig';
+
+import '../settings/mongoConfig';
 
 const app: express.Application = express();
 
