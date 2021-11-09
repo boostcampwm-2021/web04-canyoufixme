@@ -1,4 +1,8 @@
 {
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
   "extends": "../../tsconfig.json",
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "settings/ormconfig.ts"]
 }
