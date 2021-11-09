@@ -2,7 +2,7 @@
 import {
   BaseEntity,
   Column,
-  OneToOne,
+  ManyToOne,
   JoinColumn,
   Entity,
   PrimaryGeneratedColumn,
@@ -27,7 +27,7 @@ export class Problem extends BaseEntity {
   @Column({ length: 30 })
   codeId: string;
 
-  @OneToOne(type => User)
+  @ManyToOne(type => User)
   @JoinColumn()
   author: User;
 }
