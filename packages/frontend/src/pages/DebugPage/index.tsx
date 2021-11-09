@@ -97,6 +97,7 @@ const FlexColumnController = styled.div`
 
 const DebugPage: React.FC = () => {
   const [, setContent] = useState('');
+  const [initCode, setInitCode] = useState('');
   const [code, setCode] = useState('');
   const [testCode, setTestCode] = useState('');
   const [isMouseDown, setIsMouseDown] = useState(false);
@@ -105,7 +106,7 @@ const DebugPage: React.FC = () => {
   );
 
   const viewerRef: MutableRefObject<Viewer | undefined> = useRef();
-  const editorRef: MutableRefObject<(AceEditor & Ace.Document) | undefined> =
+  const editorRef: MutableRefObject<(AceEditor & Ace.Editor) | undefined> =
     useRef();
 
   const match = useRouteMatch<{ id: string }>('/debug/:id');
@@ -114,18 +115,18 @@ const DebugPage: React.FC = () => {
     fetch(`${process.env.REACT_APP_API_URL}/api/debug/${id}`)
       .then(res => res.json())
       .then(({ content, code, testCode }) => {
+        const prettierCode = prettier.format(code, {
+          singleQuote: true,
+          semi: true,
+          tabWidth: 2,
+          trailingComma: 'all',
+          arrowParens: 'avoid',
+          parser: 'babel',
+          plugins: [babelParser],
+        });
         setContent(content);
-        setCode(
-          prettier.format(code, {
-            singleQuote: true,
-            semi: true,
-            tabWidth: 2,
-            trailingComma: 'all',
-            arrowParens: 'avoid',
-            parser: 'babel',
-            plugins: [babelParser],
-          }),
-        );
+        setInitCode(prettierCode);
+        setCode(prettierCode);
         setTestCode(testCode);
         viewerRef.current?.getInstance().setMarkdown(content);
       });
@@ -143,14 +144,19 @@ const DebugPage: React.FC = () => {
   );
 
   const onExecute = useCallback(async () => {
-    if (
-      await runner({
-        code: (editorRef.current as Ace.Document).getValue() as string,
-        setter: setOutput,
-        testCode,
-      })
-    ) {
-      setOutput('축하합니다. 멋지게 해내셨네요! 🥳');
+    const result = await runner({
+      code: (editorRef.current as Ace.Editor).getValue() as string,
+      testCode,
+    });
+    switch (result.type) {
+      case 'init':
+        return;
+      case 'success':
+        setOutput('축하합니다. 멋지게 해내셨네요! 🥳');
+        break;
+      case 'error':
+        setOutput((result.payload as { message: string }).message);
+        break;
     }
   }, [testCode, editorRef, setOutput]);
 
@@ -170,6 +176,13 @@ const DebugPage: React.FC = () => {
   const onControllerMouseUp = useCallback((event: MouseEvent): void => {
     setIsMouseDown(false);
   }, []);
+
+  const initializeCode = useCallback(() => {
+    const editor = editorRef.current as Ace.Editor;
+    editor.setValue(initCode);
+    editor.focus();
+    editor.clearSelection();
+  }, [initCode]);
 
   return (
     <FlexWrapper
@@ -209,6 +222,7 @@ const DebugPage: React.FC = () => {
           />
         </EditorWrapper>
         <ButtonFooter>
+          <Button onClick={initializeCode}>초기화</Button>
           <Button onClick={onExecute}>실행</Button>
         </ButtonFooter>
       </RightFlexColumnWrapper>
