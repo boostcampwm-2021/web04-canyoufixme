@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true
   },
   "extends": "../../tsconfig.json",
   "include": ["src/**/*", "settings/ormConfig.ts"]
