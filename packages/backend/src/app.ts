@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express from 'express';
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 
