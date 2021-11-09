@@ -4,5 +4,5 @@
     "emitDecoratorMetadata": true
   },
   "extends": "../../tsconfig.json",
-  "include": ["src/**/*", "settings/ormconfig.ts"]
+  "include": ["src/**/*", "settings/ormConfig.ts"]
 }
