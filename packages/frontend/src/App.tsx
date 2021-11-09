@@ -6,9 +6,10 @@ import styled from '@cyfm/styled';
 import logo from './assets/images/upscale.png';
 
 import ListPage from './pages/ListPage';
+import LoginPage from './pages/LoginPage';
 import DebugPage from './pages/DebugPage';
 import WritePage from './pages/WritePage';
-import NavLinkComponent from './components/NavLinkComponent';
+import TopNavLink from './components/TopNavLink';
 
 const Header = styled.header`
   color: white;
@@ -42,12 +43,13 @@ const App: React.FC = () => {
             <Logo src={logo} alt="canyoufixme logo" />
           </Link>
           <Nav>
-            <NavLinkComponent label="홈으로" to="/" />
-            <NavLinkComponent label="문제 출제" to="/write" />
+            <TopNavLink to="/">홈으로</TopNavLink>
+            <TopNavLink to="/write">문제 출제</TopNavLink>
           </Nav>
         </Header>
         <Switch>
           <Route path="/" exact component={ListPage} />
+          <Route path="/login" exact component={LoginPage} />
           <Route path="/debug/:id" component={DebugPage} />
           <Route path="/write" exact component={WritePage} />
           <Redirect path="*" to="/notfound" />

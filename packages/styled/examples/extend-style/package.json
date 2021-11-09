@@ -1,0 +1,17 @@
+{
+  "name": "examples-styled-extend",
+  "version": "0.0.0",
+  "main": "index.js",
+  "source": "index.html",
+  "scripts": {
+    "start": "parcel"
+  },
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@cyfm/styled": "^0.0.0",
+    "parcel": "^2.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}
