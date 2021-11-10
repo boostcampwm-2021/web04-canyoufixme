@@ -8,6 +8,7 @@ import mysqlConnectionOptions from '../settings/ormConfig';
 import '../settings/mongoConfig';
 
 import { router as problemController } from './controller/problemController';
+import { router as problemsController } from './controller/problemsController';
 import { router as problemCodeController } from './controller/problemCodeController';
 
 const app: express.Application = express();
@@ -23,6 +24,7 @@ app.use(
   },
 );
 
+app.use('/api/problems', problemsController);
 app.use('/api/problem', problemController);
 app.use('/api/debug', problemCodeController);
 
