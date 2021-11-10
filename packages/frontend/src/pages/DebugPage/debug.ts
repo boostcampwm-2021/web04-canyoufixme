@@ -83,12 +83,12 @@ const runner = async ({
   testCode,
 }: {
   code: string;
-  testCode: string;
+  testCode: string[];
 }) => {
   return execCodeWithSandbox(`
     const { expect } = chai;
     ${code}
-    ${testCode}
+    ${testCode.join('\n')}
   `);
 };
 

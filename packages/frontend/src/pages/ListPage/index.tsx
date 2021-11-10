@@ -29,11 +29,19 @@ const Sign = styled.div`
   font-size: 1.5em;
 `;
 
+interface User {
+  id: number;
+  name: string;
+  oauthType: string;
+  token: string;
+}
+
 interface Item {
   id: number;
   title: string;
-  author: string;
+  author: User;
   category: string;
+  codeId: string;
   level: number;
 }
 
@@ -41,9 +49,9 @@ const ListPage: React.FC = () => {
   const [items, setItems] = useState<Item[]>([]);
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/list`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/problems`)
       .then(res => res.json())
-      .then(json => setItems(json.items));
+      .then(json => setItems(json));
   }, []);
 
   return (
@@ -56,8 +64,8 @@ const ListPage: React.FC = () => {
               color: 'black',
               fontWeight: 900,
             }}
-            to={`/debug/${item.id}`}
-            key={item.id}
+            to={`/debug/${item.codeId}`}
+            key={item.codeId}
           >
             <Sign>{item.title}</Sign>
           </Link>
