@@ -99,7 +99,7 @@ const DebugPage: React.FC = () => {
   const [, setContent] = useState('');
   const [initCode, setInitCode] = useState('');
   const [code, setCode] = useState('');
-  const [testCode, setTestCode] = useState('');
+  const [testCode, setTestCode] = useState([]);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [leftFlexColumnWidth, setLeftFlexColumnWidth] = useState(
     `${(window.innerWidth - controllerWidth) / 2}`,
