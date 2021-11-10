@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from '@cyfm/styled';
 
 import GitHubLoginButton from '../../components/GitHubLoginButton';
@@ -11,9 +11,13 @@ const LoginPageWrapper = styled.div`
 `;
 
 const LoginPage = () => {
+  const login = useCallback(() => {
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${process.env.REACT_APP_CLIENT_ID}&scope=read:user,user:email`;
+  }, []);
+
   return (
     <LoginPageWrapper>
-      <GitHubLoginButton />
+      <GitHubLoginButton onClick={login} />
     </LoginPageWrapper>
   );
 };

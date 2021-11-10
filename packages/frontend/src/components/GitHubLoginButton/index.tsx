@@ -5,6 +5,7 @@ import { ReactComponent as GitHub } from './github.svg';
 import { ReactComponent as Octocat } from './octocat.svg';
 
 interface ButtonProps {
+  onClick?: Function;
   children?: string;
 }
 
@@ -33,10 +34,10 @@ const StyledGitHubButton = styled(LoginButton)`
   color: white;
 `;
 
-const GitHubButton = ({ children }: ButtonProps) => {
+const GitHubButton = (props: ButtonProps) => {
   return (
-    <StyledGitHubButton>
-      {children ?? (
+    <StyledGitHubButton {...props}>
+      {props.children ?? (
         <>
           {'Sign in with'}
           <StyledOctocat />
