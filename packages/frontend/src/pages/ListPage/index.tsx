@@ -50,7 +50,7 @@ const ListPage: React.FC = () => {
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/problems`)
-      .then(async res => await res.json())
+      .then(res => res.json())
       .then(json => setItems(json));
   }, []);
 
