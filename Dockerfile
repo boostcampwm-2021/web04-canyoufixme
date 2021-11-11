@@ -1,23 +1,33 @@
-FROM node:14.17.3
+FROM node:14.17.3 as node-base
+FROM node-base as frontend-builder
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY ["package.json", "yarn.lock", "."]
-COPY lerna.json .
 COPY packages/ packages/
+COPY ["package.json", "yarn.lock", "lerna.json", "."]
+RUN yarn --frozen-lockfile --ignore-scripts
 
-RUN yarn --frozen-lockfile
-RUN yarn bootstrap
+COPY tsconfig.json .
+RUN yarn bootstrap --ignore-scripts && \
+    yarn build:frontend
 
-RUN apt-get update
-RUN apt-get -yq install nginx
+FROM node-base as nginx-server
+
+RUN apt-get update && \
+    apt-get -yq install nginx
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-COPY . .
-RUN yarn build:frontend
+FROM nginx-server as backend-builder
+
+COPY --from=frontend-builder /app /app
+
+WORKDIR /app
+RUN mv packages/frontend/build/* /var/www/html/
+COPY package.json .
 
 EXPOSE 80
 EXPOSE 3000
 
+ENV NODE_ENV=production
 CMD ["sh", "-c", "nginx -g 'daemon on;' && yarn start:backend"]
