@@ -29,6 +29,7 @@ app.use(
   ) => {
     res.setHeader('Access-Control-Allow-Origin', process.env.ORIGIN_URL);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type');
     next();
   },
 );
