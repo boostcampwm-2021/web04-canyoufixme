@@ -32,3 +32,16 @@ const saveProblem = async ({ title, category, level, author, codeId }) => {
 
   await problem.save();
 };
+
+const writeProblem = async (req: express.Request, res: express.Response) => {
+  const author = await User.findOne({ name: req.session['name'] });
+  const { code, content, testCode, title, category, level } = req.body;
+  const codeData = await saveCode(code, content, testCode);
+  const codeId = getCodeId(codeData);
+
+  await saveProblem({ title, category, level, author, codeId });
+
+  res.json({ message: 'write success' });
+};
+
+export { getList, writeProblem };
