@@ -53,8 +53,7 @@ export const isLogin = (req: Request, res: Response, next) => {
   if (req.cookies['cyfm/SSS']) {
     next();
   } else {
-    res.status(401);
-    res.json({
+    res.status(401).json({
       status: 'Unauthorized',
       message: '로그인 필요.',
     });

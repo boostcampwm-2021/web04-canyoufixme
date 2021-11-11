@@ -19,6 +19,8 @@ const app: express.Application = express();
 
 app.use(cookieParser());
 
+app.use(express.json());
+
 app.use(
   (
     _: express.Request,
@@ -27,6 +29,7 @@ app.use(
   ) => {
     res.setHeader('Access-Control-Allow-Origin', process.env.ORIGIN_URL);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type');
     next();
   },
 );
