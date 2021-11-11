@@ -29,7 +29,7 @@ function processTemplate(strings, args, props) {
 const createStyledComponent =
   tag =>
   (strings, ...args) => {
-    return props => {
+    return React.forwardRef((props, ref) => {
       const css = processTemplate(strings, args, props);
       return React.createElement(tag, {
         ...props,
@@ -38,8 +38,9 @@ const createStyledComponent =
           /* eslint-disable-next-line react/prop-types, react/destructuring-assignment */
           ...props.style,
         },
+        ref,
       });
-    };
+    });
   };
 
 const extend = Base => createStyledComponent(Base);
