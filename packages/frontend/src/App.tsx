@@ -1,22 +1,17 @@
-import React, { useState, useCallback } from 'react';
-import {
-  BrowserRouter,
-  Switch,
-  Route,
-  Link,
-  Redirect,
-  useHistory,
-} from 'react-router-dom';
+import React, { useCallback } from 'react';
+import { BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom';
+import { useLogin } from 'hooks/useLogin';
 import './App.css';
 
 import styled from '@cyfm/styled';
-import logo from './assets/images/upscale.png';
+import logo from 'assets/images/upscale.png';
 
-import ListPage from './pages/ListPage';
-import LoginPage from './pages/LoginPage';
-import DebugPage from './pages/DebugPage';
-import WritePage from './pages/WritePage';
-import TopNavLink from './components/TopNavLink';
+import ListPage from 'pages/ListPage';
+import LoginPage from 'pages/LoginPage';
+import DebugPage from 'pages/DebugPage';
+import WritePage from 'pages/WritePage';
+import EditorPage from 'pages/EditorPage';
+import TopNavLink from 'components/TopNavLink';
 
 const Header = styled.header`
   color: white;
@@ -41,13 +36,8 @@ const Logo = styled.img`
   width: auto;
 `;
 
-const checkLogin = () => {
-  return document.cookie.includes('isLogin');
-};
-
 const App: React.FC = () => {
-  const history = useHistory();
-  const [isLogin, setLogin] = useState(checkLogin());
+  const [isLogin, setLogin] = useLogin();
 
   const logout = useCallback(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/logout`, {
@@ -58,10 +48,11 @@ const App: React.FC = () => {
       .then(res => {
         if (res.message !== 'success') {
           alert('로그인 상태를 확인해주세요');
+          return;
         }
-      })
-      .finally(() => setLogin(checkLogin()));
-  }, []);
+        setLogin(false);
+      });
+  }, [setLogin]);
 
   return (
     <div className="App">
@@ -87,6 +78,7 @@ const App: React.FC = () => {
           <Route path="/login" exact component={LoginPage} />
           <Route path="/debug/:id" component={DebugPage} />
           <Route path="/write" exact component={WritePage} />
+          <Route path="/editor" exact component={EditorPage} />
           <Redirect path="*" to="/notfound" />
         </Switch>
       </BrowserRouter>
