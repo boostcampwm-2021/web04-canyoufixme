@@ -1,5 +1,12 @@
-import React from 'react';
-import { BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom';
+import React, { useState, useCallback } from 'react';
+import {
+  BrowserRouter,
+  Switch,
+  Route,
+  Link,
+  Redirect,
+  useHistory,
+} from 'react-router-dom';
 import './App.css';
 
 import styled from '@cyfm/styled';
@@ -34,7 +41,28 @@ const Logo = styled.img`
   width: auto;
 `;
 
+const checkLogin = () => {
+  return document.cookie.includes('isLogin');
+};
+
 const App: React.FC = () => {
+  const history = useHistory();
+  const [isLogin, setLogin] = useState(checkLogin());
+
+  const logout = useCallback(() => {
+    fetch(`${process.env.REACT_APP_API_URL}/api/logout`, {
+      credentials: 'include',
+      method: 'POST',
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (res.message !== 'success') {
+          alert('로그인 상태를 확인해주세요');
+        }
+      })
+      .finally(() => setLogin(checkLogin()));
+  }, []);
+
   return (
     <div className="App">
       <BrowserRouter>
@@ -45,6 +73,13 @@ const App: React.FC = () => {
           <Nav>
             <TopNavLink to="/">홈으로</TopNavLink>
             <TopNavLink to="/write">문제 출제</TopNavLink>
+            {isLogin ? (
+              <TopNavLink to="/" onClick={logout}>
+                로그아웃
+              </TopNavLink>
+            ) : (
+              <TopNavLink to="/login">로그인</TopNavLink>
+            )}
           </Nav>
         </Header>
         <Switch>
