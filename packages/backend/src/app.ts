@@ -19,6 +19,8 @@ const app: express.Application = express();
 
 app.use(cookieParser());
 
+app.use(express.json());
+
 app.use(
   (
     _: express.Request,
