@@ -6,6 +6,6 @@ import { isLogin } from '../service/loginService';
 
 const router = express.Router();
 
-router.post('/', writeProblem);
+router.post('/', isLogin, writeProblem);
 
 export { router };
