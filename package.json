@@ -7,7 +7,6 @@
   "scripts": {
     "prepare": "husky install",
     "bootstrap": "lerna bootstrap",
-    "postinstall": "yarn bootstrap",
     "build:frontend": "yarn workspace @cyfm/frontend build",
     "start:frontend": "yarn workspace @cyfm/frontend start",
     "start:backend": "yarn workspace @cyfm/backend start"
