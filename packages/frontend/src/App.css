@@ -7,6 +7,10 @@ body {
   background-color: #282c2f;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 div,
 button {
   font-family: inherit;
