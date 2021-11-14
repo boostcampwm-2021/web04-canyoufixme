@@ -27,7 +27,7 @@ RUN mv packages/frontend/build/* /var/www/html/
 COPY package.json .
 
 EXPOSE 80
-EXPOSE 3000
+EXPOSE 3001
 
 ENV NODE_ENV=production
 CMD ["sh", "-c", "nginx -g 'daemon on;' && yarn start:backend"]
