@@ -7,6 +7,11 @@ COPY packages/ packages/
 COPY ["package.json", "yarn.lock", "lerna.json", "."]
 RUN yarn --frozen-lockfile --ignore-scripts
 
+ARG API_URL
+ARG CLIENT_ID
+ENV REACT_APP_API_URL=$API_URL
+ENV REACT_APP_CLIENT_ID=$CLIENT_ID
+
 COPY tsconfig.json .
 RUN yarn bootstrap --ignore-scripts && \
     yarn build:frontend
@@ -27,7 +32,7 @@ RUN mv packages/frontend/build/* /var/www/html/
 COPY package.json .
 
 EXPOSE 80
-EXPOSE 3000
+EXPOSE 3001
 
 ENV NODE_ENV=production
 CMD ["sh", "-c", "nginx -g 'daemon on;' && yarn start:backend"]
