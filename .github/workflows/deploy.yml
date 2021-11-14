@@ -1,0 +1,30 @@
+name: canyoufixme-auto-deploy
+on: [push]
+  branches: [dev]
+
+jobs:
+  check-bats-version:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+                echo "${{ secrets.BE_DOT_ENV }}" > /web04-canyoufixme/packages/backend/.env.production
+                API_URL=${{ secrets.API_URL }} CLIENT_ID=${{ secrets.CLIENT_ID }} ./deploy.sh
+                
+                cd web04-canyoufixme
+                git pull origin dev
+                docker build \
+                    --build-arg API_URL=$API_URL \
+                    --build-arg CLIENT_ID=$CLIENT_ID \
+                    -t canyoufixme .
+                docker stop cyfm
+                docker rm cyfm
+                docker run -it -d -p 3001:3001 -p 80:80 \
+                    -v $PWD/packages/backend/.env.production:/app/packages/backend/.env.development
+                    --name cyfm canyoufixme
