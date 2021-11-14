@@ -4,7 +4,7 @@ FROM node-base as frontend-builder
 WORKDIR /app
 
 COPY packages/ packages/
-COPY ["package.json", "yarn.lock", "lerna.json", "."]
+COPY ["package.json", "yarn.lock", "lerna.json", "./"]
 RUN yarn --frozen-lockfile --ignore-scripts
 
 COPY tsconfig.json .
