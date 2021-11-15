@@ -4,10 +4,10 @@ import { createConnection } from 'typeorm';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 
-import mysqlConnectionOptions from '../settings/ormConfig';
+import mysqlConnectionOptions from './settings/ormConfig';
 
-import '../settings/mongoConfig';
-import { sessionStore } from '../settings/sessionConfig';
+import './settings/mongoConfig';
+import { sessionStore } from './settings/sessionConfig';
 
 import { router as problemController } from './controller/problemController';
 import { router as problemsController } from './controller/problemsController';
