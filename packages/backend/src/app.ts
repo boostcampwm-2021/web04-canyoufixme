@@ -3,6 +3,7 @@ import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+import { createServer } from 'http';
 
 import mysqlConnectionOptions from './settings/ormConfig';
 
@@ -15,7 +16,11 @@ import { router as problemCodeController } from './controller/problemCodeControl
 import { router as loginController } from './controller/loginController';
 import { router as logoutController } from './controller/logoutController';
 
+import { socketConnection } from './settings/socketConfig';
+
 const app: express.Application = express();
+
+const server = createServer(app);
 
 app.use(cookieParser());
 
@@ -50,8 +55,9 @@ app.use('/api/login', loginController);
 app.use('/api/logout', logoutController);
 
 createConnection(mysqlConnectionOptions).then(() => {
+  socketConnection(server);
   const port = process.env.PORT || 3001;
-  app.listen(port, () => {
+  server.listen(port, () => {
     /* eslint-disable-next-line no-console */
     console.log(`Running Server port ${port}`);
   });
