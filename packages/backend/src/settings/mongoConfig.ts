@@ -1,7 +1,7 @@
 import { connect, model } from 'mongoose';
 
-import { ProblemCode } from '../src/model/ProblemCode';
-import { SubmitCode } from '../src/model/SubmitCode';
+import { ProblemCode } from '../model/ProblemCode';
+import { SubmitCode } from '../model/SubmitCode';
 
 async function mongoConnection(): Promise<void> {
   await connect(
