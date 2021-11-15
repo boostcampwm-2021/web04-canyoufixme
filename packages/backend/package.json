@@ -13,9 +13,11 @@
     "express": "^4.17.1",
     "express-mysql-session": "^2.1.7",
     "express-session": "^1.17.2",
+    "http": "^0.0.1-security",
     "mongoose": "^6.0.12",
     "mysql2": "^2.3.3-rc.0",
     "reflect-metadata": "^0.1.13",
+    "socket.io": "^4.3.2",
     "typeorm": "^0.2.38"
   },
   "devDependencies": {
