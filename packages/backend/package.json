@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "start": "nodemon --exec ts-node -r dotenv/config src/app.ts dotenv_config_path=.env.development",
+    "start:prod": "node -r dotenv/config dist/app.js dotenv_config_path=.env.production",
     "build": "tsc"
   },
   "dependencies": {
