@@ -6,7 +6,11 @@ import { ProblemCodeModel } from '../settings/mongoConfig';
 import { User } from '../model/User';
 
 const getList = async (req: express.Request, res: express.Response) => {
-  const problems = await Problem.find({ relations: ['author'] });
+  const problems = await Problem.find({
+    relations: ['author'],
+    skip: parseInt(req.query.offset as string, 10),
+    take: parseInt(req.query.limit as string, 10),
+  });
   res.json(problems);
 };
 
