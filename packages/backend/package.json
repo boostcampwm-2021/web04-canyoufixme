@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "start": "nodemon --exec ts-node -r dotenv/config src/app.ts dotenv_config_path=.env.development",
-    "build": "exit 1"
+    "build": "tsc"
   },
   "dependencies": {
     "axios": "^0.24.0",
