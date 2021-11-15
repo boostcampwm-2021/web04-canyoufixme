@@ -5,5 +5,5 @@
     "esModuleInterop": true
   },
   "extends": "../../tsconfig.json",
-  "include": ["src/**/*", "settings/ormConfig.ts"]
+  "include": ["src/**/*", "src/settings/ormConfig.ts"]
 }

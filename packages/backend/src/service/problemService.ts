@@ -2,7 +2,7 @@
 /* eslint-disable dot-notation */
 import express from 'express';
 import { Problem } from '../model/Problem';
-import { ProblemCodeModel } from '../../settings/mongoConfig';
+import { ProblemCodeModel } from '../settings/mongoConfig';
 import { User } from '../model/User';
 
 const getList = async (req: express.Request, res: express.Response) => {
