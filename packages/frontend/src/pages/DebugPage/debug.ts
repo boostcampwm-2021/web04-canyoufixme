@@ -3,9 +3,15 @@ interface IExecutionResult {
   payload?: unknown;
 }
 
+function escapeBackticks(code: string) {
+  return code.replace(/`/g, '\\`');
+}
+
 function execCodeWithSandbox(code: string): Promise<IExecutionResult> {
   return new Promise((resolve, reject) => {
     const sandbox = document.createElement('iframe');
+    sandbox.style.display = 'none';
+    sandbox.height = sandbox.width = '0';
     sandbox.setAttribute('sandbox', 'allow-scripts');
     sandbox.srcdoc = `
       <script src="https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js"></script>
@@ -34,7 +40,9 @@ function execCodeWithSandbox(code: string): Promise<IExecutionResult> {
             try {
               const codeFunc = new Function(
                 'random' + randomSuffix,
-                \`${code}\` + '\\nreturn random' + randomSuffix,
+                \`${escapeBackticks(
+                  code,
+                )}\` + '\\nreturn random' + randomSuffix,
               );
               return codeFunc(random);
             } catch (e) {
@@ -88,7 +96,7 @@ const runner = async ({
   return execCodeWithSandbox(`
     const { expect } = chai;
     ${code}
-    ${testCode.join('\n')}
+    ${escapeBackticks(testCode.join('\n'))}
   `);
 };
 
