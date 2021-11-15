@@ -4,7 +4,7 @@ interface IExecutionResult {
 }
 
 function escapeBackticks(code: string) {
-  return code.replace(/`/g, '\\`');
+  return code.replaceAll(/`/g, '\\`');
 }
 
 function execCodeWithSandbox(code: string): Promise<IExecutionResult> {
