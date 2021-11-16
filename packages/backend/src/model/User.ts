@@ -8,9 +8,9 @@ export class User extends BaseEntity {
   @Column({ length: 100 })
   name: string;
 
-  @Column({ length: 30 })
+  @Column({ length: 30, select: false })
   oauthType: string;
 
-  @Column({ length: 200 })
+  @Column({ length: 200, select: false })
   token: string;
 }
