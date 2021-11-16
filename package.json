@@ -8,6 +8,7 @@
     "prepare": "husky install",
     "bootstrap": "lerna bootstrap",
     "build:frontend": "yarn workspace @cyfm/frontend build",
+    "build:backend": "yarn workspace @cyfm/backend build",
     "start:frontend": "yarn workspace @cyfm/frontend start",
     "start:backend": "yarn workspace @cyfm/backend start"
   },
