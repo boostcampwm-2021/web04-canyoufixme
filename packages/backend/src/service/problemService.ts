@@ -5,9 +5,30 @@ import { Problem } from '../model/Problem';
 import { ProblemCodeModel } from '../settings/mongoConfig';
 import { User } from '../model/User';
 
+const isNumberAndNatural = num => {
+  return !Number.isNaN(num) && num > 0;
+};
+
 const getList = async (req: express.Request, res: express.Response) => {
-  const problems = await Problem.find({ relations: ['author'] });
-  res.json(problems);
+  let skip = parseInt(req.query.offset as string, 10);
+  let take = parseInt(req.query.limit as string, 10);
+
+  take = isNumberAndNatural(take) ? take : 10;
+  skip = isNumberAndNatural(take) && isNumberAndNatural(skip) ? skip : 0;
+
+  try {
+    const problems = await Problem.find({
+      relations: ['author'],
+      skip,
+      take,
+    });
+    res.status(200).json(problems);
+  } catch (err) {
+    res.status(500).json({
+      message: 'load fail',
+      error: err.message,
+    });
+  }
 };
 
 const saveCode = async (code, content, testCode) => {
@@ -42,9 +63,9 @@ const writeProblem = async (req: express.Request, res: express.Response) => {
 
     await saveProblem({ title, category, level, author, codeId });
 
-    res.json({ message: 'write success' });
+    res.status(201).json({ message: 'write success' });
   } catch (err) {
-    res.json({ message: 'write fail', error: err });
+    res.status(500).json({ message: 'write fail', error: err.message });
   }
 };
 
