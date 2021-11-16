@@ -1,5 +1,8 @@
 FROM node:14.17.3-alpine AS node-base
 
+RUN wget -q -O- https://gobinaries.com/tj/node-prune | sh
+
+
 FROM node-base AS nginx-server
 
 RUN apk update && apk add nginx && rm -rf /var/cache/apk/*
@@ -32,8 +35,9 @@ ENV REACT_APP_CLIENT_ID=$CLIENT_ID
 COPY packages/ packages/
 RUN yarn bootstrap && yarn build:frontend
 
-RUN yarn cache clean
-RUN npm prune --production
+RUN yarn --prod --silent --frozen-lockfile --ignore-scripts
+RUN yarn -s cache clean
+RUN node-prune
 
 
 FROM nginx-server AS production
