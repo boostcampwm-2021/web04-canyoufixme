@@ -128,7 +128,6 @@ const DebugPage: React.FC = () => {
               ref={viewerRef as RefObject<FullWidthViewer>}
             />
           </ViewerWrapper>
-          ,
           <ConsoleWrapper>
             <div>{output}</div>
           </ConsoleWrapper>
