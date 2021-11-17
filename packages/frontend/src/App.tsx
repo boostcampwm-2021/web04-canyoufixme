@@ -14,7 +14,7 @@ import WritePage from 'pages/WritePage';
 import EditorPage from 'pages/EditorPage';
 import TopNavLink from 'components/TopNavLink';
 import MessageModal from 'components/Modal/MessageModal';
-import LogoutModal from 'components/Modal/LogoutModal';
+import ConfirmModal from 'components/Modal/ConfirmModal';
 
 const Header = styled.header`
   color: white;
@@ -87,10 +87,11 @@ const App: React.FC = () => {
             )}
           </Nav>
         </Header>
-        <LogoutModal
+        <ConfirmModal
           isOpen={isLogoutOpen}
           setter={setLogoutOpen}
-          logout={logout}
+          content="로그아웃 하시겠습니까?"
+          callback={logout}
         />
         <MessageModal
           isOpen={isMessageOpen}

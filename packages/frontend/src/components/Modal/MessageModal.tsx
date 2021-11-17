@@ -1,4 +1,5 @@
 import React from 'react';
+import { nanoid } from 'nanoid';
 
 import styled from '@cyfm/styled';
 
@@ -39,7 +40,7 @@ const MessageModal = (props: ModalProps) => {
     <Modal isOpen={isOpen} setter={setter}>
       <ContentWrapper>
         {messages.map(message => (
-          <MessageWrapper>{message}</MessageWrapper>
+          <MessageWrapper key={nanoid()}>{message}</MessageWrapper>
         ))}
       </ContentWrapper>
       <ButtonWrapper>

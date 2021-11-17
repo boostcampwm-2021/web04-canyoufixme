@@ -8,7 +8,8 @@ import Button from './ModalButton';
 interface ModalProps {
   isOpen: boolean;
   setter: (isOpen: boolean) => void;
-  logout: () => void;
+  content: string;
+  callback: () => void;
 }
 
 const ContentWrapper = styled.div`
@@ -23,19 +24,19 @@ const ButtonWrapper = styled.div`
   justify-content: space-evenly;
 `;
 
-const LogoutModal = (props: ModalProps) => {
-  const { isOpen, setter, logout } = props;
+const ConfirmModal = (props: ModalProps) => {
+  const { isOpen, setter, content, callback } = props;
 
   const closeModal = () => setter(false);
   return (
     <Modal isOpen={isOpen} setter={setter}>
-      <ContentWrapper>로그아웃 하시겠습니까?</ContentWrapper>
+      <ContentWrapper>{content}</ContentWrapper>
       <ButtonWrapper>
-        <Button onClick={logout}>네</Button>
+        <Button onClick={callback}>네</Button>
         <Button onClick={closeModal}>아니오</Button>
       </ButtonWrapper>
     </Modal>
   );
 };
 
-export default LogoutModal;
+export default ConfirmModal;
