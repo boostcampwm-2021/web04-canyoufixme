@@ -3,6 +3,7 @@ import React from 'react';
 import styled from '@cyfm/styled';
 
 import Button from 'components/Button';
+import FullWidthInput from 'components/FullWidthInput';
 
 interface TestCase {
   title: string;
@@ -22,23 +23,13 @@ const Wrapper = styled.div`
   margin-bottom: 15px;
 `;
 
-const TestCaseTitle = styled.div`
-  border: 0;
-  border-radius: 5px;
-  font-size: 1.2em;
-  padding: 10px;
-  width: 100%;
+const TestCaseTitle = styled(FullWidthInput)`
   color: white;
   background-color: grey;
   margin-bottom: 15px;
 `;
 
-const TestCaseCode = styled.div`
-  border: 0;
-  border-radius: 5px;
-  font-size: 1.2em;
-  padding: 10px;
-  width: 100%;
+const TestCaseCode = styled(FullWidthInput)`
   color: white;
   background-color: black;
   margin-bottom: 15px;

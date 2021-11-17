@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import styled from '@cyfm/styled';
 
@@ -8,14 +8,15 @@ const controllerWidth = 5;
 const FlexWrapper = styled.div`
   display: flex;
   min-width: 100vw;
-  min-height: 100vh;
+  min-height: calc(100vh - 80px);
 `;
 
-const LeftFlexColumnWrapper = styled.div<{ width: string }>`
+const LeftFlexColumnWrapper = styled.div<{ width: number }>`
   display: flex;
   flex-direction: column;
   flex-basis: ${props => props.width}px;
   min-width: ${minWidth}px;
+  min-height: 100%;
 `;
 
 const RightFlexColumnWrapper = styled.div`
@@ -23,6 +24,7 @@ const RightFlexColumnWrapper = styled.div`
   flex-direction: column;
   flex-grow: 1;
   min-width: ${minWidth}px;
+  min-height: 100%;
 `;
 
 const FlexColumnController = styled.div`
@@ -37,14 +39,15 @@ const FlexColumnController = styled.div`
 `;
 
 interface SlotProps {
-  left: React.ReactNode;
-  right: React.ReactNode;
+  leftPane: React.ReactNode;
+  rightPane: React.ReactNode;
 }
 
 const EditorPage = (props: SlotProps) => {
   const [isMouseDown, setIsMouseDown] = useState(false);
-  const [leftFlexColumnWidth, setLeftFlexColumnWidth] = useState(
-    `${(window.innerWidth - controllerWidth) / 2}`,
+  const [leftPaneWidth, setLeftPaneWidth] = useState(
+    localStorage.getItem('leftPaneWidth') ??
+      (window.innerWidth - controllerWidth) / 2,
   );
 
   const onControllerMouseDown = useCallback((event: MouseEvent): void => {
@@ -54,15 +57,19 @@ const EditorPage = (props: SlotProps) => {
   const onControllerMouseMove = useCallback(
     (event: MouseEvent): void => {
       if (isMouseDown) {
-        setLeftFlexColumnWidth(`${event.pageX - controllerWidth / 2}`);
+        setLeftPaneWidth(event.pageX - controllerWidth / 2);
       }
     },
     [isMouseDown],
   );
 
-  const onControllerMouseUp = useCallback((event: MouseEvent): void => {
-    setIsMouseDown(false);
-  }, []);
+  const onControllerMouseUp = useCallback(
+    (event: MouseEvent): void => {
+      setIsMouseDown(false);
+      localStorage.setItem('leftPaneWidth', String(leftPaneWidth));
+    },
+    [leftPaneWidth],
+  );
 
   return (
     <>
@@ -70,12 +77,12 @@ const EditorPage = (props: SlotProps) => {
         onMouseMove={onControllerMouseMove}
         onMouseUp={onControllerMouseUp}
       >
-        <LeftFlexColumnWrapper width={leftFlexColumnWidth}>
-          {props.left}
+        <LeftFlexColumnWrapper width={parseInt(String(leftPaneWidth), 10)}>
+          {props.leftPane}
         </LeftFlexColumnWrapper>
         <FlexColumnController onMouseDown={onControllerMouseDown} />
-        <RightFlexColumnWrapper width={leftFlexColumnWidth}>
-          {props.right}
+        <RightFlexColumnWrapper width={leftPaneWidth}>
+          {props.rightPane}
         </RightFlexColumnWrapper>
       </FlexWrapper>
     </>

@@ -16,6 +16,7 @@ import styled from '@cyfm/styled';
 import Button from 'components/Button';
 import EditorPage from 'pages/EditorPage';
 import TestCodeEditor from 'components/TestCodeEditor';
+import FullWidthInput from 'components/FullWidthInput';
 
 interface TestCase {
   title: string;
@@ -23,10 +24,15 @@ interface TestCase {
   id: string;
 }
 
-const TestCodeWrapper = styled.div`
-  height: 500px;
+const CodeEditorWrapper = styled.div`
+  flex-basis: 60%;
   width: 100%;
-  background: teal;
+`;
+
+const TestCodeWrapper = styled.div`
+  flex-basis: 40%;
+  width: 100%;
+  background: #353737;
   padding: 15px;
   overflow-x: hidden;
   overflow-y: auto;
@@ -38,11 +44,19 @@ const ButtonFooter = styled.div`
   background: #1c1d20;
 `;
 
+const TitleInput = styled(FullWidthInput)`
+  color: white;
+  border-radius: 0;
+  background-color: inherit;
+`;
+
 const WritePage = () => {
   const [isLogin] = useLogin();
   const [content, setContent] = useState('');
   const [code, setCode] = useState('');
 
+  const titleInputRef: MutableRefObject<HTMLInputElement | undefined> =
+    useRef();
   const markdownRef: MutableRefObject<Editor | undefined> = useRef();
   const editorRef: MutableRefObject<(AceEditor & Ace.Editor) | undefined> =
     useRef();
@@ -70,7 +84,7 @@ const WritePage = () => {
       code: code,
       content: (markdownRef.current as Editor).getInstance().getMarkdown(),
       testCode: [...testCases].map(({ code }) => code),
-      title: '테스트',
+      title: titleInputRef.current?.value,
       level: 2,
       category: 'JavaScript',
     };
@@ -89,11 +103,15 @@ const WritePage = () => {
     <>
       {isLogin ? (
         <EditorPage
-          left={
+          leftPane={
             <>
+              <TitleInput
+                ref={titleInputRef}
+                placeholder="제목을 입력해주세요"
+              />
               <Editor
                 previewStyle="vertical"
-                height="800px"
+                height="100%"
                 initialEditType="wysiwyg"
                 hideModeSwitch
                 placeholder="### 마크다운 문법에 맞춰 값을 입력해주세요."
@@ -104,19 +122,21 @@ const WritePage = () => {
               />
             </>
           }
-          right={
+          rightPane={
             <>
-              <AceEditor
-                onLoad={onLoad}
-                onChange={onChange}
-                mode="javascript"
-                width="100%"
-                height="400px"
-                theme="twilight"
-                name="test"
-                fontSize={16}
-                editorProps={{ $blockScrolling: true }}
-              />
+              <CodeEditorWrapper>
+                <AceEditor
+                  onLoad={onLoad}
+                  onChange={onChange}
+                  mode="javascript"
+                  width="100%"
+                  height="100%"
+                  theme="twilight"
+                  name="test"
+                  fontSize={16}
+                  editorProps={{ $blockScrolling: true }}
+                />
+              </CodeEditorWrapper>
               <TestCodeWrapper>
                 <TestCodeEditor
                   testCases={testCases}
