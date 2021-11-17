@@ -3,11 +3,13 @@ import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+import { createServer } from 'http';
 
 import mysqlConnectionOptions from './settings/ormConfig';
 
 import './settings/mongoConfig';
 import { sessionStore } from './settings/sessionConfig';
+import { socketConnection } from './settings/socketConfig';
 
 import { router as problemController } from './controller/problemController';
 import { router as problemsController } from './controller/problemsController';
@@ -17,6 +19,8 @@ import { router as logoutController } from './controller/logoutController';
 import { router as submitController } from './controller/submitController';
 
 const app: express.Application = express();
+
+const server = createServer(app);
 
 app.use(cookieParser());
 
@@ -54,7 +58,8 @@ app.use('/api/submit', submitController);
 
 createConnection(mysqlConnectionOptions).then(() => {
   const port = process.env.PORT || 3001;
-  app.listen(port, () => {
+  socketConnection(server);
+  server.listen(port, () => {
     /* eslint-disable-next-line no-console */
     console.log(`Running Server port ${port}`);
   });
