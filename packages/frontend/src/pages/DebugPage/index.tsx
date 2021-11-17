@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { MutableRefObject, RefObject } from 'react';
 import { useRouteMatch } from 'react-router-dom';
@@ -20,6 +21,9 @@ import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-twilight';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
+
+import io, { Socket } from 'socket.io-client';
+import { DefaultEventsMap } from '@socket.io/component-emitter';
 
 const ViewerWrapper = styled.div`
   display: flex;
@@ -48,6 +52,7 @@ const ButtonFooter = styled.div`
 `;
 
 const DebugPage: React.FC = () => {
+  let socket: Socket<DefaultEventsMap, DefaultEventsMap>;
   const [, setContent] = useState('');
   const [initCode, setInitCode] = useState('');
   const [code, setCode] = useState('');
@@ -90,6 +95,20 @@ const DebugPage: React.FC = () => {
     },
     [editorRef],
   );
+
+  const onSubmit = useCallback(async () => {
+    socket = io(`${process.env.REACT_APP_API_URL}`);
+    socket.on('connect', () => {
+      console.log(socket.id);
+    });
+
+    socket.emit('submit', {
+      code: (editorRef.current as Ace.Editor).getValue() as string,
+      testCode,
+    });
+
+    socket.emit('forceDisconnect');
+  }, [testCode]);
 
   const onExecute = useCallback(async () => {
     const result = await runner({
@@ -154,6 +173,7 @@ const DebugPage: React.FC = () => {
           <ButtonFooter>
             <Button onClick={initializeCode}>초기화</Button>
             <Button onClick={onExecute}>실행</Button>
+            <Button onClick={onSubmit}>제출</Button>
           </ButtonFooter>
         </>
       }
