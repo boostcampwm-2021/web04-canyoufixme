@@ -22,7 +22,7 @@ function parseCss(css) {
 function processTemplate(strings, args, props) {
   return strings.slice(1).reduce((acc, v, i) => {
     const arg = args[i];
-    return acc + (typeof arg === 'function' ? arg(props) : arg) + v;
+    return acc + (typeof arg === 'function' ? arg(props) : String(arg)) + v;
   }, strings[0]);
 }
 

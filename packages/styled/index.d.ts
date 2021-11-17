@@ -1,5 +1,8 @@
+interface Stringable {
+  toString: () => string;
+}
 type Props = { [key: string]: unknown };
-type StyledComponentArg<T> = number | string | ((props: T) => string);
+type StyledComponentArg<T> = Stringable | ((props: T) => Stringable);
 type StyledComponent = <T>(
   strings: TemplateStringsArray,
   ...args: StyledComponentArg<Props & T>[]
