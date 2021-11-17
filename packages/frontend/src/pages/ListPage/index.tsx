@@ -1,6 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, {
+  useState,
+  useReducer,
+  useEffect,
+  useRef,
+  MutableRefObject,
+} from 'react';
 import { Link } from 'react-router-dom';
 import styled from '@cyfm/styled';
+
+import { paginationReducer } from './reducer';
 
 const Background = styled.div`
   width: 100%;
@@ -46,18 +54,60 @@ interface Item {
 }
 
 const ListPage: React.FC = () => {
-  const [items, setItems] = useState<Item[]>([]);
+  const problemsCnt = 10;
+  const [isLoading, setLoading] = useState(false);
+  const [paginationState, dispatch] = useReducer(paginationReducer, {
+    items: [],
+    offset: 0,
+  });
+
+  const itemsList: MutableRefObject<HTMLDivElement | null | undefined> =
+    useRef();
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/problems`)
-      .then(res => res.json())
-      .then(json => setItems(json));
+    if (!isLoading) {
+      setLoading(true);
+      fetch(
+        `${process.env.REACT_APP_API_URL}/api/problems?limit=${problemsCnt}&offset=${paginationState.offset}`,
+      )
+        .then(res => res.json())
+        .then(json => {
+          if (json && json.length > 0) {
+            dispatch({ type: 'addItems', items: json, offset: problemsCnt });
+          }
+        })
+        .finally(() => setLoading(false));
+    }
+    return () => {};
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [paginationState.offset]);
+
+  const ioRef: MutableRefObject<IntersectionObserver | undefined> = useRef();
+  useEffect(() => {
+    const ioOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 1.0,
+    };
+    ioRef.current = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          dispatch({ type: 'incOffset', offset: problemsCnt });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, ioOptions);
   }, []);
+
+  useEffect(() => {
+    const itemsElement = itemsList.current as HTMLDivElement;
+    return () => ioRef.current?.observe(itemsElement?.lastChild as Element);
+  }, [paginationState.items]);
 
   return (
     <Background>
-      <ListWrapper>
-        {items.map((item: Item) => (
+      <ListWrapper ref={itemsList}>
+        {paginationState.items.map((item: Item) => (
           <Link
             style={{
               textDecoration: 'none',
