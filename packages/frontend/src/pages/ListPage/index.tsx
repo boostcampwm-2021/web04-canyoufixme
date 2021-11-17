@@ -23,6 +23,12 @@ const ListWrapper = styled.div`
   height: 100%;
 `;
 
+const SignLink = styled(Link)`
+  text-decoration: none;
+  color: black;
+  font-weight: 900;
+`;
+
 const Sign = styled.div`
   display: flex;
   justify-content: center;
@@ -108,17 +114,12 @@ const ListPage: React.FC = () => {
     <Background>
       <ListWrapper ref={itemsList}>
         {paginationState.items.map((item: Item) => (
-          <Link
-            style={{
-              textDecoration: 'none',
-              color: 'black',
-              fontWeight: 900,
-            }}
+          <SignLink
             to={`/debug/${item.codeId}`}
             key={item.codeId}
           >
             <Sign>{item.title}</Sign>
-          </Link>
+          </SignLink>
         ))}
       </ListWrapper>
     </Background>
