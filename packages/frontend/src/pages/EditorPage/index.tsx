@@ -8,7 +8,7 @@ const controllerWidth = 5;
 const FlexWrapper = styled.div`
   display: flex;
   min-width: 100vw;
-  min-height: 100vh;
+  min-height: calc(100vh - 80px);
 `;
 
 const LeftFlexColumnWrapper = styled.div<{ width: string }>`
@@ -16,6 +16,7 @@ const LeftFlexColumnWrapper = styled.div<{ width: string }>`
   flex-direction: column;
   flex-basis: ${props => props.width}px;
   min-width: ${minWidth}px;
+  min-height: 100%;
 `;
 
 const RightFlexColumnWrapper = styled.div`
@@ -23,6 +24,7 @@ const RightFlexColumnWrapper = styled.div`
   flex-direction: column;
   flex-grow: 1;
   min-width: ${minWidth}px;
+  min-height: 100%;
 `;
 
 const FlexColumnController = styled.div`

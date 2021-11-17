@@ -24,10 +24,15 @@ interface TestCase {
   id: string;
 }
 
-const TestCodeWrapper = styled.div`
-  height: 500px;
+const CodeEditorWrapper = styled.div`
+  flex-basis: 60%;
   width: 100%;
-  background: teal;
+`;
+
+const TestCodeWrapper = styled.div`
+  flex-basis: 40%;
+  width: 100%;
+  background: #353737;
   padding: 15px;
   overflow-x: hidden;
   overflow-y: auto;
@@ -106,7 +111,7 @@ const WritePage = () => {
               />
               <Editor
                 previewStyle="vertical"
-                height="800px"
+                height="100%"
                 initialEditType="wysiwyg"
                 hideModeSwitch
                 placeholder="### 마크다운 문법에 맞춰 값을 입력해주세요."
@@ -119,17 +124,19 @@ const WritePage = () => {
           }
           rightPane={
             <>
-              <AceEditor
-                onLoad={onLoad}
-                onChange={onChange}
-                mode="javascript"
-                width="100%"
-                height="400px"
-                theme="twilight"
-                name="test"
-                fontSize={16}
-                editorProps={{ $blockScrolling: true }}
-              />
+              <CodeEditorWrapper>
+                <AceEditor
+                  onLoad={onLoad}
+                  onChange={onChange}
+                  mode="javascript"
+                  width="100%"
+                  height="100%"
+                  theme="twilight"
+                  name="test"
+                  fontSize={16}
+                  editorProps={{ $blockScrolling: true }}
+                />
+              </CodeEditorWrapper>
               <TestCodeWrapper>
                 <TestCodeEditor
                   testCases={testCases}

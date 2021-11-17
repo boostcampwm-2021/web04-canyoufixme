@@ -26,13 +26,10 @@ const ViewerWrapper = styled.div`
   flex-basis: 50%;
   width: 100%;
   overflow-y: auto;
-  box-sizing: border-box;
 `;
 
 const EditorWrapper = styled.div`
-  display: flex;
-  flex-basis: 50%;
-  box-sizing: border-box;
+  flex-basis: 100%;
 `;
 
 const ConsoleWrapper = styled.div`
@@ -41,11 +38,11 @@ const ConsoleWrapper = styled.div`
   flex-basis: 50%;
   background: #24262a;
   color: white;
-  box-sizing: border-box;
 `;
 
 const ButtonFooter = styled.div`
   display: flex;
+  flex-basis: 0;
   justify-content: space-evenly;
   background: #1c1d20;
 `;
@@ -141,7 +138,7 @@ const DebugPage: React.FC = () => {
               onChange={onChange}
               mode="javascript"
               width="100%"
-              height="800px"
+              height="100%"
               theme="twilight"
               name="test"
               fontSize={16}
