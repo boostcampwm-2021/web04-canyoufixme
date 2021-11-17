@@ -1,5 +1,5 @@
 import React from 'react';
-import tags from './tags';
+import tags, { voidTags } from './tags';
 
 function snakeToCamel(snake) {
   return snake.replace(/-([a-z])/g, (_, p1) => p1.toUpperCase());
@@ -31,7 +31,7 @@ const createStyledComponent =
   (strings, ...args) => {
     return React.forwardRef((props, ref) => {
       const css = processTemplate(strings, args, props);
-      return React.createElement(tag, {
+      const newProps = {
         ...props,
         style: {
           ...parseCss(css),
@@ -39,7 +39,11 @@ const createStyledComponent =
           ...props.style,
         },
         ref,
-      });
+      };
+      if (voidTags.includes(tag)) {
+        delete newProps.children;
+      }
+      return React.createElement(tag, newProps);
     });
   };
 
