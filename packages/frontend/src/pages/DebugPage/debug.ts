@@ -1,3 +1,5 @@
+import { sandboxFunction } from './sandbox';
+
 interface IExecutionResult {
   type: 'init' | 'error' | 'success';
   payload?: unknown;
@@ -20,61 +22,18 @@ function execCodeWithSandbox(code: string): Promise<IExecutionResult> {
         Object.freeze(Object.prototype);
       </script>
       <script>
-        var postMessage;
-        window.onmessage = function (message) {
-          if (message.origin === '${window.origin}' && message.ports) {
-            const [port2] = message.ports;
-
-            postMessage = function (data) {
-              port2.postMessage(data);
-            };
-          }
-
-          const random = Math.random();
-          function randomName() {
-            return '__' + random.toString(32).substring(2).replace(/[0-9]/g, '');
-          }
-          const randomSuffix = randomName();
-
-          const result = (function (random) {
-            try {
-              const codeFunc = new Function(
-                'random' + randomSuffix,
-                \`${escapeBackticks(
-                  code,
-                )}\` + '\\nreturn random' + randomSuffix,
-              );
-              return codeFunc(random);
-            } catch (e) {
-              postMessage({
-                type: 'error',
-                payload: {
-                  message: e.message,
-                }
-              });
-            }
-            return random;
-          })(random);
-
-          if (random !== result) {
-            postMessage({
-              type: 'error',
-              payload: {
-                message: '잘못된 구문 return 사용',
-              }
-            });
-          } else {
-            postMessage({
-              type: 'success'
-            });
-          }
-        };
+        (${sandboxFunction})(\`${code}\`, \`${window.origin}\`);
       </script>
     `;
     const { port1, port2 } = new MessageChannel();
+    const timeout = 10;
+    const timer = setTimeout(() => {
+      reject(new Error(`timeout ${timeout}s`));
+    }, 1000 * timeout);
 
     port1.onmessage = (e: MessageEvent) => {
       sandbox.parentNode?.removeChild(sandbox);
+      clearTimeout(timer);
       resolve(e.data);
     };
 
