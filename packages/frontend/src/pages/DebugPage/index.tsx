@@ -166,8 +166,6 @@ const DebugPage: React.FC = () => {
       testCode,
     });
     switch (result.type) {
-      case 'init':
-        return;
       case 'success':
         setOutput('축하합니다. 멋지게 해내셨네요! 🥳');
         break;

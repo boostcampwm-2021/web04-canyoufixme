@@ -1,4 +1,5 @@
 import { sandboxFunction } from './sandbox';
+import { execCodeWithWorker } from './worker';
 
 interface IExecutionResult {
   type: 'init' | 'error' | 'success';
@@ -16,24 +17,14 @@ function execCodeWithSandbox(code: string): Promise<IExecutionResult> {
     sandbox.height = sandbox.width = '0';
     sandbox.setAttribute('sandbox', 'allow-scripts');
     sandbox.srcdoc = `
-      <script src="https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js"></script>
       <script>
-        Object.freeze(chai);
-        Object.freeze(Object.prototype);
-      </script>
-      <script>
-        (${sandboxFunction})(\`${code}\`, \`${window.origin}\`);
+        (${sandboxFunction})(\`${code}\`, \`${window.origin}\`, (${execCodeWithWorker}));
       </script>
     `;
     const { port1, port2 } = new MessageChannel();
-    const timeout = 10;
-    const timer = setTimeout(() => {
-      reject(new Error(`timeout ${timeout}s`));
-    }, 1000 * timeout);
 
     port1.onmessage = (e: MessageEvent) => {
       sandbox.parentNode?.removeChild(sandbox);
-      clearTimeout(timer);
       resolve(e.data);
     };
 
