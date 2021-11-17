@@ -25,7 +25,7 @@ export class SubmitLog extends BaseEntity {
   @Column()
   wrongTestCount: number;
 
-  @Column({ length: 200 })
+  @Column({ length: 30 })
   codeId: string;
 
   @ManyToOne(type => User)
