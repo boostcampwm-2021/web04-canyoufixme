@@ -96,6 +96,33 @@ const DebugPage: React.FC = () => {
     [editorRef],
   );
 
+  const requestSubmit = async (result: [string]) => {
+    const payload = {
+      problemCodeId: id,
+      testResult: result,
+      code: code,
+    };
+
+    try {
+      let res = await fetch(`${process.env.REACT_APP_API_URL}/api/submit`, {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      res = await res.json();
+      console.log(res);
+      return res;
+      // 성공 시 실행되는 부분
+    } catch (err) {
+      // fetch(결과값 저장) 에러 시 실행되는 부분
+      console.log(err);
+      return err;
+    }
+  };
+
   const onSubmit = useCallback(async () => {
     socket = io(`${process.env.REACT_APP_API_URL}`);
     socket.on('connect', () => {
@@ -105,6 +132,15 @@ const DebugPage: React.FC = () => {
     socket.emit('submit', {
       code: (editorRef.current as Ace.Editor).getValue() as string,
       testCode,
+    });
+
+    socket.once('result', async result => {
+      await requestSubmit(result);
+    });
+
+    socket.once('error', error => {
+      // socket(채점) 에러 처리
+      console.log(error);
     });
 
     socket.emit('forceDisconnect');
