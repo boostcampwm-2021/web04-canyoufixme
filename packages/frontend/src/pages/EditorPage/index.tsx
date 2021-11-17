@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import styled from '@cyfm/styled';
 
@@ -11,7 +11,7 @@ const FlexWrapper = styled.div`
   min-height: calc(100vh - 80px);
 `;
 
-const LeftFlexColumnWrapper = styled.div<{ width: string }>`
+const LeftFlexColumnWrapper = styled.div<{ width: number }>`
   display: flex;
   flex-direction: column;
   flex-basis: ${props => props.width}px;
@@ -45,8 +45,9 @@ interface SlotProps {
 
 const EditorPage = (props: SlotProps) => {
   const [isMouseDown, setIsMouseDown] = useState(false);
-  const [leftFlexColumnWidth, setLeftFlexColumnWidth] = useState(
-    `${(window.innerWidth - controllerWidth) / 2}`,
+  const [leftPaneWidth, setLeftPaneWidth] = useState(
+    localStorage.getItem('leftPaneWidth') ??
+      (window.innerWidth - controllerWidth) / 2,
   );
 
   const onControllerMouseDown = useCallback((event: MouseEvent): void => {
@@ -56,15 +57,19 @@ const EditorPage = (props: SlotProps) => {
   const onControllerMouseMove = useCallback(
     (event: MouseEvent): void => {
       if (isMouseDown) {
-        setLeftFlexColumnWidth(`${event.pageX - controllerWidth / 2}`);
+        setLeftPaneWidth(event.pageX - controllerWidth / 2);
       }
     },
     [isMouseDown],
   );
 
-  const onControllerMouseUp = useCallback((event: MouseEvent): void => {
-    setIsMouseDown(false);
-  }, []);
+  const onControllerMouseUp = useCallback(
+    (event: MouseEvent): void => {
+      setIsMouseDown(false);
+      localStorage.setItem('leftPaneWidth', String(leftPaneWidth));
+    },
+    [leftPaneWidth],
+  );
 
   return (
     <>
@@ -72,11 +77,11 @@ const EditorPage = (props: SlotProps) => {
         onMouseMove={onControllerMouseMove}
         onMouseUp={onControllerMouseUp}
       >
-        <LeftFlexColumnWrapper width={leftFlexColumnWidth}>
+        <LeftFlexColumnWrapper width={parseInt(String(leftPaneWidth), 10)}>
           {props.leftPane}
         </LeftFlexColumnWrapper>
         <FlexColumnController onMouseDown={onControllerMouseDown} />
-        <RightFlexColumnWrapper width={leftFlexColumnWidth}>
+        <RightFlexColumnWrapper width={leftPaneWidth}>
           {props.rightPane}
         </RightFlexColumnWrapper>
       </FlexWrapper>
