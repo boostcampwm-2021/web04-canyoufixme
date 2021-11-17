@@ -1,5 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom';
+import Modal from 'react-modal';
 import { useLogin } from 'hooks/useLogin';
 import './App.css';
 
@@ -12,6 +13,8 @@ import DebugPage from 'pages/DebugPage';
 import WritePage from 'pages/WritePage';
 import EditorPage from 'pages/EditorPage';
 import TopNavLink from 'components/TopNavLink';
+import MessageModal from 'components/Modal/MessageModal';
+import LogoutModal from 'components/Modal/LogoutModal';
 
 const Header = styled.header`
   color: white;
@@ -38,6 +41,8 @@ const Logo = styled.img`
 
 const App: React.FC = () => {
   const [isLogin, setLogin] = useLogin();
+  const [isLogoutOpen, setLogoutOpen] = useState(false);
+  const [isMessageOpen, setMessageOpen] = useState(false);
 
   const logout = useCallback(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/logout`, {
@@ -47,12 +52,21 @@ const App: React.FC = () => {
       .then(res => res.json())
       .then(res => {
         if (res.message !== 'success') {
-          alert('로그인 상태를 확인해주세요');
+          setMessageOpen(true);
           return;
         }
         setLogin(false);
+        setLogoutOpen(false);
       });
   }, [setLogin]);
+
+  const openLogoutModal = useCallback(
+    (e: MouseEvent) => {
+      e.preventDefault();
+      setLogoutOpen(true);
+    },
+    [setLogoutOpen],
+  );
 
   return (
     <div className="App">
@@ -65,7 +79,7 @@ const App: React.FC = () => {
             <TopNavLink to="/">홈으로</TopNavLink>
             <TopNavLink to="/write">문제 출제</TopNavLink>
             {isLogin ? (
-              <TopNavLink to="/" onClick={logout}>
+              <TopNavLink to="/" onClick={openLogoutModal}>
                 로그아웃
               </TopNavLink>
             ) : (
@@ -73,6 +87,16 @@ const App: React.FC = () => {
             )}
           </Nav>
         </Header>
+        <LogoutModal
+          isOpen={isLogoutOpen}
+          setter={setLogoutOpen}
+          logout={logout}
+        />
+        <MessageModal
+          isOpen={isMessageOpen}
+          setter={setMessageOpen}
+          messages={['비정상적인 접근입니다.', '로그인 상태를 확인해주세요.']}
+        />
         <Switch>
           <Route path="/" exact component={ListPage} />
           <Route path="/login" exact component={LoginPage} />
@@ -85,5 +109,7 @@ const App: React.FC = () => {
     </div>
   );
 };
+
+Modal.setAppElement('#root');
 
 export default App;
