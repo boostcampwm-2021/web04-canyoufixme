@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "axios": "^0.24.0",
+    "chai": "^4.3.4",
     "cookie-parser": "^1.4.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
@@ -16,7 +17,13 @@
     "mongoose": "^6.0.12",
     "mysql2": "^2.3.3-rc.0",
     "reflect-metadata": "^0.1.13",
+<<<<<<< HEAD
     "typeorm": "^0.2.38"
+=======
+    "socket.io": "^4.3.2",
+    "typeorm": "^0.2.38",
+    "workerpool": "^6.1.5"
+>>>>>>> e0068b6... chore: backend 의존성 workerpool, chai 설치
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
