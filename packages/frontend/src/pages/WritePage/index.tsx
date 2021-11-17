@@ -16,6 +16,7 @@ import styled from '@cyfm/styled';
 import Button from 'components/Button';
 import EditorPage from 'pages/EditorPage';
 import TestCodeEditor from 'components/TestCodeEditor';
+import FullWidthInput from 'components/FullWidthInput';
 
 interface TestCase {
   title: string;
@@ -38,11 +39,19 @@ const ButtonFooter = styled.div`
   background: #1c1d20;
 `;
 
+const TitleInput = styled(FullWidthInput)`
+  color: white;
+  border-radius: 0;
+  background-color: inherit;
+`;
+
 const WritePage = () => {
   const [isLogin] = useLogin();
   const [content, setContent] = useState('');
   const [code, setCode] = useState('');
 
+  const titleInputRef: MutableRefObject<HTMLInputElement | undefined> =
+    useRef();
   const markdownRef: MutableRefObject<Editor | undefined> = useRef();
   const editorRef: MutableRefObject<(AceEditor & Ace.Editor) | undefined> =
     useRef();
@@ -70,7 +79,7 @@ const WritePage = () => {
       code: code,
       content: (markdownRef.current as Editor).getInstance().getMarkdown(),
       testCode: [...testCases].map(({ code }) => code),
-      title: '테스트',
+      title: titleInputRef.current?.value,
       level: 2,
       category: 'JavaScript',
     };
@@ -91,6 +100,10 @@ const WritePage = () => {
         <EditorPage
           leftPane={
             <>
+              <TitleInput
+                ref={titleInputRef}
+                placeholder="제목을 입력해주세요"
+              />
               <Editor
                 previewStyle="vertical"
                 height="800px"
