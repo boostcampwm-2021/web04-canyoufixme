@@ -14,6 +14,7 @@ import { router as problemsController } from './controller/problemsController';
 import { router as problemCodeController } from './controller/problemCodeController';
 import { router as loginController } from './controller/loginController';
 import { router as logoutController } from './controller/logoutController';
+import { router as submitController } from './controller/submitController';
 
 const app: express.Application = express();
 
@@ -43,11 +44,13 @@ app.use(
     cookie: { maxAge: 1000 * 3600 * 12 },
   }),
 );
+
 app.use('/api/problems', problemsController);
 app.use('/api/problem', problemController);
 app.use('/api/debug', problemCodeController);
 app.use('/api/login', loginController);
 app.use('/api/logout', logoutController);
+app.use('/api/submit', submitController);
 
 createConnection(mysqlConnectionOptions).then(() => {
   const port = process.env.PORT || 3001;
