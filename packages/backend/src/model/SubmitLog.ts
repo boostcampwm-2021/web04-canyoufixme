@@ -2,7 +2,7 @@
 import {
   BaseEntity,
   Column,
-  OneToOne,
+  ManyToOne,
   JoinColumn,
   Entity,
   PrimaryGeneratedColumn,
@@ -23,13 +23,16 @@ export class SubmitLog extends BaseEntity {
   correctTestCount: number;
 
   @Column()
-  wrontTestCount: number;
+  wrongTestCount: number;
 
-  @OneToOne(type => User)
+  @Column({ length: 200 })
+  codeId: string;
+
+  @ManyToOne(type => User)
   @JoinColumn()
   user: User;
 
-  @OneToOne(type => Problem)
+  @ManyToOne(type => Problem)
   @JoinColumn()
   problem: Problem;
 }
