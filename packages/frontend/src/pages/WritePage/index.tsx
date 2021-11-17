@@ -89,7 +89,7 @@ const WritePage = () => {
     <>
       {isLogin ? (
         <EditorPage
-          left={
+          leftPane={
             <>
               <Editor
                 previewStyle="vertical"
@@ -104,7 +104,7 @@ const WritePage = () => {
               />
             </>
           }
-          right={
+          rightPane={
             <>
               <AceEditor
                 onLoad={onLoad}

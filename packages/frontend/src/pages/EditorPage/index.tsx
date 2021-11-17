@@ -37,8 +37,8 @@ const FlexColumnController = styled.div`
 `;
 
 interface SlotProps {
-  left: React.ReactNode;
-  right: React.ReactNode;
+  leftPane: React.ReactNode;
+  rightPane: React.ReactNode;
 }
 
 const EditorPage = (props: SlotProps) => {
@@ -71,11 +71,11 @@ const EditorPage = (props: SlotProps) => {
         onMouseUp={onControllerMouseUp}
       >
         <LeftFlexColumnWrapper width={leftFlexColumnWidth}>
-          {props.left}
+          {props.leftPane}
         </LeftFlexColumnWrapper>
         <FlexColumnController onMouseDown={onControllerMouseDown} />
         <RightFlexColumnWrapper width={leftFlexColumnWidth}>
-          {props.right}
+          {props.rightPane}
         </RightFlexColumnWrapper>
       </FlexWrapper>
     </>

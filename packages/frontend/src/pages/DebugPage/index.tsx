@@ -120,7 +120,7 @@ const DebugPage: React.FC = () => {
 
   return (
     <EditorPage
-      left={
+      leftPane={
         <>
           <ViewerWrapper>
             <FullWidthViewer
@@ -133,7 +133,7 @@ const DebugPage: React.FC = () => {
           </ConsoleWrapper>
         </>
       }
-      right={
+      rightPane={
         <>
           <EditorWrapper>
             <AceEditor

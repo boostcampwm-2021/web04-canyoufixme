@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef } from 'react';
-import type { MutableRefObject, RefObject } from 'react';
+import React, { useCallback, useRef } from 'react';
+import type { MutableRefObject } from 'react';
 import { nanoid } from 'nanoid';
 import Button from 'components/Button';
 import styled from '@cyfm/styled';
@@ -43,6 +43,9 @@ const StyledInput = styled.input`
   flex-basis: 100%;
 `;
 
+const TitleInput = styled(StyledInput)``;
+const TestCodeInput = styled(StyledInput)``;
+
 const TestCodeEditor = ({
   testCases,
   setTestCases,
@@ -81,14 +84,14 @@ const TestCodeEditor = ({
       <TestCodeViewer testCases={testCases} remove={remove} />
       <TestCaseWrapper>
         <TitleWrapper>
-          <StyledInput
+          <TitleInput
             ref={titleRef}
             type="text"
             placeholder="제목을 입력해주세요"
             required
           />
         </TitleWrapper>
-        <StyledInput
+        <TestCodeInput
           ref={codeRef}
           type="text"
           placeholder="테스트 코드를 입력해주세요"
