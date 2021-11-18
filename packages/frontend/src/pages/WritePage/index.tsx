@@ -30,7 +30,7 @@ const CodeEditorWrapper = styled.div`
 `;
 
 const TestCodeWrapper = styled.div`
-  flex-basis: 40%;
+  flex: 1 1 0;
   width: 100%;
   background: #353737;
   padding: 15px;
