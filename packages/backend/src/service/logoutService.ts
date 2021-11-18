@@ -7,7 +7,6 @@ export const logout = (req: Request, res: Response) => {
       res.json({ message: 'error', error: err });
     }
     res.clearCookie('isLogin');
-    res.clearCookie('cyfm/SSS');
     res.clearCookie('connect.sid');
     res.json({ message: 'success' });
   });
