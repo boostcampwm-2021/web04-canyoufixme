@@ -13,6 +13,7 @@ const CustomModal = (props: ModalProps) => {
     <Modal
       isOpen={isOpen}
       onRequestClose={() => setter(false)}
+      shouldFocusAfterRender={false}
       style={{
         overlay: {
           position: 'fixed',
