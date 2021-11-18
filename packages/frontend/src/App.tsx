@@ -90,7 +90,7 @@ const App: React.FC = () => {
         <ConfirmModal
           isOpen={isLogoutOpen}
           setter={setLogoutOpen}
-          content="로그아웃 하시겠습니까?"
+          messages={['로그아웃 하시겠습니까?']}
           callback={logout}
         />
         <MessageModal

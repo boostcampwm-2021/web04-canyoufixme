@@ -16,6 +16,9 @@ import FullWidthViewer from 'components/FullWidthViewer';
 
 import EditorPage from 'pages/EditorPage';
 import Button from 'components/Button';
+import MessageModal from 'components/Modal/MessageModal';
+import ConfirmModal from 'components/Modal/ConfirmModal';
+import LoadingModal from 'components/Modal/LoadingModal';
 
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-twilight';
@@ -51,12 +54,17 @@ const ButtonFooter = styled.div`
   background: #1c1d20;
 `;
 
+let socket: Socket<DefaultEventsMap, DefaultEventsMap>;
+
 const DebugPage: React.FC = () => {
-  let socket: Socket<DefaultEventsMap, DefaultEventsMap>;
   const [, setContent] = useState('');
   const [initCode, setInitCode] = useState('');
   const [code, setCode] = useState('');
   const [testCode, setTestCode] = useState([]);
+  const [isLoading, setLoading] = useState(false);
+  const [isSuccess, setSuccess] = useState(false);
+  const [isFail, setFail] = useState(false);
+  const [isError, setError] = useState(false);
 
   const viewerRef: MutableRefObject<Viewer | undefined> = useRef();
   const editorRef: MutableRefObject<(AceEditor & Ace.Editor) | undefined> =
@@ -64,6 +72,25 @@ const DebugPage: React.FC = () => {
 
   const match = useRouteMatch<{ id: string }>('/debug/:id');
   const id = match?.params.id;
+
+  useEffect(() => {
+    socket = io(`${process.env.REACT_APP_API_URL}`);
+
+    socket.on('result', async result => {
+      await requestSubmit(result);
+      setLoading(false);
+      if (checkResult(result)) {
+        setSuccess(true);
+      } else {
+        setFail(true);
+      }
+    });
+
+    socket.on('error', error => {
+      setError(true);
+    });
+  }, []);
+
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/debug/${id}`)
       .then(res => res.json())
@@ -96,6 +123,10 @@ const DebugPage: React.FC = () => {
     [editorRef],
   );
 
+  const checkResult = (result: string[]) => {
+    return result.every(value => value === 'success');
+  };
+
   const requestSubmit = async (result: [string]) => {
     const payload = {
       problemCodeId: id,
@@ -113,37 +144,20 @@ const DebugPage: React.FC = () => {
         },
       });
       res = await res.json();
-      console.log(res);
       return res;
-      // 성공 시 실행되는 부분
     } catch (err) {
-      // fetch(결과값 저장) 에러 시 실행되는 부분
-      console.log(err);
+      setError(true);
       return err;
     }
   };
 
   const onSubmit = useCallback(async () => {
-    socket = io(`${process.env.REACT_APP_API_URL}`);
-    socket.on('connect', () => {
-      console.log(socket.id);
-    });
+    setLoading(true);
 
     socket.emit('submit', {
       code: (editorRef.current as Ace.Editor).getValue() as string,
       id,
     });
-
-    socket.once('result', async result => {
-      await requestSubmit(result);
-    });
-
-    socket.once('error', error => {
-      // socket(채점) 에러 처리
-      console.log(error);
-    });
-
-    socket.emit('forceDisconnect');
   }, [testCode]);
 
   const onExecute = useCallback(async () => {
@@ -211,6 +225,25 @@ const DebugPage: React.FC = () => {
             <Button onClick={onExecute}>실행</Button>
             <Button onClick={onSubmit}>제출</Button>
           </ButtonFooter>
+          <LoadingModal isOpen={isLoading} />
+          <ConfirmModal
+            isOpen={isSuccess}
+            setter={setSuccess}
+            messages={['정답입니다!', '다른 문제를 풀러 가시겠습니까?']}
+            callback={() => {
+              window.location.href = '/';
+            }}
+          />
+          <MessageModal
+            isOpen={isFail}
+            setter={setFail}
+            messages={['틀렸습니다.', '다시 도전해 보세요!']}
+          />
+          <MessageModal
+            isOpen={isError}
+            setter={setError}
+            messages={['제출에 실패했습니다.', '담당자에게 문의 바랍니다.']}
+          />
         </>
       }
     />
