@@ -10,6 +10,7 @@ interface ModalProps {
   isOpen: boolean;
   setter: (isOpen: boolean) => void;
   messages: string[];
+  close?: boolean;
 }
 
 const ContentWrapper = styled.div`
@@ -43,9 +44,13 @@ const MessageModal = (props: ModalProps) => {
           <MessageWrapper key={nanoid()}>{message}</MessageWrapper>
         ))}
       </ContentWrapper>
-      <ButtonWrapper>
-        <Button onClick={closeModal}>닫기</Button>
-      </ButtonWrapper>
+      {props.close ? (
+        <ButtonWrapper>
+          <Button onClick={closeModal}>닫기</Button>
+        </ButtonWrapper>
+      ) : (
+        ''
+      )}
     </Modal>
   );
 };

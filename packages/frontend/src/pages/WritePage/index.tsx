@@ -184,7 +184,10 @@ const WritePage = () => {
                   '변경할 수 없습니다.',
                   '정말로 제출하시겠습니까?',
                 ]}
-                callback={submit}
+                callback={() => {
+                  setSubmit(false);
+                  submit();
+                }}
               />
               <MessageModal
                 isOpen={isSuccess}
@@ -193,6 +196,7 @@ const WritePage = () => {
                   '문제 제출에 성공했습니다.',
                   '잠시 후 문제 리스트로 이동합니다.',
                 ]}
+                close={false}
               />
               <MessageModal
                 isOpen={isError}
