@@ -21,6 +21,8 @@ export function execCodeWithWorker(code, testCodes, setup) {
             // 특정 메소드를 사용자 접근 불가하도록 제거
             delete WorkerGlobalScope.prototype.importScripts;
             delete WorkerGlobalScope.prototype.fetch;
+            delete self.close;
+
             // 제거한 prototype을 수정 불가하도록 변경
             Object.freeze(WorkerGlobalScope.prototype);
 
