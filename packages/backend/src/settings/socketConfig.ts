@@ -1,13 +1,15 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable prefer-destructuring */
+import fs from 'fs';
+import path from 'path';
+
 import { Server } from 'socket.io';
 import * as workerpool from 'workerpool';
 import { debug } from '../service/debugService';
 import { ProblemCodeModel } from './mongoConfig';
 
-const chaiString = require('fs')
-  .readFileSync(`../../node_modules/chai/chai.js`)
-  .toString();
+/* eslint-disable-next-line @typescript-eslint/no-var-requires */
+const chaiPath = path.dirname(require.resolve('chai'));
+const chaiString = fs.readFileSync(path.join(chaiPath, 'chai.js')).toString();
 
 const gradingWithWorkerpool = ({ pool, socket, code, testCode }) => {
   pool
