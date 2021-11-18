@@ -131,7 +131,7 @@ const DebugPage: React.FC = () => {
 
     socket.emit('submit', {
       code: (editorRef.current as Ace.Editor).getValue() as string,
-      testCode,
+      id,
     });
 
     socket.once('result', async result => {
