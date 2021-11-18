@@ -1,4 +1,4 @@
-export function sandboxFunction(code, origin, exec) {
+export function sandboxFunction(code, testCodes, setup, exec, origin) {
   var postMessage;
   window.onmessage = function (message) {
     if (message.origin === origin && message.ports) {
@@ -8,7 +8,7 @@ export function sandboxFunction(code, origin, exec) {
         port2.postMessage(data);
       };
 
-      exec(code)
+      exec(code, testCodes, setup || '')
         .then(payload => postMessage({ type: 'success', payload }))
         .catch(err => postMessage({ type: 'error', payload: err }));
     }

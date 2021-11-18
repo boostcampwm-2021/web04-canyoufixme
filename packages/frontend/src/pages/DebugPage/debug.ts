@@ -10,7 +10,11 @@ function escapeBackticks(code: string) {
   return code.replaceAll(/`/g, '\\`');
 }
 
-function execCodeWithSandbox(code: string): Promise<IExecutionResult> {
+function execCodeWithSandbox(
+  code: string,
+  testCodes: string[],
+  setup: string,
+): Promise<IExecutionResult> {
   return new Promise((resolve, reject) => {
     const sandbox = document.createElement('iframe');
     sandbox.style.display = 'none';
@@ -18,7 +22,12 @@ function execCodeWithSandbox(code: string): Promise<IExecutionResult> {
     sandbox.setAttribute('sandbox', 'allow-scripts');
     sandbox.srcdoc = `
       <script>
-        (${sandboxFunction})(\`${code}\`, \`${window.origin}\`, (${execCodeWithWorker}));
+        (${sandboxFunction})(
+          \`${escapeBackticks(code)}\`,
+          ${JSON.stringify(testCodes)},
+          \`${escapeBackticks(setup)}\`,
+          (${execCodeWithWorker}),
+          \`${window.origin}\`);
       </script>
     `;
     const { port1, port2 } = new MessageChannel();
@@ -43,11 +52,7 @@ const runner = async ({
   code: string;
   testCode: string[];
 }) => {
-  return execCodeWithSandbox(`
-    const { expect } = chai;
-    ${code}
-    ${escapeBackticks(testCode.join('\n'))}
-  `);
+  return execCodeWithSandbox(code, testCode, 'const { expect } = chai;');
 };
 
 export default runner;
