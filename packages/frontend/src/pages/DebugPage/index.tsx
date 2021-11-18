@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { MutableRefObject, RefObject } from 'react';
-import { useRouteMatch } from 'react-router-dom';
+import { useRouteMatch, useHistory } from 'react-router-dom';
 
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds';
@@ -184,6 +184,8 @@ const DebugPage: React.FC = () => {
     editor.clearSelection();
   }, [initCode]);
 
+  const history = useHistory();
+
   return (
     <EditorPage
       leftPane={
@@ -231,7 +233,7 @@ const DebugPage: React.FC = () => {
             setter={setSuccess}
             messages={['정답입니다!', '다른 문제를 풀러 가시겠습니까?']}
             callback={() => {
-              window.location.href = '/';
+              history.push('/');
             }}
           />
           <MessageModal
