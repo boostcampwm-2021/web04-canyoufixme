@@ -8,6 +8,7 @@ export const logout = (req: Request, res: Response) => {
     }
     res.clearCookie('isLogin');
     res.clearCookie('cyfm/SSS');
+    res.clearCookie('connect.sid');
     res.json({ message: 'success' });
   });
 };

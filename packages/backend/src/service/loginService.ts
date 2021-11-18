@@ -44,13 +44,14 @@ export const loginCallback = async (req: Request, res: Response) => {
 
   req.session['name'] = userInfo.login;
   req.session.save();
-  res.cookie('isLogin', true);
-  res.cookie('cyfm/SSS', req.session.id, { httpOnly: true });
+  res.cookie('isLogin', true, {
+    maxAge: 1000 * 3600 * 12,
+  });
   res.redirect(`${process.env.ORIGIN_URL}`);
 };
 
 export const isLogin = (req: Request, res: Response, next) => {
-  if (req.cookies['cyfm/SSS']) {
+  if (req.cookies['connect.sid']) {
     next();
   } else {
     res.status(401).json({
