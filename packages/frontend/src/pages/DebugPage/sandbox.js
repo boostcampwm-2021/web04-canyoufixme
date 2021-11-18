@@ -2,7 +2,7 @@ export function sandboxFunction(code, testCodes, setup, exec, origin) {
   var postMessage;
   window.onmessage = function (message) {
     if (message.origin === origin && message.ports) {
-      const [port2] = message.ports;
+      const port2 = message.ports[0];
 
       postMessage = function (data) {
         port2.postMessage(data);
