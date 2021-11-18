@@ -97,6 +97,7 @@ const App: React.FC = () => {
           isOpen={isMessageOpen}
           setter={setMessageOpen}
           messages={['비정상적인 접근입니다.', '로그인 상태를 확인해주세요.']}
+          close={true}
         />
         <Switch>
           <Route path="/" exact component={ListPage} />

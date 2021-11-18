@@ -253,16 +253,19 @@ const DebugPage: React.FC = () => {
             isOpen={isFail}
             setter={setFail}
             messages={['틀렸습니다.', '다시 도전해 보세요!']}
+            close={true}
           />
           <MessageModal
             isOpen={isTimeover}
             setter={setTimeover}
             messages={['실행 시간이 5초를 초과했습니다.']}
+            close={true}
           />
           <MessageModal
             isOpen={isError}
             setter={setError}
             messages={['제출에 실패했습니다.', '담당자에게 문의 바랍니다.']}
+            close={true}
           />
         </>
       }
