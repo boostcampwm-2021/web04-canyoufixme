@@ -41,8 +41,8 @@ const TestCodeViewer = (props: ViewerProps) => {
       {props.testCases.map(testcase => {
         return (
           <Wrapper key={testcase.id}>
-            <TestCaseTitle>{testcase.title}</TestCaseTitle>
-            <TestCaseCode>{testcase.code}</TestCaseCode>
+            <TestCaseTitle value={testcase.title} readonly />
+            <TestCaseCode value={testcase.code} readonly />
             <Button onClick={(e: MouseEvent) => props.remove(testcase.id)}>
               -
             </Button>
