@@ -35,7 +35,6 @@ export function execCodeWithWorker(code, testCodes, setup) {
                   ${escapeBackticks(setup)}
                   ${escapeBackticks(code)}
                   \${message.data}
-
                   return $$__cyfm__${random};
                 \`);
                 const key = func('${random}');
@@ -52,7 +51,7 @@ export function execCodeWithWorker(code, testCodes, setup) {
                     key: '${random}',
                     type: 'error',
                     result: {
-                      message: e.message
+                      message: e instanceof Error ? e.message : e
                     }
                   })
                 );
