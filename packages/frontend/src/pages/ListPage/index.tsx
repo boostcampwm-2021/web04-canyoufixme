@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import styled from '@cyfm/styled';
 
 import { paginationReducer } from './reducer';
+import LoadingModal from 'components/Modal/LoadingModal';
 
 const Background = styled.div`
   width: 100%;
@@ -59,6 +60,9 @@ interface Item {
   level: number;
 }
 
+let result: Item[] | null;
+let timeout: number;
+
 const ListPage: React.FC = () => {
   const problemsCnt = 10;
   const [isLoading, setLoading] = useState(false);
@@ -72,17 +76,30 @@ const ListPage: React.FC = () => {
 
   useEffect(() => {
     if (!isLoading) {
-      setLoading(true);
+      timeout = window.setTimeout(() => {
+        if (!result) {
+          setLoading(true);
+        }
+        return () => setLoading(false);
+      }, 1000);
       fetch(
         `${process.env.REACT_APP_API_URL}/api/problems?limit=${problemsCnt}&offset=${paginationState.offset}`,
       )
         .then(res => res.json())
         .then(json => {
           if (json && json.length > 0) {
-            dispatch({ type: 'addItems', items: json, offset: problemsCnt });
+            result = json;
+            dispatch({
+              type: 'addItems',
+              items: json,
+              offset: problemsCnt,
+            });
           }
         })
-        .finally(() => setLoading(false));
+        .finally(() => {
+          result = null;
+          window.clearTimeout(timeout);
+        });
     }
     return () => {};
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
@@ -107,21 +124,23 @@ const ListPage: React.FC = () => {
 
   useEffect(() => {
     const itemsElement = itemsList.current as HTMLDivElement;
-    return () => ioRef.current?.observe(itemsElement?.lastChild as Element);
+    const lastChild = itemsElement?.lastChild as Element;
+    return () => {
+      if (lastChild) ioRef.current?.observe(lastChild);
+      else ioRef.current?.observe(itemsElement);
+    };
   }, [paginationState.items]);
 
   return (
     <Background>
       <ListWrapper ref={itemsList}>
         {paginationState.items.map((item: Item) => (
-          <SignLink
-            to={`/debug/${item.codeId}`}
-            key={item.codeId}
-          >
+          <SignLink to={`/debug/${item.codeId}`} key={item.codeId}>
             <Sign>{item.title}</Sign>
           </SignLink>
         ))}
       </ListWrapper>
+      <LoadingModal isOpen={isLoading} />
     </Background>
   );
 };
