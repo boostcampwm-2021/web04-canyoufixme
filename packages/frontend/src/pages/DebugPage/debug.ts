@@ -43,14 +43,24 @@ function execCodeWithSandbox(
     sandbox.height = sandbox.width = '0';
     sandbox.setAttribute('sandbox', 'allow-scripts');
     sandbox.srcdoc = escaped`
-      <script>
-        (${sandboxFunction})(
-          \`${code}\`,
-          ${JSON.stringify(testCodes)},
-          \`${setup}\`,
-          (${execCodeWithWorker}),
-          \`${window.origin}\`);
-      </script>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta
+            http-equiv="content-security-policy"
+            content="script-src https://cdn.jsdelivr.net blob: 'unsafe-inline' 'unsafe-eval';">
+        </head>
+        <body>
+          <script>
+            (${sandboxFunction})(
+              \`${code}\`,
+              ${JSON.stringify(testCodes)},
+              \`${setup}\`,
+              (${execCodeWithWorker}),
+              \`${window.origin}\`);
+          </script>
+        </body>
+      </html>
     `;
     const { port1, port2 } = new MessageChannel();
 
