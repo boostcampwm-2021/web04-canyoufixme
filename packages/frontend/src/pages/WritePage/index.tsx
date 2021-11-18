@@ -57,7 +57,6 @@ const WritePage = () => {
   const history = useHistory();
 
   const [isLogin] = useLogin();
-  const [content, setContent] = useState('');
   const [code, setCode] = useState('');
   const [isLoading, setLoading] = useState(false);
   const [isSubmit, setSubmit] = useState(false);
