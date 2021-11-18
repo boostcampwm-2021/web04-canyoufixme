@@ -161,10 +161,18 @@ const DebugPage: React.FC = () => {
   }, [testCode]);
 
   const onExecute = useCallback(async () => {
+    const loadTimer = setTimeout(() => {
+      setLoading(true);
+    }, 500);
+
     const result = await runner({
       code: (editorRef.current as Ace.Editor).getValue() as string,
       testCode,
     });
+
+    clearTimeout(loadTimer);
+    setLoading(false);
+
     switch (result.type) {
       case 'success':
         setOutput('축하합니다. 멋지게 해내셨네요! 🥳');
