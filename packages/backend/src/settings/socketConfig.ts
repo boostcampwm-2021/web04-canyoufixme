@@ -14,6 +14,7 @@ const chaiString = fs.readFileSync(path.join(chaiPath, 'chai.js')).toString();
 const gradingWithWorkerpool = ({ pool, socket, code, testCode }) => {
   pool
     .exec(debug.runner, [{ chaiString, code, testCode }])
+    .timeout(5000)
     .then(result => {
       socket.emit('result', result);
     })
