@@ -1,3 +1,6 @@
+import { sandboxFunction } from './sandbox';
+import { execCodeWithWorker } from './worker';
+
 interface IExecutionResult {
   type: 'init' | 'error' | 'success';
   payload?: unknown;
@@ -7,69 +10,57 @@ function escapeBackticks(code: string) {
   return code.replaceAll(/`/g, '\\`');
 }
 
-function execCodeWithSandbox(code: string): Promise<IExecutionResult> {
+function escapeClosingTag(code: string) {
+  return code.replaceAll(/<\//g, '\\x3c/');
+}
+
+function escapeCode(code: string) {
+  return escapeClosingTag(escapeBackticks(code));
+}
+
+function escapeIfNotFunc(value: unknown) {
+  const stringValue = String(value);
+  return typeof value !== 'function' ? escapeCode(stringValue) : stringValue;
+}
+
+function escaped(strings: TemplateStringsArray, ...args: unknown[]) {
+  return (
+    strings[0] +
+    strings
+      .slice(1)
+      .reduce((acc, s, i) => acc + escapeIfNotFunc(args[i]) + s, '')
+  );
+}
+
+function execCodeWithSandbox(
+  code: string,
+  testCodes: string[],
+  setup: string,
+): Promise<IExecutionResult> {
   return new Promise((resolve, reject) => {
     const sandbox = document.createElement('iframe');
     sandbox.style.display = 'none';
     sandbox.height = sandbox.width = '0';
     sandbox.setAttribute('sandbox', 'allow-scripts');
-    sandbox.srcdoc = `
-      <script src="https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js"></script>
-      <script>
-        Object.freeze(chai);
-        Object.freeze(Object.prototype);
-      </script>
-      <script>
-        var postMessage;
-        window.onmessage = function (message) {
-          if (message.origin === '${window.origin}' && message.ports) {
-            const [port2] = message.ports;
-
-            postMessage = function (data) {
-              port2.postMessage(data);
-            };
-          }
-
-          const random = Math.random();
-          function randomName() {
-            return '__' + random.toString(32).substring(2).replace(/[0-9]/g, '');
-          }
-          const randomSuffix = randomName();
-
-          const result = (function (random) {
-            try {
-              const codeFunc = new Function(
-                'random' + randomSuffix,
-                \`${escapeBackticks(
-                  code,
-                )}\` + '\\nreturn random' + randomSuffix,
-              );
-              return codeFunc(random);
-            } catch (e) {
-              postMessage({
-                type: 'error',
-                payload: {
-                  message: e.message,
-                }
-              });
-            }
-            return random;
-          })(random);
-
-          if (random !== result) {
-            postMessage({
-              type: 'error',
-              payload: {
-                message: '잘못된 구문 return 사용',
-              }
-            });
-          } else {
-            postMessage({
-              type: 'success'
-            });
-          }
-        };
-      </script>
+    sandbox.srcdoc = escaped`
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta
+            http-equiv="content-security-policy"
+            content="script-src https://cdn.jsdelivr.net blob: 'unsafe-inline' 'unsafe-eval';">
+        </head>
+        <body>
+          <script>
+            (${sandboxFunction})(
+              \`${code}\`,
+              ${JSON.stringify(testCodes)},
+              \`${setup}\`,
+              (${execCodeWithWorker}),
+              \`${window.origin}\`);
+          </script>
+        </body>
+      </html>
     `;
     const { port1, port2 } = new MessageChannel();
 
@@ -93,11 +84,7 @@ const runner = async ({
   code: string;
   testCode: string[];
 }) => {
-  return execCodeWithSandbox(`
-    const { expect } = chai;
-    ${code}
-    ${escapeBackticks(testCode.join('\n'))}
-  `);
+  return execCodeWithSandbox(code, testCode, 'const { expect } = chai;');
 };
 
 export default runner;

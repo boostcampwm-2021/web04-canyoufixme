@@ -3,7 +3,7 @@ import { Editor } from '@toast-ui/react-editor';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds';
 import type { MutableRefObject, RefObject } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useHistory } from 'react-router-dom';
 
 import { useLogin } from 'hooks/useLogin';
 
@@ -54,8 +54,9 @@ const TitleInput = styled(FullWidthInput)`
 `;
 
 const WritePage = () => {
+  const history = useHistory();
+
   const [isLogin] = useLogin();
-  const [content, setContent] = useState('');
   const [code, setCode] = useState('');
   const [isLoading, setLoading] = useState(false);
   const [isSubmit, setSubmit] = useState(false);
@@ -110,7 +111,7 @@ const WritePage = () => {
       if (res.status === 201) {
         setSuccess(true);
         setTimeout(() => {
-          window.location.href = '/';
+          history.push('/');
         }, 2000);
       } else {
         setError(true);

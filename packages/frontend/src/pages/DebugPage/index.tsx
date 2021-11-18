@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { MutableRefObject, RefObject } from 'react';
-import { useRouteMatch } from 'react-router-dom';
+import { useRouteMatch, useHistory } from 'react-router-dom';
 
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds';
@@ -161,13 +161,19 @@ const DebugPage: React.FC = () => {
   }, [testCode]);
 
   const onExecute = useCallback(async () => {
+    const loadTimer = setTimeout(() => {
+      setLoading(true);
+    }, 500);
+
     const result = await runner({
       code: (editorRef.current as Ace.Editor).getValue() as string,
       testCode,
     });
+
+    clearTimeout(loadTimer);
+    setLoading(false);
+
     switch (result.type) {
-      case 'init':
-        return;
       case 'success':
         setOutput('축하합니다. 멋지게 해내셨네요! 🥳');
         break;
@@ -183,6 +189,8 @@ const DebugPage: React.FC = () => {
     editor.focus();
     editor.clearSelection();
   }, [initCode]);
+
+  const history = useHistory();
 
   return (
     <EditorPage
@@ -231,7 +239,7 @@ const DebugPage: React.FC = () => {
             setter={setSuccess}
             messages={['정답입니다!', '다른 문제를 풀러 가시겠습니까?']}
             callback={() => {
-              window.location.href = '/';
+              history.push('/');
             }}
           />
           <MessageModal
