@@ -202,6 +202,7 @@ const WritePage = () => {
                 isOpen={isError}
                 setter={setError}
                 messages={['출제에 실패했습니다.', '담당자에게 문의 바랍니다.']}
+                close={true}
               />
             </>
           }
