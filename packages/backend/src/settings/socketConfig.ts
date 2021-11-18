@@ -3,6 +3,7 @@
 import { Server } from 'socket.io';
 import * as workerpool from 'workerpool';
 import { debug } from '../service/debugService';
+import { ProblemCodeModel } from './mongoConfig';
 
 const chaiString = require('fs')
   .readFileSync(`../../node_modules/chai/chai.js`)
@@ -19,6 +20,11 @@ const gradingWithWorkerpool = ({ pool, socket, code, testCode }) => {
     });
 };
 
+const getTestCode = async problemId => {
+  const problemCodeData = await ProblemCodeModel.findOne({ _id: problemId });
+  return problemCodeData.testCode;
+};
+
 export const socketConnection = httpServer => {
   const pool = workerpool.pool();
 
@@ -27,8 +33,9 @@ export const socketConnection = httpServer => {
   });
 
   io.on('connection', socket => {
-    socket.on('submit', ({ code, testCode }) => {
-      gradingWithWorkerpool({ pool, socket, code, testCode });
+    socket.on('submit', async ({ code, id }) => {
+      const testCode = await getTestCode(id);
+      gradingWithWorkerpool({ pool, socket, code, testCode: [...testCode] });
     });
 
     socket.once('forceDisconnect', () => {
