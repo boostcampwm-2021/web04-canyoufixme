@@ -10,6 +10,28 @@ function escapeBackticks(code: string) {
   return code.replaceAll(/`/g, '\\`');
 }
 
+function escapeClosingTag(code: string) {
+  return code.replaceAll(/<\//g, '\\x3c/');
+}
+
+function escapeCode(code: string) {
+  return escapeClosingTag(escapeBackticks(code));
+}
+
+function escapeIfNotFunc(value: unknown) {
+  const stringValue = String(value);
+  return typeof value !== 'function' ? escapeCode(stringValue) : stringValue;
+}
+
+function escaped(strings: TemplateStringsArray, ...args: unknown[]) {
+  return (
+    strings[0] +
+    strings
+      .slice(1)
+      .reduce((acc, s, i) => acc + escapeIfNotFunc(args[i]) + s, '')
+  );
+}
+
 function execCodeWithSandbox(
   code: string,
   testCodes: string[],
@@ -20,12 +42,12 @@ function execCodeWithSandbox(
     sandbox.style.display = 'none';
     sandbox.height = sandbox.width = '0';
     sandbox.setAttribute('sandbox', 'allow-scripts');
-    sandbox.srcdoc = `
+    sandbox.srcdoc = escaped`
       <script>
         (${sandboxFunction})(
-          \`${escapeBackticks(code)}\`,
+          \`${code}\`,
           ${JSON.stringify(testCodes)},
-          \`${escapeBackticks(setup)}\`,
+          \`${setup}\`,
           (${execCodeWithWorker}),
           \`${window.origin}\`);
       </script>
