@@ -28,7 +28,7 @@ const getTestCode = async problemId => {
 };
 
 export const socketConnection = httpServer => {
-  const pool = workerpool.pool();
+  const pool = workerpool.pool({ maxWorkers: 5 });
 
   const io = new Server(httpServer, {
     cors: { origin: process.env.ORIGIN_URL },
