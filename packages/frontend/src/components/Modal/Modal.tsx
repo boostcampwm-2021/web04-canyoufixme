@@ -17,6 +17,7 @@ const CustomModal = (props: ModalProps) => {
         overlay: {
           position: 'fixed',
           background: 'rgba(0,0,0,0.5)',
+          zIndex: 99,
         },
         content: {
           display: 'flex',
