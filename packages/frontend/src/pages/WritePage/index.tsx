@@ -17,6 +17,9 @@ import Button from 'components/Button';
 import EditorPage from 'pages/EditorPage';
 import TestCodeEditor from 'components/TestCodeEditor';
 import FullWidthInput from 'components/FullWidthInput';
+import MessageModal from 'components/Modal/MessageModal';
+import ConfirmModal from 'components/Modal/ConfirmModal';
+import LoadingModal from 'components/Modal/LoadingModal';
 
 interface TestCase {
   title: string;
@@ -54,6 +57,10 @@ const WritePage = () => {
   const [isLogin] = useLogin();
   const [content, setContent] = useState('');
   const [code, setCode] = useState('');
+  const [isLoading, setLoading] = useState(false);
+  const [isSubmit, setSubmit] = useState(false);
+  const [isSuccess, setSuccess] = useState(false);
+  const [isError, setError] = useState(false);
 
   const titleInputRef: MutableRefObject<HTMLInputElement | undefined> =
     useRef();
@@ -79,7 +86,7 @@ const WritePage = () => {
     markdownRef.current = this;
   }
 
-  const submit = async (e: MouseEvent) => {
+  const submit = async () => {
     const payload = {
       code: code,
       content: (markdownRef.current as Editor).getInstance().getMarkdown(),
@@ -89,14 +96,28 @@ const WritePage = () => {
       category: 'JavaScript',
     };
 
-    await fetch(`${process.env.REACT_APP_API_URL}/api/problem`, {
-      method: 'POST',
-      credentials: 'include',
-      body: JSON.stringify(payload),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    try {
+      setLoading(true);
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/problem`, {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      setLoading(false);
+      if (res.status === 201) {
+        setSuccess(true);
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+      } else {
+        setError(true);
+      }
+    } catch (err) {
+      setError(true);
+    }
   };
 
   return (
@@ -145,8 +166,38 @@ const WritePage = () => {
               </TestCodeWrapper>
               <ButtonFooter>
                 <Button>실행</Button>
-                <Button onClick={submit}>제출</Button>
+                <Button
+                  onClick={() => {
+                    setSubmit(true);
+                  }}
+                >
+                  제출
+                </Button>
               </ButtonFooter>
+              <LoadingModal isOpen={isLoading} />
+              <ConfirmModal
+                isOpen={isSubmit}
+                setter={setSubmit}
+                messages={[
+                  '제출 후에는 내용을',
+                  '변경할 수 없습니다.',
+                  '정말로 제출하시겠습니까?',
+                ]}
+                callback={submit}
+              />
+              <MessageModal
+                isOpen={isSuccess}
+                setter={setSuccess}
+                messages={[
+                  '문제 제출에 성공했습니다.',
+                  '잠시 후 문제 리스트로 이동합니다.',
+                ]}
+              />
+              <MessageModal
+                isOpen={isError}
+                setter={setError}
+                messages={['출제에 실패했습니다.', '담당자에게 문의 바랍니다.']}
+              />
             </>
           }
         />
