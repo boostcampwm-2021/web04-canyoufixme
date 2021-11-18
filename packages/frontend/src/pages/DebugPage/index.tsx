@@ -64,6 +64,7 @@ const DebugPage: React.FC = () => {
   const [isLoading, setLoading] = useState(false);
   const [isSuccess, setSuccess] = useState(false);
   const [isFail, setFail] = useState(false);
+  const [isTimeover, setTimeover] = useState(false);
   const [isError, setError] = useState(false);
 
   const viewerRef: MutableRefObject<Viewer | undefined> = useRef();
@@ -87,7 +88,12 @@ const DebugPage: React.FC = () => {
     });
 
     socket.on('error', error => {
-      setError(true);
+      setLoading(false);
+      if (error.message.startsWith('Promise timed out')) {
+        setTimeover(true);
+      } else {
+        setError(true);
+      }
     });
   }, []);
 
@@ -146,6 +152,7 @@ const DebugPage: React.FC = () => {
       res = await res.json();
       return res;
     } catch (err) {
+      setLoading(false);
       setError(true);
       return err;
     }
@@ -246,6 +253,11 @@ const DebugPage: React.FC = () => {
             isOpen={isFail}
             setter={setFail}
             messages={['틀렸습니다.', '다시 도전해 보세요!']}
+          />
+          <MessageModal
+            isOpen={isTimeover}
+            setter={setTimeover}
+            messages={['실행 시간이 5초를 초과했습니다.']}
           />
           <MessageModal
             isOpen={isError}
