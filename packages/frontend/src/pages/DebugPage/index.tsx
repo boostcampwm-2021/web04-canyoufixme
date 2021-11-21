@@ -75,10 +75,9 @@ const DebugPage: React.FC = () => {
   const id = match?.params.id;
 
   useEffect(() => {
-    socket = io(`${process.env.REACT_APP_API_URL}`);
+    socket = io(`${process.env.REACT_APP_API_URL}`, { withCredentials: true });
 
     socket.on('result', async result => {
-      await requestSubmit(result);
       setLoading(false);
       if (checkResult(result)) {
         setSuccess(true);
@@ -131,31 +130,6 @@ const DebugPage: React.FC = () => {
 
   const checkResult = (result: string[]) => {
     return result.every(value => value === 'success');
-  };
-
-  const requestSubmit = async (result: [string]) => {
-    const payload = {
-      problemCodeId: id,
-      testResult: result,
-      code: code,
-    };
-
-    try {
-      let res = await fetch(`${process.env.REACT_APP_API_URL}/api/submit`, {
-        method: 'POST',
-        credentials: 'include',
-        body: JSON.stringify(payload),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      res = await res.json();
-      return res;
-    } catch (err) {
-      setLoading(false);
-      setError(true);
-      return err;
-    }
   };
 
   const onSubmit = useCallback(async () => {
