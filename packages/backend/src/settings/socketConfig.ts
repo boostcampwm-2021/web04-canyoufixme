@@ -14,16 +14,14 @@ import { ProblemCodeModel } from './mongoConfig';
 const chaiPath = path.dirname(require.resolve('chai'));
 const chaiString = fs.readFileSync(path.join(chaiPath, 'chai.js')).toString();
 
-const gradingWithWorkerpool = async ({ pool, socket, code, testCode }) => {
+const gradingWithWorkerpool = async ({ pool, code, testCode }) => {
   return await pool
     .exec(debug.runner, [{ chaiString, code, testCode }])
     .timeout(5000)
     .then(result => {
-      socket.emit('result', result);
       return result;
     })
     .catch(err => {
-      socket.emit('error', err);
       return err;
     });
 };
@@ -52,16 +50,25 @@ export const socketConnection = (httpServer, sessionConfig) => {
     if (!user) {
       socket.disconnect();
     }
-    socket.on('submit', async ({ code, id }) => {
-      const testCode = await getTestCode(id);
-      const result = await gradingWithWorkerpool({
-        pool,
-        socket,
-        code,
-        testCode: [...testCode],
+    socket.on('submit', async ({ code, id, problemId }) => {
+      const testCode = await getTestCode(problemId);
+
+      const resultArr = testCode.map(async (test, idx) => {
+        const result = await gradingWithWorkerpool({
+          pool,
+          code,
+          testCode: test,
+        });
+        socket.emit('result', { id: id[idx], result });
+        return result;
       });
 
-      await saveSubmit({ user, problemCodeId: id, code, testResult: result });
+      await saveSubmit({
+        user,
+        problemCodeId: problemId,
+        code,
+        testResult: resultArr,
+      });
     });
 
     socket.once('forceDisconnect', () => {
