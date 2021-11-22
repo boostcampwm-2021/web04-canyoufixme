@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useContext, useMemo } from 'react';
 import { BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom';
 import Modal from 'react-modal';
-import { useLogin } from 'hooks/useLogin';
+import { LoginContext } from 'contexts/LoginContext';
 import './App.css';
 
 import styled from '@cyfm/styled';
@@ -40,7 +40,14 @@ const Logo = styled.img`
 `;
 
 const App: React.FC = () => {
-  const [isLogin, setLogin] = useLogin();
+  const loginContext = useContext(LoginContext);
+  const [isLogin, setLogin] = useState(loginContext.isLogin);
+  const login = useMemo(() => {
+    return {
+      isLogin,
+      setLogin,
+    };
+  }, [isLogin]);
   const [isLogoutOpen, setLogoutOpen] = useState(false);
   const [isMessageOpen, setMessageOpen] = useState(false);
 
@@ -55,10 +62,10 @@ const App: React.FC = () => {
           setMessageOpen(true);
           return;
         }
-        setLogin(false);
         setLogoutOpen(false);
+        setLogin(false);
       });
-  }, [setLogin]);
+  }, []);
 
   const openLogoutModal = useCallback(
     (e: MouseEvent) => {
@@ -99,14 +106,16 @@ const App: React.FC = () => {
           messages={['비정상적인 접근입니다.', '로그인 상태를 확인해주세요.']}
           close={true}
         />
-        <Switch>
-          <Route path="/" exact component={ListPage} />
-          <Route path="/login" exact component={LoginPage} />
-          <Route path="/debug/:id" component={DebugPage} />
-          <Route path="/write" exact component={WritePage} />
-          <Route path="/editor" exact component={EditorPage} />
-          <Redirect path="*" to="/notfound" />
-        </Switch>
+        <LoginContext.Provider value={login}>
+          <Switch>
+            <Route path="/" exact component={ListPage} />
+            <Route path="/login" exact component={LoginPage} />
+            <Route path="/debug/:id" component={DebugPage} />
+            <Route path="/write" exact component={WritePage} />
+            <Route path="/editor" exact component={EditorPage} />
+            <Redirect path="*" to="/notfound" />
+          </Switch>
+        </LoginContext.Provider>
       </BrowserRouter>
     </div>
   );
