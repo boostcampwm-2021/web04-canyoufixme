@@ -1,10 +1,8 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-plusplus */
 /* eslint-disable dot-notation */
-import express from 'express';
 import { SubmitCodeModel } from '../settings/mongoConfig';
 import { SubmitLog } from '../model/SubmitLog';
-import { User } from '../model/User';
 import { Problem } from '../model/Problem';
 
 const saveSubmitCode = async ({ code, testResult }) => {
@@ -36,19 +34,16 @@ const saveSubmitLog = async ({ problem, user, codeId, testResult }) => {
   await submitLog.save();
 };
 
-const saveSubmit = async (req: express.Request, res: express.Response) => {
+const saveSubmit = async ({ user, code, testResult, problemCodeId }) => {
   try {
-    const user = await User.findOne({ name: req.session['name'] });
-    const { code, testResult, problemCodeId } = req.body;
     const problem = await Problem.findOne({ codeId: problemCodeId });
     const codeData = await saveSubmitCode({ code, testResult });
     const codeId = getCodeId(codeData);
 
-    await saveSubmitLog({ problem, user, codeId, testResult });
-
-    res.status(200).json({ message: 'submit success' });
+    const result = await saveSubmitLog({ problem, user, codeId, testResult });
+    return result;
   } catch (err) {
-    res.status(500).json({ message: 'submit fail', error: err.message });
+    return err;
   }
 };
 
