@@ -5,7 +5,7 @@
 </div>
 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/boostcampwm-2021/web04-canyoufixme/hit-counter&count_bg=%239D17CB&title_bg=%23555555&icon=javascript.svg&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
-[![canyoufixme-auto-deploy](https://github.com/boostcampwm-2021/web04-canyoufixme/actions/workflows/deploy.yml/badge.svg)](https://github.com/boostcampwm-2021/web04-canyoufixme/actions/workflows/deploy.yml)
+[![canyoufixme-dev-deploy](https://github.com/boostcampwm-2021/web04-canyoufixme/actions/workflows/dev-deploy.yml/badge.svg)](https://github.com/boostcampwm-2021/web04-canyoufixme/actions/workflows/dev-deploy.yml)
 
 ### 배포링크
 
