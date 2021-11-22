@@ -12,6 +12,8 @@ import LoginPage from 'pages/LoginPage';
 import DebugPage from 'pages/DebugPage';
 import WritePage from 'pages/WritePage';
 import EditorPage from 'pages/EditorPage';
+import ProfilePage from 'pages/ProfilePage';
+
 import TopNavLink from 'components/TopNavLink';
 import MessageModal from 'components/Modal/MessageModal';
 import ConfirmModal from 'components/Modal/ConfirmModal';
@@ -105,6 +107,7 @@ const App: React.FC = () => {
           <Route path="/debug/:id" component={DebugPage} />
           <Route path="/write" exact component={WritePage} />
           <Route path="/editor" exact component={EditorPage} />
+          <Route path="/profile/:name" exact component={ProfilePage} />
           <Redirect path="*" to="/notfound" />
         </Switch>
       </BrowserRouter>
