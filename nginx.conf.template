@@ -115,5 +115,15 @@ http {
     #       deny all;
     #}
   }
+
+  # API Server
+  server {
+    listen 80;
+    server_name ${API_HOST};
+
+    location / {
+      proxy_pass http://localhost:${API_PORT};
+    }
+  }
 }
 

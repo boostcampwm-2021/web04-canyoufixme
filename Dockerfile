@@ -1,12 +1,12 @@
 FROM node:14.17.3-alpine AS node-base
 
+RUN apk update && apk add gettext
 RUN wget -q -O- https://gobinaries.com/tj/node-prune | sh
 
 
 FROM node-base AS nginx-server
 
-RUN apk update && apk add nginx && rm -rf /var/cache/apk/*
-COPY nginx.conf /etc/nginx/nginx.conf
+RUN apk add nginx && rm -rf /var/cache/apk/*
 
 
 FROM node-base AS builder
@@ -36,7 +36,7 @@ COPY packages/ packages/
 RUN yarn bootstrap && yarn build:frontend
 
 RUN yarn --prod --silent --frozen-lockfile --ignore-scripts
-RUN yarn -s cache clean
+RUN yarn --silent cache clean
 RUN node-prune
 
 
@@ -44,13 +44,20 @@ FROM nginx-server AS production
 
 WORKDIR /app
 
-COPY --from=builder /app/packages/backend/dist /app/dist
-COPY --from=builder /app/packages/backend/package.json /app/package.json
+COPY --from=builder /app/packages/backend/dist ./dist
+COPY --from=builder /app/packages/backend/package.json ./package.json
 COPY --from=builder /app/packages/frontend/build /var/www/html
-COPY --from=builder /app/node_modules /app/node_modules
+COPY --from=builder /app/node_modules ./node_modules
+
+ARG API_HOST
+ARG API_PORT
+ENV API_HOST=$API_HOST
+ENV API_PORT=${API_PORT:-3001}
+
+COPY nginx.conf.template /app/nginx.conf.template
+RUN envsubst '${API_HOST} ${API_PORT}' < ./nginx.conf.template > /etc/nginx/nginx.conf
 
 EXPOSE 80
-EXPOSE 3001
 
 ENV NODE_ENV=production
 CMD ["sh", "-c", "nginx -g 'daemon on;' && yarn start:prod"]
