@@ -1,10 +1,16 @@
 #!/bin/sh
 
-if test "" = "$(sed -n -E -e '/^#/d' -e '/^([a-z]+): /,1p' "$1")"; then
-    echo >&2 '메시지는 반드시 "<type>: "으로 시작해야 합니다'
-    exit 1
-fi
-
 # 주석 제거
 sed -i.bak -e '/^#/d' "$1"
+
+if test "" = "$(grep -o -E '^Merge ' "$1")" && \
+    test "" = "$(sed -n -E \
+    -e 's/^(fixup|amend|squash)\! //' \
+    -e '/^([a-z]+)(\([^\)]+\))?\!?: /,1p' "$1")"; then
+
+    echo >&2 '메시지는 반드시 "<타입>[적용 범위(선택 사항)]: "으로 시작해야 합니다'
+    echo >&2 '참고: https://www.conventionalcommits.org/ko/v1.0.0-beta.4/'
+
+    exit 1
+fi
 
