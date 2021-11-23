@@ -22,7 +22,7 @@ const gradingWithWorkerpool = async ({ pool, code, testCode }) => {
       return result;
     })
     .catch(err => {
-      return err;
+      return err.message;
     });
 };
 
