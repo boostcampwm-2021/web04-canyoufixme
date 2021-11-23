@@ -141,7 +141,7 @@ const DebugPage: React.FC = () => {
   const onSubmit = useCallback(async () => {
     history.push('/result', {
       code: (editorRef.current as Ace.Editor).getValue() as string,
-      testCode,
+      testCode: debugStates.testCode,
       problemId: history.location.pathname.replace('/debug/', ''),
     });
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
@@ -182,7 +182,6 @@ const DebugPage: React.FC = () => {
     });
   }, [debugStates]);
 
-  const history = useHistory();
   useEffect(() => {
     if (history.location.state) {
       const code =
