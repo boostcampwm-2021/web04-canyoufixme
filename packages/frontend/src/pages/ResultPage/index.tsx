@@ -1,23 +1,14 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { Redirect, useHistory } from 'react-router';
 import { nanoid } from 'nanoid';
+import { ResultCode } from './enums';
 
 import SocketContext from 'contexts/SocketContext';
 import ResultViewer from 'components/ResultViewer';
 
-import styled from '@cyfm/styled';
-
-enum resultCase {
-  'success',
-  'fail',
-  'processing',
-}
-
-type result = keyof typeof resultCase;
-
 interface TestCase {
   id: string;
-  result: result;
+  result: ResultCode;
 }
 
 interface State {
@@ -40,10 +31,10 @@ const ResultPage = () => {
   );
   const [result, setResult] = useState<TestCase[]>(
     idList.map(value => {
-      return { id: value, result: 'processing' };
+      return { id: value, result: ResultCode.pending };
     }),
   );
-  const socket = useContext(SocketContext).socket;
+  const { socket } = useContext(SocketContext);
 
   const updateResultViewer = useCallback(data => {
     const { id, result } = data;
@@ -56,15 +47,12 @@ const ResultPage = () => {
   }, []);
 
   useEffect(() => {
-    socket.on('result', data => {
-      const message = data.result;
-      if (message === 'success') {
-        updateResultViewer({ id: data.id, result: 'success' });
-      } else if (message.startsWith('Promise timed out')) {
-        updateResultViewer({ id: data.id, result: 'timeout' });
-      } else {
-        updateResultViewer({ id: data.id, result: 'fail' });
-      }
+    socket.on('testSuccess', ({ id, resultCode }) => {
+      updateResultViewer({ id, result: resultCode });
+    });
+
+    socket.on('testFail', ({ id, resultCode, message }) => {
+      updateResultViewer({ id, result: resultCode });
     });
 
     socket.on('error', error => {});
