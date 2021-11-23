@@ -2,6 +2,7 @@ import React, { useState, useCallback, useContext, useMemo } from 'react';
 import { BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom';
 import Modal from 'react-modal';
 import { LoginContext } from 'contexts/LoginContext';
+import SocketContext from 'contexts/SocketContext';
 import './App.css';
 
 import styled from '@cyfm/styled';
@@ -41,6 +42,8 @@ const Logo = styled.img`
 
 const App: React.FC = () => {
   const loginContext = useContext(LoginContext);
+  const socketContext = useContext(SocketContext);
+  const socket = socketContext.socket;
   const [isLogin, setLogin] = useState(loginContext.isLogin);
   const login = useMemo(() => {
     return {
@@ -107,14 +110,16 @@ const App: React.FC = () => {
           close={true}
         />
         <LoginContext.Provider value={login}>
-          <Switch>
-            <Route path="/" exact component={ListPage} />
-            <Route path="/login" exact component={LoginPage} />
-            <Route path="/debug/:id" component={DebugPage} />
-            <Route path="/write" exact component={WritePage} />
-            <Route path="/editor" exact component={EditorPage} />
-            <Redirect path="*" to="/notfound" />
-          </Switch>
+          <SocketContext.Provider value={{ socket }}>
+            <Switch>
+              <Route path="/" exact component={ListPage} />
+              <Route path="/login" exact component={LoginPage} />
+              <Route path="/debug/:id" component={DebugPage} />
+              <Route path="/write" exact component={WritePage} />
+              <Route path="/editor" exact component={EditorPage} />
+              <Redirect path="*" to="/notfound" />
+            </Switch>
+          </SocketContext.Provider>
         </LoginContext.Provider>
       </BrowserRouter>
     </div>
