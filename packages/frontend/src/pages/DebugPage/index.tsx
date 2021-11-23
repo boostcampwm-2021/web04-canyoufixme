@@ -63,8 +63,6 @@ const ButtonFooter = styled.div`
   background: #1c1d20;
 `;
 
-let socket: Socket<DefaultEventsMap, DefaultEventsMap>;
-
 const DebugPage: React.FC = () => {
   const [debugStates, dispatch] = useReducer(debugReducer, {
     initCode: '',
@@ -78,6 +76,7 @@ const DebugPage: React.FC = () => {
   const [isFail, setFail] = useState(false);
   const [isTimeover, setTimeover] = useState(false);
   const [isError, setError] = useState(false);
+  const history = useHistory();
 
   useBlockUnload(debugStates, (_, deps) => {
     return deps.initCode !== deps.code;
@@ -89,28 +88,6 @@ const DebugPage: React.FC = () => {
 
   const match = useRouteMatch<{ id: string }>('/debug/:id');
   const id = match?.params.id;
-
-  useEffect(() => {
-    socket = io(`${process.env.REACT_APP_API_URL}`, { withCredentials: true });
-
-    socket.on('result', async result => {
-      setLoading(false);
-      if (checkResult(result)) {
-        setSuccess(true);
-      } else {
-        setFail(true);
-      }
-    });
-
-    socket.on('error', error => {
-      setLoading(false);
-      if (error.message.startsWith('Promise timed out')) {
-        setTimeover(true);
-      } else {
-        setError(true);
-      }
-    });
-  }, []);
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/debug/${id}`)
@@ -161,16 +138,11 @@ const DebugPage: React.FC = () => {
     [editorRef],
   );
 
-  const checkResult = (result: string[]) => {
-    return result.every(value => value === 'success');
-  };
-
   const onSubmit = useCallback(async () => {
-    setLoading(true);
-
-    socket.emit('submit', {
+    history.push('/result', {
       code: (editorRef.current as Ace.Editor).getValue() as string,
-      id,
+      testCode,
+      problemId: history.location.pathname.replace('/debug/', ''),
     });
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [debugStates.testCode]);
