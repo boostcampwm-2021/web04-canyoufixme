@@ -10,20 +10,47 @@ import { getUserByName } from '../service/userService';
 import { saveSubmit } from '../service/submitService';
 import { ProblemCodeModel } from './mongoConfig';
 
+// TODO: 공통파일로 분리
+// eslint-disable-next-line no-shadow
+enum ResultCode {
+  'success',
+  'fail',
+  'timeout',
+  'pending',
+}
+
 /* eslint-disable-next-line @typescript-eslint/no-var-requires */
 const chaiPath = path.dirname(require.resolve('chai'));
 const chaiString = fs.readFileSync(path.join(chaiPath, 'chai.js')).toString();
 
-const gradingWithWorkerpool = async ({ pool, code, testCode }) => {
-  return await pool
-    .exec(debug.runner, [{ chaiString, code, testCode }])
-    .timeout(5000)
-    .then(result => {
-      return result;
-    })
-    .catch(err => {
-      return err.message;
+const gradingWithWorkerpool = async ({ id, pool, socket, code, testCode }) => {
+  try {
+    await pool
+      .exec(debug.runner, [{ chaiString, code, testCode }])
+      .timeout(5000);
+
+    socket.emit('testSuccess', {
+      id,
+      resultCode: ResultCode.success,
     });
+  } catch (e) {
+    switch (true) {
+      case e instanceof workerpool.Promise.TimeoutError:
+        socket.emit('testFail', {
+          id,
+          message: e.message,
+          resultCode: ResultCode.timeout,
+        });
+        break;
+      default:
+        socket.emit('testFail', {
+          id,
+          message: e.message,
+          resultCode: ResultCode.fail,
+        });
+        break;
+    }
+  }
 };
 
 const getTestCode = async problemId => {
@@ -53,21 +80,24 @@ export const socketConnection = (httpServer, sessionConfig) => {
     socket.on('submit', async ({ code, id, problemId }) => {
       const testCode = await getTestCode(problemId);
 
-      const resultArr = testCode.map(async (test, idx) => {
-        const result = await gradingWithWorkerpool({
-          pool,
-          code,
-          testCode: test,
-        });
-        socket.emit('result', { id: id[idx], result });
-        return result;
-      });
+      const results = await Promise.all(
+        testCode.map(async (test, idx) => {
+          const result = await gradingWithWorkerpool({
+            id: id[idx],
+            pool,
+            socket,
+            code,
+            testCode: test,
+          });
+          return result;
+        }),
+      );
 
       await saveSubmit({
         user,
         problemCodeId: problemId,
         code,
-        testResult: resultArr,
+        testResult: results,
       });
     });
 

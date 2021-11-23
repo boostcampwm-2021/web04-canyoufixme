@@ -2,19 +2,13 @@
 /* eslint-disable no-new-func */
 
 const runner = ({ chaiString, code, testCode }) => {
-  try {
-    const codeRunner = new Function(
-      `${chaiString}
-        const {expect} = chai;
-        ${code}
-        ${testCode}
-      `,
-    );
-    codeRunner();
-    return 'success';
-  } catch (err) {
-    return err.toString();
-  }
+  const codeRunner = new Function(`
+    ${chaiString}
+    const { expect } = chai;
+    ${code}
+    ${testCode}
+  `);
+  codeRunner();
 };
 
 export const debug = {

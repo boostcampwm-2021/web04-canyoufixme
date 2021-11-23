@@ -11,6 +11,7 @@ import logo from 'assets/images/upscale.png';
 import ListPage from 'pages/ListPage';
 import LoginPage from 'pages/LoginPage';
 import DebugPage from 'pages/DebugPage';
+import ResultPage from 'pages/ResultPage';
 import WritePage from 'pages/WritePage';
 import EditorPage from 'pages/EditorPage';
 import TopNavLink from 'components/TopNavLink';
@@ -115,6 +116,7 @@ const App: React.FC = () => {
               <Route path="/" exact component={ListPage} />
               <Route path="/login" exact component={LoginPage} />
               <Route path="/debug/:id" component={DebugPage} />
+              <Route path="/result" component={ResultPage} />
               <Route path="/write" exact component={WritePage} />
               <Route path="/editor" exact component={EditorPage} />
               <Redirect path="*" to="/notfound" />
