@@ -1,5 +1,10 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, {
+  useState,
+  useReducer,
+  useRef,
+  useCallback,
+  useEffect,
+} from 'react';
 import type { MutableRefObject, RefObject } from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 
@@ -20,10 +25,17 @@ import MessageModal from 'components/Modal/MessageModal';
 import ConfirmModal from 'components/Modal/ConfirmModal';
 import LoadingModal from 'components/Modal/LoadingModal';
 
+import { useBlockUnload } from 'hooks/useBlockUnload';
+
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-twilight';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
+
+import io, { Socket } from 'socket.io-client';
+import { DefaultEventsMap } from '@socket.io/component-emitter';
+
+import { debugReducer } from './reducer';
 
 const ViewerWrapper = styled.div`
   display: flex;
@@ -52,16 +64,23 @@ const ButtonFooter = styled.div`
 `;
 
 const DebugPage: React.FC = () => {
-  const [, setContent] = useState('');
-  const [initCode, setInitCode] = useState('');
-  const [code, setCode] = useState('');
-  const [testCode, setTestCode] = useState([]);
+  const [debugStates, dispatch] = useReducer(debugReducer, {
+    initCode: '',
+    content: '',
+    code: '',
+    testCode: [],
+  });
+  const [output, setOutput] = useState('');
   const [isLoading, setLoading] = useState(false);
   const [isSuccess, setSuccess] = useState(false);
   const [isFail, setFail] = useState(false);
   const [isTimeover, setTimeover] = useState(false);
   const [isError, setError] = useState(false);
   const history = useHistory();
+
+  useBlockUnload(debugStates, (_, deps) => {
+    return deps.initCode !== deps.code;
+  });
 
   const viewerRef: MutableRefObject<Viewer | undefined> = useRef();
   const editorRef: MutableRefObject<(AceEditor & Ace.Editor) | undefined> =
@@ -73,27 +92,44 @@ const DebugPage: React.FC = () => {
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/debug/${id}`)
       .then(res => res.json())
-      .then(({ content, code, testCode }) => {
-        const prettierCode = prettier.format(code, {
-          singleQuote: true,
-          semi: true,
-          tabWidth: 2,
-          trailingComma: 'all',
-          arrowParens: 'avoid',
-          parser: 'babel',
-          plugins: [babelParser],
-        });
-        setContent(content);
-        setInitCode(prettierCode);
-        setCode(prettierCode);
-        setTestCode(testCode);
-        viewerRef.current?.getInstance().setMarkdown(content);
-      });
+      .then(
+        ({
+          content,
+          code,
+          testCode,
+        }: {
+          content: string;
+          code: string;
+          testCode: string[];
+        }) => {
+          const prettierCode = prettier.format(code, {
+            singleQuote: true,
+            semi: true,
+            tabWidth: 2,
+            trailingComma: 'all',
+            arrowParens: 'avoid',
+            parser: 'babel',
+            plugins: [babelParser],
+          });
+
+          dispatch({
+            type: 'init',
+            payload: {
+              code: prettierCode,
+              content,
+              testCode,
+            },
+          });
+
+          viewerRef.current?.getInstance().setMarkdown(content);
+        },
+      );
   }, [id]);
 
-  const [output, setOutput] = useState('');
-
-  const onChange = useCallback(setCode, [setCode]);
+  const onChange = useCallback(
+    code => dispatch({ type: 'setCode', payload: { code } }),
+    [],
+  );
 
   const onLoad = useCallback(
     editor => {
@@ -108,7 +144,8 @@ const DebugPage: React.FC = () => {
       testCode,
       problemId: history.location.pathname.replace('/debug/', ''),
     });
-  }, [testCode]);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [debugStates.testCode]);
 
   const onExecute = useCallback(async () => {
     const loadTimer = setTimeout(() => {
@@ -117,7 +154,7 @@ const DebugPage: React.FC = () => {
 
     const result = await runner({
       code: (editorRef.current as Ace.Editor).getValue() as string,
-      testCode,
+      testCode: debugStates.testCode,
     });
 
     clearTimeout(loadTimer);
@@ -131,14 +168,30 @@ const DebugPage: React.FC = () => {
         setOutput((result.payload as { message: string }).message);
         break;
     }
-  }, [testCode, editorRef, setOutput]);
+  }, [debugStates.testCode, editorRef, setOutput]);
 
   const initializeCode = useCallback(() => {
     const editor = editorRef.current as Ace.Editor;
-    editor.setValue(initCode);
+    editor.setValue(debugStates.initCode as string);
     editor.focus();
     editor.clearSelection();
-  }, [initCode]);
+
+    dispatch({
+      type: 'init',
+      payload: { ...debugStates, code: debugStates.initCode },
+    });
+  }, [debugStates]);
+
+  const history = useHistory();
+  useEffect(() => {
+    if (history.location.state) {
+      const code =
+        (history.location.state as { deps: { code: string } }).deps.code ?? '';
+      if (code) {
+        dispatch({ type: 'setCode', payload: { code } });
+      }
+    }
+  }, [history]);
 
   return (
     <EditorPage
@@ -167,7 +220,7 @@ const DebugPage: React.FC = () => {
               theme="twilight"
               name="test"
               fontSize={16}
-              value={code}
+              value={debugStates.code}
               editorProps={{ $blockScrolling: true }}
               setOptions={{
                 tabSize: 2,
