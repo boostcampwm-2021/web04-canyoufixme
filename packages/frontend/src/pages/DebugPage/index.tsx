@@ -20,6 +20,8 @@ import MessageModal from 'components/Modal/MessageModal';
 import ConfirmModal from 'components/Modal/ConfirmModal';
 import LoadingModal from 'components/Modal/LoadingModal';
 
+import { useBlockUnload } from 'hooks/useBlockUnload';
+
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-twilight';
 import '@toast-ui/editor/dist/toastui-editor.css';
@@ -67,6 +69,8 @@ const DebugPage: React.FC = () => {
   const [isTimeover, setTimeover] = useState(false);
   const [isError, setError] = useState(false);
 
+  useBlockUnload(code);
+
   const viewerRef: MutableRefObject<Viewer | undefined> = useRef();
   const editorRef: MutableRefObject<(AceEditor & Ace.Editor) | undefined> =
     useRef();
@@ -111,7 +115,7 @@ const DebugPage: React.FC = () => {
         });
         setContent(content);
         setInitCode(prettierCode);
-        setCode(prettierCode);
+        setCode(prev => (prev ? prev : prettierCode));
         setTestCode(testCode);
         viewerRef.current?.getInstance().setMarkdown(content);
       });
@@ -172,6 +176,15 @@ const DebugPage: React.FC = () => {
   }, [initCode]);
 
   const history = useHistory();
+  useEffect(() => {
+    console.log(history);
+    if (history.location.state) {
+      const code = (history.location.state as { deps?: string })?.deps ?? '';
+      if (code) {
+        setCode(code);
+      }
+    }
+  }, []);
 
   return (
     <EditorPage

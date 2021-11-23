@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useContext } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useContext } from 'react';
 import { Editor } from '@toast-ui/react-editor';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds';
@@ -6,6 +6,7 @@ import type { MutableRefObject, RefObject } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
 
 import { LoginContext } from 'contexts/LoginContext';
+import { useBlockUnload } from 'hooks/useBlockUnload';
 
 import 'ace-builds/src-noconflict/theme-twilight';
 
@@ -62,6 +63,16 @@ const WritePage = () => {
   const [isSubmit, setSubmit] = useState(false);
   const [isSuccess, setSuccess] = useState(false);
   const [isError, setError] = useState(false);
+
+  useBlockUnload(code);
+  useEffect(() => {
+    if (history.location.state) {
+      const code = (history.location.state as { deps?: string })?.deps ?? '';
+      if (code) {
+        setCode(code);
+      }
+    }
+  }, [history]);
 
   const titleInputRef: MutableRefObject<HTMLInputElement | undefined> =
     useRef();
@@ -155,6 +166,7 @@ const WritePage = () => {
                   height="100%"
                   theme="twilight"
                   name="test"
+                  value={code}
                   fontSize={16}
                   editorProps={{ $blockScrolling: true }}
                 />
