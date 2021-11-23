@@ -1,11 +1,11 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useContext } from 'react';
 import { Editor } from '@toast-ui/react-editor';
 import AceEditor from 'react-ace';
 import { Ace } from 'ace-builds';
 import type { MutableRefObject, RefObject } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
 
-import { useLogin } from 'hooks/useLogin';
+import { LoginContext } from 'contexts/LoginContext';
 
 import 'ace-builds/src-noconflict/theme-twilight';
 
@@ -56,7 +56,7 @@ const TitleInput = styled(FullWidthInput)`
 const WritePage = () => {
   const history = useHistory();
 
-  const [isLogin] = useLogin();
+  const { isLogin } = useContext(LoginContext);
   const [code, setCode] = useState('');
   const [isLoading, setLoading] = useState(false);
   const [isSubmit, setSubmit] = useState(false);
