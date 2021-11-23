@@ -142,10 +142,9 @@ const DebugPage: React.FC = () => {
     history.push('/result', {
       code: (editorRef.current as Ace.Editor).getValue() as string,
       testCode: debugStates.testCode,
-      problemId: history.location.pathname.replace('/debug/', ''),
+      problemId: id,
     });
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [debugStates.testCode]);
+  }, [debugStates.testCode, history, id]);
 
   const onExecute = useCallback(async () => {
     const loadTimer = setTimeout(() => {
