@@ -25,9 +25,6 @@ import 'ace-builds/src-noconflict/theme-twilight';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
 
-import io, { Socket } from 'socket.io-client';
-import { DefaultEventsMap } from '@socket.io/component-emitter';
-
 const ViewerWrapper = styled.div`
   display: flex;
   flex-basis: 50%;
@@ -54,8 +51,6 @@ const ButtonFooter = styled.div`
   background: #1c1d20;
 `;
 
-let socket: Socket<DefaultEventsMap, DefaultEventsMap>;
-
 const DebugPage: React.FC = () => {
   const [, setContent] = useState('');
   const [initCode, setInitCode] = useState('');
@@ -66,6 +61,7 @@ const DebugPage: React.FC = () => {
   const [isFail, setFail] = useState(false);
   const [isTimeover, setTimeover] = useState(false);
   const [isError, setError] = useState(false);
+  const history = useHistory();
 
   const viewerRef: MutableRefObject<Viewer | undefined> = useRef();
   const editorRef: MutableRefObject<(AceEditor & Ace.Editor) | undefined> =
@@ -73,28 +69,6 @@ const DebugPage: React.FC = () => {
 
   const match = useRouteMatch<{ id: string }>('/debug/:id');
   const id = match?.params.id;
-
-  useEffect(() => {
-    socket = io(`${process.env.REACT_APP_API_URL}`, { withCredentials: true });
-
-    socket.on('result', async result => {
-      setLoading(false);
-      if (checkResult(result)) {
-        setSuccess(true);
-      } else {
-        setFail(true);
-      }
-    });
-
-    socket.on('error', error => {
-      setLoading(false);
-      if (error.message.startsWith('Promise timed out')) {
-        setTimeover(true);
-      } else {
-        setError(true);
-      }
-    });
-  }, []);
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/debug/${id}`)
@@ -128,16 +102,11 @@ const DebugPage: React.FC = () => {
     [editorRef],
   );
 
-  const checkResult = (result: string[]) => {
-    return result.every(value => value === 'success');
-  };
-
   const onSubmit = useCallback(async () => {
-    setLoading(true);
-
-    socket.emit('submit', {
+    history.push('/result', {
       code: (editorRef.current as Ace.Editor).getValue() as string,
-      id,
+      testCode,
+      problemId: history.location.pathname.replace('/debug/', ''),
     });
   }, [testCode]);
 
@@ -170,8 +139,6 @@ const DebugPage: React.FC = () => {
     editor.focus();
     editor.clearSelection();
   }, [initCode]);
-
-  const history = useHistory();
 
   return (
     <EditorPage
