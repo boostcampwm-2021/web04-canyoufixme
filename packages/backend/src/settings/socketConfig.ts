@@ -53,15 +53,17 @@ export const socketConnection = (httpServer, sessionConfig) => {
     socket.on('submit', async ({ code, id, problemId }) => {
       const testCode = await getTestCode(problemId);
 
-      const resultArr = testCode.map(async (test, idx) => {
-        const result = await gradingWithWorkerpool({
-          pool,
-          code,
-          testCode: test,
-        });
-        socket.emit('result', { id: id[idx], result });
-        return result;
-      });
+      const resultArr = await Promise.all(
+        testCode.map(async (test, idx) => {
+          const result = await gradingWithWorkerpool({
+            pool,
+            code,
+            testCode: test,
+          });
+          socket.emit('result', { id: id[idx], result });
+          return result;
+        }),
+      );
 
       await saveSubmit({
         user,
