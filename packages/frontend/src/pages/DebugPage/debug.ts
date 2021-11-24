@@ -7,7 +7,7 @@ interface IExecutionResult {
 }
 
 function escapeBackticks(code: string) {
-  return code.replaceAll(/`/g, '\\`');
+  return code.replaceAll(/([$`])/g, '\\$1');
 }
 
 function escapeClosingTag(code: string) {
