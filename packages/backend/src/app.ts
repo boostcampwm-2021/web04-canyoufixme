@@ -19,12 +19,22 @@ import { router as logoutController } from './controller/logoutController';
 
 const app: express.Application = express();
 
+const isProduction = process.env.NODE_ENV === 'production';
+const origin = new URL(process.env.ORIGIN_URL);
+const getDomainFromHostname = hostname =>
+  hostname.split('.').slice(-2).join('.');
+
 const sessionConfig = session({
   secret: 'GyungGi_FourSkyking',
   store: sessionStore,
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 1000 * 3600 * 12 },
+  cookie: {
+    maxAge: 1000 * 3600 * 12,
+    httpOnly: true,
+    domain: getDomainFromHostname(origin.hostname),
+    secure: isProduction,
+  },
 });
 
 const server = createServer(app);
