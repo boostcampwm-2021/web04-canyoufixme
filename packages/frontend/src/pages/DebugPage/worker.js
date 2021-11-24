@@ -1,5 +1,5 @@
 export function execCodeWithWorker(code, testCodes, setup) {
-  function escapeBackticks(code) {
+  function escapeTemplate(code) {
     return code.replaceAll(/([$`])/g, '\\$1');
   }
 
@@ -29,11 +29,11 @@ export function execCodeWithWorker(code, testCodes, setup) {
             onmessage = function (message) {
               try {
                 // 문법검사
-                new Function(\`${escapeBackticks(code)}\`);
+                new Function(\`${escapeTemplate(code)}\`);
 
                 const func = new Function('$$__cyfm__${random}', \`
-                  ${escapeBackticks(setup)}
-                  ${escapeBackticks(code)}
+                  ${escapeTemplate(setup)}
+                  ${escapeTemplate(code)}
                   \${message.data}
                   return $$__cyfm__${random};
                 \`);
