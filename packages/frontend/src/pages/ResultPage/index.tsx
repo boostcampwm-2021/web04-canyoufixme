@@ -24,7 +24,7 @@ const ResultPage = () => {
     ? state
     : { code: null, testCode: null, problemId: null };
 
-  const [idList, setIdList] = useState<string[]>(
+  const [idList] = useState<string[]>(
     Array(testCode?.length)
       .fill(0)
       .map(val => nanoid()),

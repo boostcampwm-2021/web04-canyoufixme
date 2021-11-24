@@ -26,16 +26,12 @@ import ConfirmModal from 'components/Modal/ConfirmModal';
 import LoadingModal from 'components/Modal/LoadingModal';
 
 import { useBlockUnload } from 'hooks/useBlockUnload';
+import { debugReducer } from './reducer';
 
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-twilight';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
-
-import io, { Socket } from 'socket.io-client';
-import { DefaultEventsMap } from '@socket.io/component-emitter';
-
-import { debugReducer } from './reducer';
 
 const ViewerWrapper = styled.div`
   display: flex;
