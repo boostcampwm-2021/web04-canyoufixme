@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
-
+import { useState, useCallback, useEffect, useRef } from 'react';
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import syncWorkerUrl from 'worker-plugin/loader?sharedWorker!./sync.worker';
 import styled from '@cyfm/styled';
 
 const minWidth = 250;
@@ -11,20 +12,19 @@ const FlexWrapper = styled.div`
   min-height: calc(100vh - 80px);
 `;
 
-const LeftFlexColumnWrapper = styled.div<{ width: number }>`
+const ColumnWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  flex-basis: ${props => props.width}px;
   min-width: ${minWidth}px;
   min-height: 100%;
 `;
 
-const RightFlexColumnWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
+const LeftFlexColumnWrapper = styled<{ width: number }>(ColumnWrapper)`
+  flex-basis: ${props => props.width}px;
+`;
+
+const RightFlexColumnWrapper = styled(ColumnWrapper)`
   flex-grow: 1;
-  min-width: ${minWidth}px;
-  min-height: 100%;
 `;
 
 const FlexColumnController = styled.div`
@@ -44,6 +44,7 @@ interface SlotProps {
 }
 
 const EditorPage = (props: SlotProps) => {
+  const syncWorkerRef = useRef<SharedWorker>();
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [leftPaneWidth, setLeftPaneWidth] = useState(
     localStorage.getItem('leftPaneWidth') ??
@@ -67,9 +68,43 @@ const EditorPage = (props: SlotProps) => {
     (event: MouseEvent): void => {
       setIsMouseDown(false);
       localStorage.setItem('leftPaneWidth', String(leftPaneWidth));
+      syncWorkerRef.current?.port.postMessage(
+        `DATA${JSON.stringify({
+          type: 'editorWidth',
+          payload: { width: leftPaneWidth },
+        })}`,
+      );
     },
     [leftPaneWidth],
   );
+
+  useEffect(() => {
+    syncWorkerRef.current = new SharedWorker(syncWorkerUrl);
+    const syncWorker = syncWorkerRef.current;
+
+    const receivedMessage = (event: MessageEvent) => {
+      switch (event.data) {
+        case 'PING':
+          syncWorker?.port.postMessage('PONG');
+          break;
+        default:
+          if (event.data.startsWith('DATA')) {
+            const data = JSON.parse(event.data.substring('DATA'.length));
+            if (data.type === 'editorWidth') {
+              setLeftPaneWidth(data.payload.width);
+            }
+          }
+          break;
+      }
+    };
+
+    syncWorker?.port.addEventListener('message', receivedMessage);
+    syncWorker?.port.start();
+    syncWorker?.port.postMessage('PING');
+
+    return () =>
+      syncWorker?.port.removeEventListener('message', receivedMessage);
+  }, []);
 
   return (
     <>
