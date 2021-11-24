@@ -1,7 +1,16 @@
-import React, { useEffect, useState, useRef, useCallback, useContext } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useContext,
+} from 'react';
 import { Editor } from '@toast-ui/react-editor';
+
+import 'ace-builds';
+import 'ace-builds/webpack-resolver';
+import type { Ace } from 'ace-builds';
 import AceEditor from 'react-ace';
-import { Ace } from 'ace-builds';
 import type { MutableRefObject, RefObject } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
 

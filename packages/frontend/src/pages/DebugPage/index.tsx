@@ -8,8 +8,10 @@ import React, {
 import type { MutableRefObject, RefObject } from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 
+import 'ace-builds';
+import 'ace-builds/webpack-resolver';
+import type { Ace } from 'ace-builds';
 import AceEditor from 'react-ace';
-import { Ace } from 'ace-builds';
 import type { Viewer } from '@toast-ui/react-editor';
 
 import babelParser from 'prettier/parser-babel';
@@ -218,8 +220,6 @@ const DebugPage: React.FC = () => {
               editorProps={{ $blockScrolling: true }}
               setOptions={{
                 tabSize: 2,
-                enableBasicAutocompletion: true,
-                enableLiveAutocompletion: true,
               }}
             />
           </EditorWrapper>
