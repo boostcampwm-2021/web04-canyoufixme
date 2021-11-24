@@ -1,6 +1,13 @@
 const TerserPlugin = require('terser-webpack-plugin');
 const WorkerPlugin = require('worker-plugin');
 
+const isTerserPlugin = plugin => {
+  return (
+    plugin instanceof TerserPlugin ||
+    (plugin.constructor && plugin.constructor.name === 'TerserPlugin')
+  );
+};
+
 module.exports = {
   plugins: [
     {
@@ -13,17 +20,18 @@ module.exports = {
         }) => {
           const {
             optimization: { minimize, minimizer },
+            plugins,
           } = webpackConfig;
 
+          plugins.push(new WorkerPlugin());
+
           if (minimize) {
-            const idx = minimizer.findIndex(m => m instanceof TerserPlugin);
-
-            minimizer.splice(idx, 1);
-            minimizer.push(new TerserPlugin());
+            const terserIdx = minimizer.findIndex(isTerserPlugin);
+            if (terserIdx !== -1) {
+              minimizer.splice(terserIdx, 1);
+              minimizer.push(new TerserPlugin());
+            }
           }
-
-          webpackConfig.plugins.push(new WorkerPlugin());
-
           return webpackConfig;
         },
       },
