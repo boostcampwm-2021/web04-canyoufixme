@@ -7,7 +7,7 @@ interface IExecutionResult {
 }
 
 function escapeTemplate(code: string) {
-  return code.replaceAll(/([$`])/g, '\\$1');
+  return code.replaceAll(/([\\$`])/g, '\\$1');
 }
 
 function escapeClosingTag(code: string) {

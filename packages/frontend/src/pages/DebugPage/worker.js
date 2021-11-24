@@ -1,6 +1,6 @@
 export function execCodeWithWorker(code, testCodes, setup) {
   function escapeTemplate(code) {
-    return code.replaceAll(/([$`])/g, '\\$1');
+    return code.replaceAll(/([\\$`])/g, '\\$1');
   }
 
   return new Promise((resolve, reject) => {
