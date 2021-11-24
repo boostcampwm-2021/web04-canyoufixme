@@ -15,6 +15,7 @@ import ResultPage from 'pages/ResultPage';
 import WritePage from 'pages/WritePage';
 import EditorPage from 'pages/EditorPage';
 import GuidePage from 'pages/GuidePage';
+import NotFoundPage from 'pages/NotFoundPage';
 import TopNavLink from 'components/TopNavLink';
 import MessageModal from 'components/Modal/MessageModal';
 import ConfirmModal from 'components/Modal/ConfirmModal';
@@ -125,7 +126,8 @@ const App: React.FC = () => {
               <Route path="/write" exact component={WritePage} />
               <Route path="/editor" exact component={EditorPage} />
               <Route path="/guide" exact component={GuidePage} />
-              <Redirect path="*" to="/notfound" />
+              <Route path="/404" component={NotFoundPage} />
+              <Redirect path="*" to="/404" />
             </Switch>
           </SocketContext.Provider>
         </LoginContext.Provider>
