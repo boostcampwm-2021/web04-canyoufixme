@@ -141,11 +141,10 @@ const DebugPage: React.FC = () => {
   const onSubmit = useCallback(async () => {
     history.push('/result', {
       code: (editorRef.current as Ace.Editor).getValue() as string,
-      testCode,
-      problemId: history.location.pathname.replace('/debug/', ''),
+      testCode: debugStates.testCode,
+      problemId: id,
     });
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [debugStates.testCode]);
+  }, [debugStates.testCode, history, id]);
 
   const onExecute = useCallback(async () => {
     const loadTimer = setTimeout(() => {
@@ -182,7 +181,6 @@ const DebugPage: React.FC = () => {
     });
   }, [debugStates]);
 
-  const history = useHistory();
   useEffect(() => {
     if (history.location.state) {
       const code =
