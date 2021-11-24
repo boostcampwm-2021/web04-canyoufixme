@@ -4,6 +4,11 @@ import type { Request, Response } from 'express';
 import axios from 'axios';
 import { User } from '../model/User';
 
+const isProduction = process.env.NODE_ENV === 'production';
+const origin = new URL(process.env.ORIGIN_URL);
+const getDomainFromHostname = hostname =>
+  hostname.split('.').slice(-2).join('.');
+
 const getAccessToken = async authorizationToken => {
   const url = new URL('https://github.com/login/oauth/access_token');
   const response = await axios.post(
@@ -46,6 +51,8 @@ export const loginCallback = async (req: Request, res: Response) => {
   req.session.save();
   res.cookie('isLogin', true, {
     maxAge: 1000 * 3600 * 12,
+    domain: getDomainFromHostname(origin.hostname),
+    secure: isProduction,
   });
   res.redirect(`${process.env.ORIGIN_URL}`);
 };
