@@ -149,21 +149,21 @@ http {
     #}
   }
 
+  upstream backend {
+    server 127.0.0.1:${API_PORT};
+  }
+
   # API Server
   server {
     listen 80;
     server_name ${API_HOST};
 
-    upstream api {
-      server http://localhost:${API_PORT};
-    }
-
     location / {
-      proxy_pass http://api;
+      proxy_pass http://backend;
     }
 
     location /socket.io/ {
-      proxy_pass http://api;
+      proxy_pass http://backend;
 
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
