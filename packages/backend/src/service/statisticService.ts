@@ -2,6 +2,7 @@
 /* eslint-disable dot-notation */
 import express from 'express';
 import { Problem } from '../model/Problem';
+import { SubmitLog } from '../model/SubmitLog';
 
 const getAllProblemNum = async (
   req: express.Request,
@@ -18,4 +19,15 @@ const getAllProblemNum = async (
   }
 };
 
-export { getAllProblemNum };
+const getAllSubmitNum = async (req: express.Request, res: express.Response) => {
+  try {
+    const submits = await SubmitLog.find({});
+    res.status(200).json(submits.length);
+  } catch (err) {
+    res.status(500).json({
+      message: 'can not get submit num',
+      error: err.message,
+    });
+  }
+};
+export { getAllProblemNum, getAllSubmitNum };
