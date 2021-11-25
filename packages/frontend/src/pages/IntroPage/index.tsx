@@ -161,8 +161,12 @@ const IntroPage = () => {
       time: number,
       setter: React.Dispatch<React.SetStateAction<string>>,
     ) => {
-      const second = time / 1000;
-      const incNum = target / (time / (25 * second));
+      const limit =
+        Math.round(target / 100) >= Math.floor(target / 100)
+          ? Math.round(target / 100)
+          : Math.floor(target / 100);
+      const incNum =
+        target / (time / 100) > limit ? target / (time / 100) : limit;
       const interval = window.setInterval(() => {
         setter(prevState =>
           convertNum(
@@ -171,7 +175,7 @@ const IntroPage = () => {
             ).toString(),
           ),
         );
-      }, time / 40);
+      }, time / 10);
 
       setTimeout(() => {
         setter(convertNum(target.toString()));
@@ -183,7 +187,14 @@ const IntroPage = () => {
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/statistics`)
-      .then(res => res.json())
+      .then(async res => {
+        const data = await res.json();
+        let result = {};
+        data.forEach((datum: object) => {
+          result = { ...result, ...datum };
+        });
+        return result as Statistics;
+      })
       .then(
         ({
           problemCount,
@@ -194,8 +205,8 @@ const IntroPage = () => {
           mostWrongProblems,
         }: Statistics) => {
           incEvent(problemCount, 1000, setProblemCount);
-          incEvent(submitCount, 2000, setSubmitCount);
-          incEvent(userCount, 3000, setUserCount);
+          incEvent(submitCount, 1000, setSubmitCount);
+          incEvent(userCount, 1000, setUserCount);
 
           setSubmitProblems(mostSubmitProblems);
           setCorrectProblems(mostCorrectProblems);
@@ -268,7 +279,7 @@ const IntroPage = () => {
       <ContextWrapper>
         <CardWrapper>
           <TitleWrapper>
-            <MessageWrapper>제일 많이 푼</MessageWrapper>
+            <MessageWrapper>제일 많이 맞은</MessageWrapper>
             <MessageWrapper>문제 TOP 5</MessageWrapper>
           </TitleWrapper>
           <TextWrapper>
