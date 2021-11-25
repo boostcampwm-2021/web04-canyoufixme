@@ -65,4 +65,33 @@ const mostSubmitProblems = async (
     });
   }
 };
-export { getAllProblemNum, getAllSubmitNum, getUserCount, mostSubmitProblems };
+const mostCorrectProblems = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  try {
+    const correctProblems = await getRepository(SubmitLog)
+      .createQueryBuilder('submitlog')
+      .select('COUNT(submitlog.problem)', 'count')
+      .leftJoinAndSelect('submitlog.problem', 'problem')
+      .where('submitlog.status = :status', { status: '맞았습니다!!!' })
+      .skip(0)
+      .take(5)
+      .groupBy('submitlog.problem')
+      .orderBy('count', 'DESC')
+      .getRawMany();
+    res.status(200).json(correctProblems);
+  } catch (err) {
+    res.status(500).json({
+      message: 'can not get most correct problems',
+      error: err.message,
+    });
+  }
+};
+export {
+  getAllProblemNum,
+  getAllSubmitNum,
+  getUserCount,
+  mostSubmitProblems,
+  mostCorrectProblems,
+};
