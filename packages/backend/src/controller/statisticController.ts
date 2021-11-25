@@ -7,10 +7,12 @@ import {
   mostSubmitProblems,
   mostCorrectProblems,
   mostWrongProblems,
+  getAllData,
 } from '../service/statisticService';
 
 const router = express.Router();
 
+router.get('/', getAllData);
 router.get('/problems', getAllProblemNum);
 router.get('/submits', getAllSubmitNum);
 router.get('/users', getUserCount);
