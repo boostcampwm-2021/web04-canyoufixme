@@ -24,6 +24,10 @@ const origin = new URL(process.env.ORIGIN_URL);
 const getDomainFromHostname = hostname =>
   hostname.split('.').slice(-2).join('.');
 
+if (isProduction) {
+  app.set('trust proxy', 1);
+}
+
 const sessionConfig = session({
   secret: 'GyungGi_FourSkyking',
   store: sessionStore,

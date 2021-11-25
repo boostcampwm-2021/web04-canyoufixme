@@ -62,6 +62,12 @@ http {
   #include /etc/nginx/conf.d/*.conf;
   #include /etc/nginx/sites-enabled/*;
 
+  ##
+  # Proxy settings
+  ##
+
+  proxy_set_header X-Forwarded-Proto https;
+
   server {
     listen 80 default_server;
     #listen [::]:80 default_server;
