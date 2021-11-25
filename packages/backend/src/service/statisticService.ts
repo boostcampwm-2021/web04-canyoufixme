@@ -3,6 +3,7 @@
 import express from 'express';
 import { Problem } from '../model/Problem';
 import { SubmitLog } from '../model/SubmitLog';
+import { User } from '../model/User';
 
 const getAllProblemNum = async (
   req: express.Request,
@@ -30,4 +31,15 @@ const getAllSubmitNum = async (req: express.Request, res: express.Response) => {
     });
   }
 };
-export { getAllProblemNum, getAllSubmitNum };
+const getUserCount = async (req: express.Request, res: express.Response) => {
+  try {
+    const users = await User.find({});
+    res.status(200).json(users.length);
+  } catch (err) {
+    res.status(500).json({
+      message: 'can not get user num',
+      error: err.message,
+    });
+  }
+};
+export { getAllProblemNum, getAllSubmitNum, getUserCount };
