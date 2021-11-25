@@ -76,7 +76,8 @@ const DebugPage: React.FC = () => {
   const [isError, setError] = useState(false);
   const history = useHistory();
 
-  useBlockUnload(debugStates, (_, deps) => {
+  const unblockRef = useRef(false);
+  useBlockUnload(debugStates, unblockRef, (_, deps) => {
     return deps.initCode !== deps.code;
   });
 
@@ -137,6 +138,7 @@ const DebugPage: React.FC = () => {
   );
 
   const onSubmit = useCallback(async () => {
+    unblockRef.current = true;
     history.push('/result', {
       code: (editorRef.current as Ace.Editor).getValue() as string,
       testCode: debugStates.testCode,

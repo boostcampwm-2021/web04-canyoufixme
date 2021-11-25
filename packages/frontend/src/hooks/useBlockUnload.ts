@@ -1,9 +1,11 @@
 import { useRef, useEffect } from 'react';
+import type { MutableRefObject } from 'react';
 import { useHistory } from 'react-router-dom';
 
 const CONFIRM_MESSAGE = `작성 중인 내용이 사라집니다\n\n페이지를 나가시거나 새로고침 하시겠습니까?`;
 export const useBlockUnload = <T>(
   dependencies: T,
+  unblockRef: MutableRefObject<boolean> | null,
   didChange = (prev: T, deps: T) => !Object.is(prev, deps),
 ) => {
   const history = useHistory();
@@ -12,12 +14,14 @@ export const useBlockUnload = <T>(
 
   useEffect(() => {
     const blockUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      return (event.returnValue = CONFIRM_MESSAGE);
+      if (!unblockRef?.current) {
+        event.preventDefault();
+        return (event.returnValue = CONFIRM_MESSAGE);
+      }
     };
 
     const confirmBeforeGo = () => {
-      if (!window.confirm(CONFIRM_MESSAGE)) {
+      if (!unblockRef?.current && !window.confirm(CONFIRM_MESSAGE)) {
         history.push(historyRef.current, {
           prev: prevRef.current,
           deps: dependencies,
@@ -51,5 +55,5 @@ export const useBlockUnload = <T>(
     } else {
       prevRef.current = dependencies;
     }
-  }, [history, historyRef, prevRef, didChange, dependencies]);
+  }, [unblockRef, history, historyRef, prevRef, didChange, dependencies]);
 };

@@ -155,7 +155,9 @@ const WritePage = () => {
   const [isValidLang, setValidLang] = useState(false);
   const [validationMessages, setValidationMessages] = useState<string[]>([]);
 
-  useBlockUnload(code);
+  const unblockRef = useRef(false);
+  useBlockUnload(code, unblockRef);
+
   useEffect(() => {
     if (history.location.state) {
       const code = (history.location.state as { deps?: string })?.deps ?? '';
@@ -266,6 +268,7 @@ const WritePage = () => {
       setLoading(false);
       if (res.status === 201) {
         setSuccess(true);
+        unblockRef.current = true;
         setTimeout(() => {
           history.push('/');
         }, 2000);
