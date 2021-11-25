@@ -1,4 +1,4 @@
-export function sandboxFunction(code, exec, origin) {
+export function sandboxFunction(code, fork, origin) {
   var postMessage;
   window.onmessage = function (message) {
     if (message.origin === origin && message.ports) {
@@ -8,9 +8,29 @@ export function sandboxFunction(code, exec, origin) {
         port2.postMessage(data);
       };
 
-      exec(code)
-        .then(payload => postMessage({ type: 'success', payload }))
-        .catch(err => postMessage({ type: 'error', payload: err }));
+      const process = fork(code);
+      process.addEventListener('stdout', function (event) {
+        postMessage({
+          type: 'stdout',
+          payload: event.detail,
+        });
+      });
+      process.addEventListener('error', function (event) {
+        postMessage({
+          type: 'error',
+          payload: event.detail,
+        });
+      });
+      process.addEventListener('exit', function (event) {
+        postMessage({ type: 'exit', payload: event.details });
+      });
+
+      port2.addEventListener('message', function (event) {
+        if (event.data && event.data.type === 'kill') {
+          process.kill();
+        }
+      });
+      port2.start();
     }
   };
 }

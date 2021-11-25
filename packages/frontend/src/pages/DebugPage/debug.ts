@@ -1,11 +1,6 @@
 import { sandboxFunction } from './sandbox';
 import { execCodeWithWorker } from './worker';
 
-interface IExecutionResult {
-  type: 'init' | 'error' | 'success';
-  payload?: unknown;
-}
-
 function escapeTemplate(code: string) {
   return code.replaceAll(/([\\$`])/g, '\\$1');
 }
@@ -32,54 +27,70 @@ function escaped(strings: TemplateStringsArray, ...args: unknown[]) {
   );
 }
 
-function execCodeWithSandbox(
-  code: string,
-  testCodes: string[],
-  setup: string,
-): Promise<IExecutionResult> {
-  return new Promise((resolve, reject) => {
-    const sandbox = document.createElement('iframe');
-    sandbox.style.display = 'none';
-    sandbox.height = sandbox.width = '0';
-    sandbox.setAttribute('sandbox', 'allow-scripts');
-    sandbox.srcdoc = escaped`
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta
-            http-equiv="content-security-policy"
-            content="script-src blob: 'unsafe-inline' 'unsafe-eval';">
-        </head>
-        <body>
-          <script>
-            (${sandboxFunction})(\`${code}\`, (${execCodeWithWorker}), \`${window.origin}\`);
-          </script>
-        </body>
-      </html>
-    `;
-    const { port1, port2 } = new MessageChannel();
+class Exit extends Error {
+  constructor(exitCode: number) {
+    super(`exitCode: ${exitCode}`);
+    this.name = 'Exit';
+  }
+}
+function execCodeWithSandbox(code: string) {
+  const sandbox = document.createElement('iframe');
+  sandbox.style.display = 'none';
+  sandbox.height = sandbox.width = '0';
+  sandbox.setAttribute('sandbox', 'allow-scripts');
+  sandbox.srcdoc = escaped`
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta
+          http-equiv="content-security-policy"
+          content="script-src blob: 'unsafe-inline' 'unsafe-eval';">
+      </head>
+      <body>
+        <script>
+          (${sandboxFunction})(\`${code}\`, (${execCodeWithWorker}), \`${window.origin}\`);
+        </script>
+      </body>
+    </html>
+  `;
+  const { port1, port2 } = new MessageChannel();
 
-    port1.onmessage = (e: MessageEvent) => {
-      sandbox.parentNode?.removeChild(sandbox);
-      resolve(e.data);
-    };
-
-    sandbox.onload = () => {
-      sandbox.contentWindow?.postMessage({ type: 'init' }, '*', [port2]);
-    };
-
-    document.body.appendChild(sandbox);
+  const dispatcher = new EventTarget();
+  dispatcher.addEventListener('kill', event => {
+    port1.postMessage({ type: 'kill' });
   });
+
+  port1.onmessage = (e: MessageEvent) => {
+    const { data } = e;
+    try {
+      switch (data.type) {
+        case 'stdout':
+          dispatcher.dispatchEvent(
+            new CustomEvent('stdout', { detail: data.payload }),
+          );
+          break;
+        // @ts-ignore
+        case 'error':
+          dispatcher.dispatchEvent(
+            new CustomEvent('stderr', { detail: data.payload }),
+          );
+        // eslint-disable-next-line no-fallthrough
+        default:
+        case 'exit':
+          throw new Exit(0);
+      }
+    } catch (e) {
+      sandbox.parentNode?.removeChild(sandbox);
+      dispatcher.dispatchEvent(new CustomEvent('exit', { detail: e }));
+    }
+  };
+
+  sandbox.onload = () => {
+    sandbox.contentWindow?.postMessage({ type: 'init' }, '*', [port2]);
+  };
+  document.body.appendChild(sandbox);
+
+  return dispatcher;
 }
 
-const runner = async ({
-  code,
-  testCode,
-}: {
-  code: string;
-  testCode: string[];
-}) => {
-  return execCodeWithSandbox(code, testCode, 'const { expect } = chai;');
-};
-
-export default runner;
+export default execCodeWithSandbox;
