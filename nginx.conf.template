@@ -67,6 +67,8 @@ http {
   ##
 
   proxy_set_header X-Forwarded-Proto https;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header Host $host;
 
   server {
     listen 80 default_server;
@@ -91,7 +93,7 @@ http {
     root /var/www/html;
 
     # Add index.php to the list if you are using PHP
-    index index.html index.htm index.nginx-debian.html;
+    index index.html index.htm;
 
     server_name _;
 
@@ -127,8 +129,20 @@ http {
     listen 80;
     server_name ${API_HOST};
 
+    upstream api {
+      server http://localhost:${API_PORT};
+    }
+
     location / {
-      proxy_pass http://localhost:${API_PORT};
+      proxy_pass http://api;
+    }
+
+    location /socket.io/ {
+      proxy_pass http://api;
+
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection upgrade;
     }
   }
 }
