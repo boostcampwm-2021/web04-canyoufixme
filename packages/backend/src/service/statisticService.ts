@@ -39,6 +39,13 @@ const mostSomethingProblems = async (condition, key) => {
   return { [key]: result };
 };
 
+const dataTransfer = preData => {
+  const result = preData.reduce((pre, cur) => {
+    return { ...pre, ...cur };
+  }, {});
+  return result;
+};
+
 const getAllData = async (req: express.Request, res: express.Response) => {
   try {
     const result = await Promise.all([
@@ -49,7 +56,8 @@ const getAllData = async (req: express.Request, res: express.Response) => {
       mostSomethingProblems('CORRECT', 'mostCorrectProblems'),
       mostSomethingProblems('WRONG', 'mostWrongProblems'),
     ]);
-    res.status(200).json(result);
+    const transferData = dataTransfer(result);
+    res.status(200).json(transferData);
   } catch (err) {
     res.status(500).json({
       message: 'can not get all data',
