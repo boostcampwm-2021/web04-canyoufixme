@@ -187,14 +187,7 @@ const IntroPage = () => {
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/statistics`)
-      .then(async res => {
-        const data = await res.json();
-        let result = {};
-        data.forEach((datum: object) => {
-          result = { ...result, ...datum };
-        });
-        return result as Statistics;
-      })
+      .then(res => res.json())
       .then(
         ({
           problemCount,
