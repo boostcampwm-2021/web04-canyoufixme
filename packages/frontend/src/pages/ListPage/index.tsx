@@ -1,6 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, {
+  useState,
+  useReducer,
+  useEffect,
+  useRef,
+  MutableRefObject,
+} from 'react';
 import { Link } from 'react-router-dom';
 import styled from '@cyfm/styled';
+
+import { paginationReducer } from './reducer';
+import LoadingModal from 'components/Modal/LoadingModal';
 
 const Background = styled.div`
   width: 100%;
@@ -13,6 +22,12 @@ const ListWrapper = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
+`;
+
+const SignLink = styled(Link)`
+  text-decoration: none;
+  color: black;
+  font-weight: 900;
 `;
 
 const Sign = styled.div`
@@ -29,40 +44,103 @@ const Sign = styled.div`
   font-size: 1.5em;
 `;
 
+interface User {
+  id: number;
+  name: string;
+  oauthType: string;
+  token: string;
+}
+
 interface Item {
   id: number;
   title: string;
-  author: string;
+  author: User;
   category: string;
+  codeId: string;
   level: number;
 }
 
+let result: Item[] | null;
+let timeout: number;
+
 const ListPage: React.FC = () => {
-  const [items, setItems] = useState<Item[]>([]);
+  const problemsCnt = 10;
+  const [isLoading, setLoading] = useState(false);
+  const [paginationState, dispatch] = useReducer(paginationReducer, {
+    items: [],
+    offset: 0,
+  });
+
+  const itemsList: MutableRefObject<HTMLDivElement | null | undefined> =
+    useRef();
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/list`)
-      .then(res => res.json())
-      .then(json => setItems(json.items));
+    if (!isLoading) {
+      timeout = window.setTimeout(() => {
+        if (!result) {
+          setLoading(true);
+        }
+        return () => setLoading(false);
+      }, 1000);
+      fetch(
+        `${process.env.REACT_APP_API_URL}/api/problems?limit=${problemsCnt}&offset=${paginationState.offset}`,
+      )
+        .then(res => res.json())
+        .then(json => {
+          if (json && json.length > 0) {
+            result = json;
+            dispatch({
+              type: 'addItems',
+              items: json,
+              offset: problemsCnt,
+            });
+          }
+        })
+        .finally(() => {
+          result = null;
+          window.clearTimeout(timeout);
+        });
+    }
+    return () => {};
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [paginationState.offset]);
+
+  const ioRef: MutableRefObject<IntersectionObserver | undefined> = useRef();
+  useEffect(() => {
+    const ioOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 1.0,
+    };
+    ioRef.current = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          dispatch({ type: 'incOffset', offset: problemsCnt });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, ioOptions);
   }, []);
+
+  useEffect(() => {
+    const itemsElement = itemsList.current as HTMLDivElement;
+    const lastChild = itemsElement?.lastChild as Element;
+    return () => {
+      if (lastChild) ioRef.current?.observe(lastChild);
+      else ioRef.current?.observe(itemsElement);
+    };
+  }, [paginationState.items]);
 
   return (
     <Background>
-      <ListWrapper>
-        {items.map((item: Item) => (
-          <Link
-            style={{
-              textDecoration: 'none',
-              color: 'black',
-              fontWeight: 900,
-            }}
-            to={`/debug/${item.id}`}
-            key={item.id}
-          >
+      <ListWrapper ref={itemsList}>
+        {paginationState.items.map((item: Item) => (
+          <SignLink to={`/debug/${item.codeId}`} key={item.codeId}>
             <Sign>{item.title}</Sign>
-          </Link>
+          </SignLink>
         ))}
       </ListWrapper>
+      <LoadingModal isOpen={isLoading} />
     </Background>
   );
 };

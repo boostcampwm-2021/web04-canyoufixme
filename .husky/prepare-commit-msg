@@ -17,7 +17,9 @@ if [ "$COMMIT_SOURCE" = "commit" ]; then
     # 제목, 본문 라인의 내용을 변경하여 덮어쓰기
     awk "
         NR==${TITLE_LINENO} { printf \"$(git show -s --format=%s $SHA1)\" }
-        NR==${BODY_LINENO} { printf \"$(git show -s --format=%b $SHA1)\" }
+        NR==${BODY_LINENO} {
+            $(git show -s --format=%b $SHA1 | sed -e 's/.*/print "&";/')
+        }
         { print }" "$TEMPLATE_FILE" > "$COMMIT_MSG_FILE"
 elif [ "$COMMIT_SOURCE" = "template" ] || [ -z "$COMMIT_SOURCE" ]; then
     # 원본 메시지 파일 백업

@@ -5,111 +5,165 @@
 </div>
 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/boostcampwm-2021/web04-canyoufixme/hit-counter&count_bg=%239D17CB&title_bg=%23555555&icon=javascript.svg&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+[![canyoufixme-dev-deploy](https://github.com/boostcampwm-2021/web04-canyoufixme/actions/workflows/dev-deploy.yml/badge.svg)](https://github.com/boostcampwm-2021/web04-canyoufixme/actions/workflows/dev-deploy.yml)
 
-### 배포링크
+# ⚓ 배포 링크
 
-http://dev.canyoufix.me/
+[Can you fix me?](http://dev.canyoufix.me/)
 
-### 😃 팀 소개
-**팀명** : 경기사천왕 - 경기도 내 동서남북를 지배하는 4명의 개발자들
+<br>
+<br>
 
-**구성원**
-|**[J094 박춘화](https://github.com/winters0727)**|**[J165 이창엽](https://github.com/dlckdduq1107)**|**[J205 최낙훈](https://github.com/longnh214)**|**[J206 최영근](https://github.com/xvezda)**|
-|-------------------|-------------------|-------------------|-------------------|
-|<img width=100 height=100 src="https://github.com/winters0727.png" />|<img width=100 height=100 src="https://github.com/dlckdduq1107.png" />|<img width=100 height=100 src="https://github.com/longnh214.png" />|<img width=100 height=100 src="https://github.com/xvezda.png" />|
+# 👨🏻‍💻 팀원 소개
 
-### :pencil: 한줄소개
- Bug 잡기 어렵지 않아요~! :bug:
+<img src="https://github.com/winters0727.png" width=100 height=100 />
 
-### :book: 기획 의도
-개발을 하면서 버그를 잡느라 시간을 낭비한 경험이 있으신가요?
-누구나 개발을 하면서 다양한 버그를 맞닥뜨리게 되는데요, 혼자 디버깅을 하면서 버그를 고치는것도 좋지만 버그를 찾아내고 해결하는 과정을 서로 공유할 수 있다면, 혹은 다른 사람이 마주친 버그를 내가 해결해볼 수 있다면, 더욱 값진 경험이 되지 않을까요?
+### 🌚  **J094 박춘화**
 
+- 소개: 성남시 담당 사천왕 && 커피, 밀크티 중독자
+- 역할: PT 담당자 && 면접관(질문 많이합니다) 👍🏻
+- 보드게임 좋아합니다. 🧐
+- Frontend 개발자
+- `Python`, `JavaScript`
 
+**👉 [Github Repository](https://github.com/winters0727)**
 
-#### 코딩은 직접 부딪히고 경험해야 실력이 향상된다고 합니다!
+<img src="https://github.com/dlckdduq1107.png" width=100 height=100 />
 
-실제 개발과정에서 마주칠만한 버그가 포함된 코드를 출제자가 출제합니다. 사용자는 출제된 코드를 디버깅하여 의도된 동작을 하도록 수정하고 제출합니다. 
-해당 코드에 대한 체크포인트를 만족하는지 확인하면서 디버깅에 관련된 능력들을 향상 시킬 수 있습니다.
+### 👨🏻‍💼  **J165 이창엽**
 
-### :rocket: 기술 스택
+- Canyoufixme CEO + 수원시 담당 사천왕
+- 파이팅 담당!!!🤸‍♂️
+- 발표 컨셉 아이디어 뱅크
+- 팀원 너무 좋아 사랑해❤️ from. 막내올림 💛
 
-**Frontend**
+**👉 [Github Repository](https://github.com/dlckdduq1107)**
 
-![https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black](https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) | ![https://img.shields.io/badge/typescript-007acc?style=for-the-badge&logo=typescript&logoColor=white](https://img.shields.io/badge/typescript-007acc?style=for-the-badge&logo=typescript&logoColor=white) | ![https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=black](https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=black) | ![https://img.shields.io/badge/sass-CC6699?style=for-the-badge&logo=sass&logoColor=black](https://img.shields.io/badge/sass-CC6699?style=for-the-badge&logo=sass&logoColor=black)
+<img src="https://github.com/longnh214.png" width=100 height=100 />
 
-- React를 사용하기로 결정했습니다.
-- 타입스크립트를 사용하지만 HTML 엘리먼트, 이벤트 및 React 타입을 공부해서 사용하기는 부적절하다고 판단했습니다.
-- 타입스크립트 설정(`tsconfig.json`)에 `allowJs: true`를 추가하여 자바스크립트와 혼용해서 사용하기로 결정했습니다.
+### 👨🏻‍💻  **J205 최낙훈**
 
-**Backend**
+- 소개: 고양시 담당 사천왕
+- 역할: 🦒 🏂  😱
+- [g.dev/springboot](http://g.dev/springboot) + `Backend Developer` + `Java`
+- New York 가고 싶습니다. I♥️NY 🗽
+- ` 사과 농장 주인`
 
-![https://img.shields.io/badge/typescript-007acc?style=for-the-badge&logo=typescript&logoColor=white](https://img.shields.io/badge/typescript-007acc?style=for-the-badge&logo=typescript&logoColor=white) | ![https://img.shields.io/badge/express-F7DF1E?style=for-the-badge&logo=express&logoColor=black](https://img.shields.io/badge/express-F7DF1E?style=for-the-badge&logo=express&logoColor=black)
+**👉 [Github Repository](https://github.com/longnh214)**
 
-- Express를 사용하기로 결정했습니다.
-- 백엔드는 프론트엔드에 비해 데이터베이스에 저장할 데이터의 타입(코드에 대한 타입)이 엄격해야하기 때문에 타입스크립트만을 사용하기로 결정했습니다.
-- 데이터베이스는 어떤 것을 사용할지 아직 미정입니다.
-    - 1차 목표 기능들을 구현하는데 데이터베이스가 필요하지 않기 때문입니다.
-    - 2차 목표 기능들을 구현하면서 결정할 예정입니다.
+<img src="https://github.com/xvezda.png" width=100 height=100 />
 
-**개발 도구**
+### 🤔  **J206 최영근**
 
-![https://img.shields.io/badge/eslint-FA56CB?style=for-the-badge&logo=eslint&logoColor=white](https://img.shields.io/badge/eslint-FA56CB?style=for-the-badge&logo=eslint&logoColor=white) | ![https://img.shields.io/badge/prettier-black?style=for-the-badge&logo=prettier&logoColor=white](https://img.shields.io/badge/prettier-black?style=for-the-badge&logo=prettier&logoColor=white) | ![https://img.shields.io/badge/docker-0db7ed?style=for-the-badge&logo=docker&logoColor=white](https://img.shields.io/badge/docker-0db7ed?style=for-the-badge&logo=docker&logoColor=white)
+- 소개: 화성시 담당 사천왕
+- 역할: CTO, 기술자문, 패키지 개발
+- Front-End Dev
+- Bug Hunter
+- Terminal ❤️
+- [g.dev/vim](https://g.dev/vim)
 
-### 🖊️ 기능 설명
+**👉 [Github Repository](https://github.com/Xvezda)**
 
-**로그인 페이지**
+<br>
+<br>
 
-![로그인 페이지](https://user-images.githubusercontent.com/56329233/139234188-f4d218b3-f8c4-4f6e-bfdf-67edd62a2762.png)
+# 🗽 프로젝트 소개
 
-- 깃허브 OAuth를 이용해 로그인을 진행하고 깃허브아이디를 유저 아이디로 저장합니다.
-- 로그인이 완료되면 문제 리스트 페이지로 이동합니다.
+<img src="https://user-images.githubusercontent.com/23649097/142730553-3f5c79c5-4429-4fde-a0ae-a8c704032df6.gif" width=400 height=170 />
 
-**문제 리스트 페이지**
+> **_"처음 JavaScript 배우는데 너무 어려운데...?"_**
+>
+> ```jsx
+> const banana = 'ba' + 'str' / 2 + 'a';
+>
+> console.log(banana); //!?
+> ```
+>
+> **Canyoufixme에서 `JavaScript`를 익혀볼까?**
 
-![문제리스트 페이지](https://user-images.githubusercontent.com/56329233/139234205-cfe6fa4f-7932-41bd-82a4-d58f70e2c3f4.png)
+**_개발을 하면서 버그를 잡느라 시간을 낭비한 경험이 있으신가요? 누구나 개발을 하면서 다양한 버그를 맞닥뜨리게 되는데요, 혼자 디버깅을 하면서 버그를 고치는 것도 좋지만 버그를 찾아내고 해결하는 과정을 서로 공유할 수 있다면, 혹은 다른 사람이 마주친 버그를 내가 해결해볼 수 있다면, 더욱 값진 경험이 되지 않을까요?_**
 
-- 문제들은 카테고리로 분류합니다.
-- 문제의 제목을 클릭하면 해당 문제 풀이 페이지로 이동합니다.
-- 표지판 안의 불의 개수에 따라 문제의 난이도 표시합니다.
-- 풀이 여부 라벨을 추가하여 사용자가 풀었던 문제인지 구분합니다.
+## **코딩은 직접 부딪히고 경험해야 실력이 향상 된다고 합니다!**
 
-**문제 풀이 페이지**
+- _출제자는 **실제 개발 과정에서 마주칠 만한 버그가 포함된 코드**를 출제합니다._
+- _사용자는 디버깅하여 의도된 동작을 하도록 출제된 코드를 수정하고 제출합니다._
+- _해당 코드에 대한 `체크포인트✅`를 만족하는 지 확인하면서 디버깅에 관한 능력을 향상시킬 수 있습니다._
 
-![문제페이지](https://user-images.githubusercontent.com/56329233/139234230-42d0ab2c-1fdc-42ed-93c2-4ed66db3c5a8.png)
+<br>
+<br>
 
-- 로그인한 사용자만 문제 풀이 페이지로 이동 가능합니다.
-- 좌측 상단에 문제에 대한 설명 표시합니다.
-- 좌측 하단에 코드 실행 결과 표시합니다.
-- 우측의 코드 에디터에서 주어진 코드를 수정합니다.
-- 우측 하단의 실행 버튼을 누르면 코드 실행 결과 표시합니다.
-- 문제풀이 프로토타입 :point_down:
-    - https://m0lxt.csb.app/
-    - https://tf27e.csb.app/
+# 🚀 기술 스택
 
-**문제 결과 페이지**
+![stack](https://user-images.githubusercontent.com/56329233/142729892-8587f553-4539-4c00-967c-4526ef70e747.png)
 
-![결과 페이지](https://user-images.githubusercontent.com/56329233/139234257-76d95252-1f3d-4201-8fe7-caa9bb8df63a.png)
+<br>
+<br>
 
-- 앞 전 문제 페이지에서 '제출' 버튼을 클릭하면 문제에 대한 결과 페이지로 이동합니다.
-- 성공한 단위 테스트에는 연두색 표시, 실패한 단위 테스트에는 빨간색을 표시합니다.
-- 좌측 하단에는 (모든 테스트를 성공했다 ? 문제 리스트로 돌아가는 버튼 : 해결하고 있던 문제로 가는 버튼)을 표시합니다.
-- 우측에는 해당 문제와 비슷한 문제들의 목록을 표시합니다.
+# 🎯 기술 특장점 소개
 
-**문제 출제 페이지**
+### ⚙️ 백엔드 멀티 스레드
 
-![출제 페이지](https://user-images.githubusercontent.com/56329233/139234289-0c5fdf79-6499-4bc1-95f9-f8f4f600ef18.png)
+    - 서비스가 성장하고 트래픽이 집중될 때에도 사용자 경험을 유지하고 싶었습니다.
+    - 이를 위해 JavaScript의 싱글스레드 환경에서 여러 클라이언트에 대한 동시 채점이 가능해야 했습니다.
+    - `workerpool` 모듈을 이용해 일정 스레드 개수 만큼 동시에 채점할 수 있습니다 (with 대기큐)
 
-- 좌측 상단에 문제에 대한 설명을 작성하는 마크다운 에디터가 존재합니다.
-- 미리보기 버튼을 클릭하여 작성한 마크다운 문서를 미리보기 가능합니다.
-- 좌측 하단에는 버그가 포함되어있는 코드를 작성할 수 있는 에디터가 존재합니다.
-- 우측에는 테스트의 이름과 테스트를 진행 할 수 있는 내부 함수 로직을 작성합니다.
-- "+" 버튼을 누르면 테스트 케이스를 추가할 수 있습니다.
-- 제출 버튼을 누르면 해당 문제가 제출되고 문제 리스트 페이지로 라우팅 된다.
+### 🚨 프론트엔드 샌드박스, 웹워커 + 보안
 
-**회원 정보 페이지**
+    - 코드 실행부를  `sandbox="allow-scripts"` 옵션을 주어 `iframe` 태그 내부로 옮겼습니다.
+    - 웹 워커를 사용하여 코드 실행 시간이 오래 걸리거나 무한 루프에 빠진 경우, 코드 실행이 브라우저의 UI 메인 스레드에 영향을 주지 않도록 했습니다.
+    - `Content Security Policy` 를 적용하여 XSS 및 CSRF 공격 등에 대한 보안을 강화했습니다.
 
-![유저 정보 페이지](https://user-images.githubusercontent.com/56329233/139234331-972dc68b-cae1-4892-9e4c-f2b06e2e16eb.png)
+### 📊 RDBMS + NoSQL 조합
 
-- 로그인한 회원의 정보(제출한 문제 리스트, 푼 문제의 개수, 시도했지만 풀지 못한 문제의 개수 등)를 요약해서 보여줍니다.
-- 잔디 심기 기능은 당일 푼 문제의 개수를 기준으로 채워집니다.
+    - 회원 관리와 출제한 문제, 풀이한 문제 등 관계가 필요한 데이터에 대해서는 RDBMS인 `MySQL`을 통해 데이터 저장에 대한 신뢰성을 높이고 싶었습니다.
+    - 가변적인 데이터(ex. string, 배열)를 저장하기 위해서 추가적으로 NoSQL인 `MongoDB`를 동시에 채택하였습니다.
+
+### 📶 Socket.io를 통해 채점 결과 전달
+
+    - 채점이 진행되는 상황을 클라이언트에 전달해주고 싶었습니다.
+    - `Socket.io`를 통해 각 테스트가 완료될 때 마다 데이터를 전달합니다.
+    - 테스트가 완료되면 세션으로 검증합니다.
+    - 검증이 완료되면 제출기록을 DB에 저장합니다.
+    - 클라이언트에서 채점 상황을 실시간으로 확인 할 수 있습니다.
+
+### 📦 모노 레포 구조의 패키지 관리 with styled-component, debounce
+
+    - 프로젝트의 패키지 관리 방법으로 `lerna`와 `yarn workspace`를 사용한 Monorepo 구조를 사용하고 있습니다.
+    - 필요한 기능(`styled-component`, `debounce`)들을 직접 구현한 뒤, 패키지로 만들어 사용하고 있습니다.
+
+### 🐳 Github Action + Docker 사용한 배포 자동화
+
+    - Github Action을 사용하여 `dev` 브랜치로 `push` 이벤트가 발생할 경우 서버에 저장된 `[deploy.sh](http://deploy.sh)` 파일을 실행하여 배포가 자동으로 이루어지도록 구현했습니다.
+    - 또한, Docker를 사용하여 프로젝트 빌드 및 서버 실행을 하며, 빌드 시간을 단축시키기 위해 캐시를 고려하여 패키지 설치 레이어 순서를 배치하였고, `Alpine`이미지 같은 경량화된 이미지를 사용했습니다.
+    - 빌드된 이미지의 크기를 줄이기 위해 Multi-stage build 방법을 사용하여 불필요한 파일이 포함되지 않도록 하여 경량화 하였습니다.
+
+<br>
+<br>
+
+# 📹 기능 시연 예제
+
+## 무한 스크롤
+
+![infinite](https://user-images.githubusercontent.com/56329233/142729939-808e0285-b72c-4f31-b50d-55a48263c8c3.gif)
+
+- 문제 리스트 페이지 입니다.
+- `IntersectionObserver API` 를 이용해서 무한 스크롤을 구현하였습니다.
+
+## 에디터 크기 조절
+
+![layoutmoving](https://user-images.githubusercontent.com/56329233/142729952-414edb75-2137-4782-a542-f9f2bb2a8f69.gif)
+
+- 에디터 크기를 좌우 스크롤을 통해 조절할 수 있습니다.
+- 조절된 크기는 `localStorage`에 저장되어 페이지를 이동하더라도 반영됩니다.
+
+## 답안 제출
+
+![correctanswer](https://user-images.githubusercontent.com/56329233/142729965-5a7c5aff-1922-4d76-a690-837bc4266a05.gif)
+
+- 제출 버튼을 클릭하면 웹 소켓 통신이 이루어지고 채점 결과를 모달창으로 보여줍니다.
+
+## 시간 제한
+
+![timeout](https://user-images.githubusercontent.com/56329233/142729980-989ef3a1-14b2-4766-b2f1-2b3d5e329c86.gif)
+
+- timeout 5초 제한을 두어 무한 루프를 방지했습니다.

@@ -1,0 +1,22 @@
+name: canyoufixme-dev-deploy
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  deploy-dev-app:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /root
+            echo "${{ secrets.BE_DOT_ENV }}" > ./web04-canyoufixme/packages/backend/.env.production
+            export API_HOST="$(echo "${{ secrets.API_URL }}" | grep -E -o '([a-z0-9-]+\.)+[a-z]+')"
+            export API_PORT="$(echo "${{ secrets.API_URL }}" | grep -o '[0-9]*$')"
+            API_URL=${{ secrets.API_URL }} CLIENT_ID=${{ secrets.CLIENT_ID }} ./deploy.sh
