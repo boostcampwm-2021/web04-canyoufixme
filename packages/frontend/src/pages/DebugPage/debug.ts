@@ -6,8 +6,8 @@ interface IExecutionResult {
   payload?: unknown;
 }
 
-function escapeBackticks(code: string) {
-  return code.replaceAll(/`/g, '\\`');
+function escapeTemplate(code: string) {
+  return code.replaceAll(/([\\$`])/g, '\\$1');
 }
 
 function escapeClosingTag(code: string) {
@@ -15,7 +15,7 @@ function escapeClosingTag(code: string) {
 }
 
 function escapeCode(code: string) {
-  return escapeClosingTag(escapeBackticks(code));
+  return escapeClosingTag(escapeTemplate(code));
 }
 
 function escapeIfNotFunc(value: unknown) {
