@@ -2,8 +2,7 @@ import React from 'react';
 
 import styled from '@cyfm/styled';
 
-import Button from 'components/Button';
-import FullWidthInput from 'components/FullWidthInput';
+import FullWidthDiv from 'components/FullWidthDiv';
 
 interface TestCase {
   title: string;
@@ -18,21 +17,40 @@ interface ViewerProps {
 
 const Wrapper = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
   width: 100%;
-  margin-bottom: 15px;
 `;
 
-const TestCaseTitle = styled(FullWidthInput)`
+const TextWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90%;
+  height: 100%;
+`;
+
+const DeleteButton = styled.button`
+  display: block;
+  background-color: #f6cc00;
+  align-self: center;
+  margin: auto;
+  padding: 2rem 1rem;
+  border: 0;
+  border-radius: 5px;
+  font-size: 1.5rem;
+`;
+
+const TestCaseTitle = styled(FullWidthDiv)`
   color: white;
   background-color: grey;
-  margin-bottom: 15px;
+  margin-bottom: 0.25rem;
 `;
 
-const TestCaseCode = styled(FullWidthInput)`
+const TestCaseCode = styled(FullWidthDiv)`
   color: white;
   background-color: black;
-  margin-bottom: 15px;
+  margin-top: 0.25rem;
 `;
 
 const TestCodeViewer = (props: ViewerProps) => {
@@ -41,11 +59,15 @@ const TestCodeViewer = (props: ViewerProps) => {
       {props.testCases.map(testcase => {
         return (
           <Wrapper key={testcase.id}>
-            <TestCaseTitle value={testcase.title} readonly />
-            <TestCaseCode value={testcase.code} readonly />
-            <Button onClick={(e: MouseEvent) => props.remove(testcase.id)}>
+            <TextWrapper>
+              <TestCaseTitle>{testcase.title}</TestCaseTitle>
+              <TestCaseCode>{testcase.code}</TestCaseCode>
+            </TextWrapper>
+            <DeleteButton
+              onClick={(e: MouseEvent) => props.remove(testcase.id)}
+            >
               -
-            </Button>
+            </DeleteButton>
           </Wrapper>
         );
       })}

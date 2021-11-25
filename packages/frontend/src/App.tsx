@@ -14,6 +14,7 @@ import DebugPage from 'pages/DebugPage';
 import ResultPage from 'pages/ResultPage';
 import WritePage from 'pages/WritePage';
 import EditorPage from 'pages/EditorPage';
+import GuidePage from 'pages/GuidePage';
 import TopNavLink from 'components/TopNavLink';
 import MessageModal from 'components/Modal/MessageModal';
 import ConfirmModal from 'components/Modal/ConfirmModal';
@@ -82,22 +83,26 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <BrowserRouter>
-        <Header>
-          <Link to="/">
-            <Logo src={logo} alt="canyoufixme logo" />
-          </Link>
-          <Nav>
-            <TopNavLink to="/">홈으로</TopNavLink>
-            <TopNavLink to="/write">문제 출제</TopNavLink>
-            {isLogin ? (
-              <TopNavLink to="/" onClick={openLogoutModal}>
-                로그아웃
-              </TopNavLink>
-            ) : (
-              <TopNavLink to="/login">로그인</TopNavLink>
-            )}
-          </Nav>
-        </Header>
+        {window.location.pathname !== '/guide' ? (
+          <Header>
+            <Link to="/">
+              <Logo src={logo} alt="canyoufixme logo" />
+            </Link>
+            <Nav>
+              <TopNavLink to="/">홈으로</TopNavLink>
+              <TopNavLink to="/write">문제 출제</TopNavLink>
+              {isLogin ? (
+                <TopNavLink to="/" onClick={openLogoutModal}>
+                  로그아웃
+                </TopNavLink>
+              ) : (
+                <TopNavLink to="/login">로그인</TopNavLink>
+              )}
+            </Nav>
+          </Header>
+        ) : (
+          ''
+        )}
         <ConfirmModal
           isOpen={isLogoutOpen}
           setter={setLogoutOpen}
@@ -119,6 +124,7 @@ const App: React.FC = () => {
               <Route path="/result" component={ResultPage} />
               <Route path="/write" exact component={WritePage} />
               <Route path="/editor" exact component={EditorPage} />
+              <Route path="/guide" exact component={GuidePage} />
               <Redirect path="*" to="/notfound" />
             </Switch>
           </SocketContext.Provider>

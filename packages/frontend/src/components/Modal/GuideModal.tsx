@@ -22,11 +22,20 @@ const ModalWrapper = styled.div`
 `;
 
 const TitleWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+`;
+
+const TitleTextWrapper = styled.div`
   margin-bottom: 1rem;
   text-align: center;
   font-size: 3rem;
   font-weight: bold;
 `;
+
+const PageButton = styled(Button)``;
 
 const ContentWrapper = styled.div`
   text-align: center;
@@ -102,7 +111,20 @@ const GuideModal = (props: ModalProps) => {
       }}
     >
       <ModalWrapper>
-        <TitleWrapper>테스트케이스 가이드라인</TitleWrapper>
+        <TitleWrapper>
+          <TitleTextWrapper>테스트케이스 가이드라인</TitleTextWrapper>
+          <PageButton
+            onClick={() => {
+              window.open(
+                '/guide',
+                '테스트케이스 가이드라인',
+                'width=1000px, height=500px',
+              );
+            }}
+          >
+            페이지로 열기
+          </PageButton>
+        </TitleWrapper>
         <ContentWrapper>
           {TESTCASES.map(testcase => (
             <TestCaseWrapper key={nanoid()}>
