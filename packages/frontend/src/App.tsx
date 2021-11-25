@@ -8,6 +8,7 @@ import './App.css';
 import styled from '@cyfm/styled';
 import logo from 'assets/images/upscale.png';
 
+import IntroPage from 'pages/IntroPage';
 import ListPage from 'pages/ListPage';
 import LoginPage from 'pages/LoginPage';
 import DebugPage from 'pages/DebugPage';
@@ -91,6 +92,7 @@ const App: React.FC = () => {
             </Link>
             <Nav>
               <TopNavLink to="/">홈으로</TopNavLink>
+              <TopNavLink to="/list">문제 리스트</TopNavLink>
               <TopNavLink to="/write">문제 출제</TopNavLink>
               {isLogin ? (
                 <TopNavLink to="/" onClick={openLogoutModal}>
@@ -119,7 +121,8 @@ const App: React.FC = () => {
         <LoginContext.Provider value={login}>
           <SocketContext.Provider value={{ socket }}>
             <Switch>
-              <Route path="/" exact component={ListPage} />
+              <Route path="/" exact component={IntroPage} />
+              <Route path="/list" exact component={ListPage} />
               <Route path="/login" exact component={LoginPage} />
               <Route path="/debug/:id" component={DebugPage} />
               <Route path="/result" component={ResultPage} />
