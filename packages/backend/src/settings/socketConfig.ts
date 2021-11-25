@@ -12,7 +12,11 @@ const getTestCode = async problemId => {
 
 export const socketConnection = (httpServer, sessionConfig) => {
   const io = new Server(httpServer, {
-    cors: { origin: process.env.ORIGIN_URL, credentials: true },
+    cors: {
+      methods: ['GET', 'POST'],
+      origin: process.env.ORIGIN_URL,
+      credentials: true,
+    },
   });
 
   io.use((socket, next) => {
