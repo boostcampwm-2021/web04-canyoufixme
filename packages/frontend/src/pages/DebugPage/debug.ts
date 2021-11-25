@@ -48,16 +48,11 @@ function execCodeWithSandbox(
           <meta charset="utf-8">
           <meta
             http-equiv="content-security-policy"
-            content="script-src https://cdn.jsdelivr.net blob: 'unsafe-inline' 'unsafe-eval';">
+            content="script-src blob: 'unsafe-inline' 'unsafe-eval';">
         </head>
         <body>
           <script>
-            (${sandboxFunction})(
-              \`${code}\`,
-              ${JSON.stringify(testCodes)},
-              \`${setup}\`,
-              (${execCodeWithWorker}),
-              \`${window.origin}\`);
+            (${sandboxFunction})(\`${code}\`, (${execCodeWithWorker}), \`${window.origin}\`);
           </script>
         </body>
       </html>
