@@ -3,6 +3,7 @@ import React, {
   useReducer,
   useRef,
   useCallback,
+  useContext,
   useEffect,
 } from 'react';
 import type { MutableRefObject, RefObject } from 'react';
@@ -23,6 +24,7 @@ import FullWidthViewer from 'components/FullWidthViewer';
 
 import EditorPage from 'pages/EditorPage';
 import Button from 'components/Button';
+import { LoginContext } from 'contexts/LoginContext';
 import MessageModal from 'components/Modal/MessageModal';
 import ConfirmModal from 'components/Modal/ConfirmModal';
 import LoadingModal from 'components/Modal/LoadingModal';
@@ -68,12 +70,14 @@ const DebugPage: React.FC = () => {
     code: '',
     testCode: [],
   });
+  const { isLogin } = useContext(LoginContext);
   const [output, setOutput] = useState('');
   const [isLoading, setLoading] = useState(false);
   const [isSuccess, setSuccess] = useState(false);
   const [isFail, setFail] = useState(false);
   const [isTimeover, setTimeover] = useState(false);
   const [isError, setError] = useState(false);
+  const [isLoginCheck, setLoginCheck] = useState(false);
   const history = useHistory();
 
   const unblockRef = useRef(false);
@@ -138,6 +142,11 @@ const DebugPage: React.FC = () => {
   );
 
   const onSubmit = useCallback(async () => {
+    if (!isLogin) {
+      setLoginCheck(true);
+      return;
+    }
+
     unblockRef.current = true;
     history.push('/result', {
       code: (editorRef.current as Ace.Editor).getValue() as string,
@@ -255,6 +264,12 @@ const DebugPage: React.FC = () => {
             isOpen={isError}
             setter={setError}
             messages={['제출에 실패했습니다.', '담당자에게 문의 바랍니다.']}
+            close={true}
+          />
+          <MessageModal
+            isOpen={isLoginCheck}
+            setter={setLoginCheck}
+            messages={['문제 풀이 제출을 위해서는', '로그인이 필요합니다.']}
             close={true}
           />
         </>
