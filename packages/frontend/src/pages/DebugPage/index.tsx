@@ -56,6 +56,16 @@ const ConsoleWrapper = styled.div`
   color: white;
 `;
 
+const Console = styled.textarea`
+  color: white;
+  width: 100%;
+  height: 100%;
+  padding: 15px;
+  background-color: transparent;
+  border: 0;
+  resize: none;
+`;
+
 const ButtonFooter = styled.div`
   display: flex;
   flex-basis: 0;
@@ -155,28 +165,50 @@ const DebugPage: React.FC = () => {
     });
   }, [debugStates.testCode, history, id]);
 
-  const onExecute = useCallback(async () => {
+  const onExecute = useCallback(() => {
+    console.clear();
+    setOutput('');
+    const logConsole = (message: string) =>
+      setOutput(prev => `${prev}\n${message}`.trim());
+
+    logConsole('[실행 시작...]');
+
+    const startTime = Date.now();
+    const dispatcher = runner(
+      (editorRef.current as Ace.Editor).getValue() as string,
+    );
+
     const loadTimer = setTimeout(() => {
       setLoading(true);
     }, 500);
 
-    const result = await runner({
-      code: (editorRef.current as Ace.Editor).getValue() as string,
-      testCode: debugStates.testCode,
+    const timeout = 5 * 1000;
+    const killTimer = setTimeout(() => {
+      logConsole('TimeoutError: timeout 5s');
+      dispatcher.dispatchEvent(new CustomEvent('kill'));
+    }, timeout);
+
+    dispatcher.addEventListener('stdout', (event: CustomEventInit) => {
+      logConsole(event.detail);
     });
+    dispatcher.addEventListener('stderr', (event: CustomEventInit) => {
+      logConsole(event.detail);
+    });
+    dispatcher.addEventListener(
+      'exit',
+      (event: CustomEventInit) => {
+        clearTimeout(killTimer);
+        clearTimeout(loadTimer);
+        setLoading(false);
 
-    clearTimeout(loadTimer);
-    setLoading(false);
-
-    switch (result.type) {
-      case 'success':
-        setOutput('축하합니다. 멋지게 해내셨네요! 🥳');
-        break;
-      case 'error':
-        setOutput((result.payload as { message: string }).message);
-        break;
-    }
-  }, [debugStates.testCode, editorRef, setOutput]);
+        const endTime = Date.now();
+        setOutput(prev =>
+          `${prev}\n\n[실행 완료: ${endTime - startTime}ms]`.trim(),
+        );
+      },
+      { once: true },
+    );
+  }, []);
 
   const initializeCode = useCallback(() => {
     const editor = editorRef.current as Ace.Editor;
@@ -211,7 +243,7 @@ const DebugPage: React.FC = () => {
             />
           </ViewerWrapper>
           <ConsoleWrapper>
-            <div>{output}</div>
+            <Console value={output} readOnly />
           </ConsoleWrapper>
         </>
       }

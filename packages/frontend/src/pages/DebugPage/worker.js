@@ -1,98 +1,105 @@
-export function execCodeWithWorker(code, testCodes, setup) {
-  function escapeTemplate(code) {
-    return code.replaceAll(/([\\$`])/g, '\\$1');
+export function execCodeWithWorker(code) {
+  function codeToUrl(code) {
+    const blob = new Blob(['(' + String(code) + ')()'], {
+      type: 'text/javascript',
+    });
+    return URL.createObjectURL(blob);
   }
 
-  return new Promise((resolve, reject) => {
-    function codeToUrl(code) {
-      const blob = new Blob(['(' + String(code) + ')()'], {
-        type: 'text/javascript',
-      });
-      return URL.createObjectURL(blob);
-    }
+  const random = Math.random().toString(32).substring(2);
+  const worker = new Worker(
+    codeToUrl(`
+      function () {
+        // 특정 메소드를 사용자 접근 불가하도록 제거
+        delete WorkerGlobalScope.prototype.importScripts;
+        delete WorkerGlobalScope.prototype.fetch;
+        delete self.close;
 
-    const testPromises = testCodes.map(testCode => {
-      const random = Math.random().toString(32).substring(2);
-      const worker = new Worker(
-        codeToUrl(`
-          function () {
-            importScripts('https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js');
+        // 제거한 prototype을 수정 불가하도록 변경
+        Object.freeze(WorkerGlobalScope.prototype);
 
-            // 특정 메소드를 사용자 접근 불가하도록 제거
-            delete WorkerGlobalScope.prototype.importScripts;
-            delete WorkerGlobalScope.prototype.fetch;
-            delete self.close;
-
-            // 제거한 prototype을 수정 불가하도록 변경
-            Object.freeze(WorkerGlobalScope.prototype);
-
-            onmessage = function (message) {
-              try {
-                // 문법검사
-                new Function(\`${escapeTemplate(code)}\`);
-
-                const func = new Function('$$__cyfm__${random}', \`
-                  ${escapeTemplate(setup)}
-                  ${escapeTemplate(code)}
-                  \${message.data}
-                  return $$__cyfm__${random};
-                \`);
-                const key = func('${random}');
-
-                postMessage(
-                  JSON.stringify({
-                    key: key,
-                    type: 'success'
-                  })
-                );
-              } catch (e) {
-                postMessage(
-                  JSON.stringify({
-                    key: '${random}',
-                    type: 'error',
-                    result: {
-                      message: e instanceof Error ? e.message : e
-                    }
-                  })
-                );
-              }
-            };
-          }
-        `),
-      );
-
-      return new Promise((resolve, reject) => {
-        const timeout = 5;
-        const timer = setTimeout(() => {
-          worker.terminate();
-          reject({
-            message: `timeout ${timeout}s`,
-          });
-        }, 1000 * timeout);
-
-        worker.onmessage = function (message) {
-          clearTimeout(timer);
+        onmessage = function (message) {
           try {
-            const parsedMessage = JSON.parse(message.data);
-            if (parsedMessage.key === random) {
-              if (parsedMessage.type === 'success') {
-                resolve(parsedMessage.result);
-              } else if (parsedMessage.type === 'error') {
-                reject(parsedMessage.result);
-              }
-            } else {
-              reject({
-                message: `Illegal return statement`,
-              });
-            }
+            // 문법검사
+            new Function(message.data);
+
+            const func = new Function(
+              '$$__cyfm__${random}, ' +
+              'console, ' +
+              'postMessage, ' +
+              'self, ' +
+              'globalThis', \`
+              \${message.data}
+              return $$__cyfm__${random};
+            \`);
+            const key = func.call(
+              {},  /* Context */
+              '${random}',  /* Key */
+              Object.freeze({  /* Console mock */
+                log: function () {
+                  postMessage({
+                    key: '${random}',
+                    type: 'stdout',
+                    payload: [].slice.call(arguments).join(' '),
+                  });
+                  console.log.apply(null, arguments);
+                },
+              }),
+              undefined,  /* postMessage */
+              {},  /* self */
+              {}  /* globalThis */
+            );
+
+            postMessage({
+              key: key,
+              type: 'done',
+            });
           } catch (e) {
-            reject(e);
+            postMessage({
+              key: '${random}',
+              type: 'error',
+              payload: e.stack || e.message || 'Uncaught: ' + String(e),
+            });
           }
         };
-        worker.postMessage(testCode);
-      });
-    });
-
-    Promise.all(testPromises).then(resolve).catch(reject);
+      }
+    `),
+  );
+  const process = new EventTarget();
+  worker.addEventListener('message', function (event) {
+    const message = event.data;
+    try {
+      if (message.key !== random) {
+        throw new SyntaxError(`Illegal return statement`);
+      }
+      switch (message.type) {
+        case 'stdout':
+          process.dispatchEvent(
+            new CustomEvent('stdout', { detail: message.payload }),
+          );
+          break;
+        case 'error':
+          process.dispatchEvent(
+            new CustomEvent('error', { detail: message.payload }),
+          );
+          break;
+        case 'done':
+          process.dispatchEvent(new CustomEvent('exit', { detail: 0 }));
+        /* eslint-disable-next-line no-fallthrough */
+        default:
+          worker.terminate();
+          break;
+      }
+    } catch (e) {
+      process.dispatchEvent(
+        new CustomEvent('error', { detail: e.stack || e.message }),
+      );
+    }
   });
+  process.kill = function (exitCode) {
+    worker.terminate();
+    process.dispatchEvent(new CustomEvent('exit', { detail: exitCode || -1 }));
+  };
+  worker.postMessage(code);
+  return process;
 }
