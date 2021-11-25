@@ -27,6 +27,7 @@ const TIMEOUT = 5;
 const generateRandomKey = () => randomBytes(256).toString('hex');
 
 export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
+  let worker;
   try {
     const returnVerifyKey = generateRandomKey();
     const workerCode = `
@@ -79,7 +80,7 @@ export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
       });
     `;
 
-    const worker = new Worker(workerCode, {
+    worker = new Worker(workerCode, {
       eval: true,
       argv: [],
       env: {},
@@ -93,7 +94,6 @@ export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
     const result = await new Promise<ITestFailed>((resolve, reject) => {
       worker.on('message', resolve);
       setTimeout(() => {
-        worker.terminate();
         reject(new TimeoutError(`timeout ${TIMEOUT}s`));
       }, TIMEOUT * SEC);
     });
@@ -122,5 +122,7 @@ export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
         });
         break;
     }
+  } finally {
+    worker.terminate();
   }
 };
