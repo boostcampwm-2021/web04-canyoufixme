@@ -8,8 +8,10 @@ import React, {
 import type { MutableRefObject, RefObject } from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 
+import 'ace-builds';
+import 'ace-builds/webpack-resolver';
+import type { Ace } from 'ace-builds';
 import AceEditor from 'react-ace';
-import { Ace } from 'ace-builds';
 import type { Viewer } from '@toast-ui/react-editor';
 
 import babelParser from 'prettier/parser-babel';
@@ -26,16 +28,12 @@ import ConfirmModal from 'components/Modal/ConfirmModal';
 import LoadingModal from 'components/Modal/LoadingModal';
 
 import { useBlockUnload } from 'hooks/useBlockUnload';
+import { debugReducer } from './reducer';
 
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-twilight';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
-
-import io, { Socket } from 'socket.io-client';
-import { DefaultEventsMap } from '@socket.io/component-emitter';
-
-import { debugReducer } from './reducer';
 
 const ViewerWrapper = styled.div`
   display: flex;
@@ -222,8 +220,6 @@ const DebugPage: React.FC = () => {
               editorProps={{ $blockScrolling: true }}
               setOptions={{
                 tabSize: 2,
-                enableBasicAutocompletion: true,
-                enableLiveAutocompletion: true,
               }}
             />
           </EditorWrapper>
