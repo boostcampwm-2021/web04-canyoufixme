@@ -18,7 +18,6 @@ import type { Viewer } from '@toast-ui/react-editor';
 import babelParser from 'prettier/parser-babel';
 import prettier from 'prettier/standalone';
 
-import runner from './debug';
 import styled from '@cyfm/styled';
 import FullWidthViewer from 'components/FullWidthViewer';
 
@@ -29,6 +28,7 @@ import MessageModal from 'components/Modal/MessageModal';
 import ConfirmModal from 'components/Modal/ConfirmModal';
 import LoadingModal from 'components/Modal/LoadingModal';
 
+import { useSandbox } from 'hooks/useSandbox';
 import { useBlockUnload } from 'hooks/useBlockUnload';
 import { debugReducer } from './reducer';
 
@@ -165,18 +165,14 @@ const DebugPage: React.FC = () => {
     });
   }, [debugStates.testCode, history, id]);
 
-  const onExecute = useCallback(() => {
+  const onExecute = useSandbox(debugStates.code, dispatcher => {
     console.clear();
     setOutput('');
     const logConsole = (message: string) =>
       setOutput(prev => `${prev}\n${message}`.trim());
 
     logConsole('[실행 시작...]');
-
     const startTime = Date.now();
-    const dispatcher = runner(
-      (editorRef.current as Ace.Editor).getValue() as string,
-    );
 
     const loadTimer = setTimeout(() => {
       setLoading(true);
@@ -208,7 +204,7 @@ const DebugPage: React.FC = () => {
       },
       { once: true },
     );
-  }, []);
+  });
 
   const initializeCode = useCallback(() => {
     const editor = editorRef.current as Ace.Editor;
