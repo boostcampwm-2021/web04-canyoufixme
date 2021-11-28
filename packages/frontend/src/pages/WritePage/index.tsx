@@ -100,6 +100,9 @@ const TagButton = styled(Button)`
   width: 50%;
   font-size: 1em;
   text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 const ConsoleWrapper = styled.div`
