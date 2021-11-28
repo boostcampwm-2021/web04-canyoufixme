@@ -204,46 +204,56 @@ const WritePage = () => {
     [editorRef],
   );
 
-  const onExecute = useSandbox(code, dispatcher => {
-    console.clear();
-    setOutput('');
-    const logConsole = (message: string) =>
-      setOutput(prev => `${prev}\n${message}`.trim());
+  const onExecute = useSandbox(
+    `
+    const { expect } = chai;
+    ${code}
+    ${testCases.map(t => t.code).join(';\n')}
+  `,
+    dispatcher => {
+      console.clear();
+      setOutput('');
+      const logConsole = (message: string) =>
+        setOutput(prev => `${prev}\n${message}`.trim());
 
-    logConsole('[실행 시작...]');
-    const startTime = Date.now();
+      logConsole('[실행 시작...]');
+      const startTime = Date.now();
 
-    const loadTimer = setTimeout(() => {
-      setLoading(true);
-    }, 500);
+      const loadTimer = setTimeout(() => {
+        setLoading(true);
+      }, 500);
 
-    const timeout = 5 * 1000;
-    const killTimer = setTimeout(() => {
-      logConsole('TimeoutError: timeout 5s');
-      dispatcher.dispatchEvent(new CustomEvent('kill'));
-    }, timeout);
+      const timeout = 5 * 1000;
+      const killTimer = setTimeout(() => {
+        logConsole('TimeoutError: timeout 5s');
+        dispatcher.dispatchEvent(new CustomEvent('kill'));
+      }, timeout);
 
-    dispatcher.addEventListener('stdout', (event: CustomEventInit) => {
-      logConsole(event.detail);
-    });
-    dispatcher.addEventListener('stderr', (event: CustomEventInit) => {
-      logConsole(event.detail);
-    });
-    dispatcher.addEventListener(
-      'exit',
-      (event: CustomEventInit) => {
-        clearTimeout(killTimer);
-        clearTimeout(loadTimer);
-        setLoading(false);
+      dispatcher.addEventListener('stdout', (event: CustomEventInit) => {
+        logConsole(event.detail);
+      });
+      dispatcher.addEventListener('stderr', (event: CustomEventInit) => {
+        logConsole(event.detail);
+      });
+      dispatcher.addEventListener(
+        'exit',
+        (event: CustomEventInit) => {
+          clearTimeout(killTimer);
+          clearTimeout(loadTimer);
+          setLoading(false);
 
-        const endTime = Date.now();
-        setOutput(prev =>
-          `${prev}\n\n[실행 완료: ${endTime - startTime}ms]`.trim(),
-        );
-      },
-      { once: true },
-    );
-  });
+          const endTime = Date.now();
+          setOutput(prev =>
+            `${prev}\n\n[실행 완료: ${endTime - startTime}ms]`.trim(),
+          );
+        },
+        { once: true },
+      );
+    },
+    {
+      dependencies: ['https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js'],
+    },
+  );
 
   function onMarkdownEditorLoad(this: Editor) {
     markdownRef.current = this;
