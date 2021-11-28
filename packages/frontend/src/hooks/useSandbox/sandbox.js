@@ -1,4 +1,4 @@
-export function sandboxFunction(code, fork, origin) {
+export function sandboxFunction(code, fork, origin, opts) {
   var postMessage;
   window.onmessage = function (message) {
     if (message.origin === origin && message.ports) {
@@ -8,7 +8,7 @@ export function sandboxFunction(code, fork, origin) {
         port2.postMessage(data);
       };
 
-      const process = fork(code);
+      const process = fork(code, opts);
       process.addEventListener('stdout', function (event) {
         postMessage({
           type: 'stdout',
