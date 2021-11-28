@@ -15,6 +15,7 @@ import type { MutableRefObject, RefObject } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
 
 import { LoginContext } from 'contexts/LoginContext';
+import { useSandbox } from 'hooks/useSandbox';
 import { useBlockUnload } from 'hooks/useBlockUnload';
 import {
   VALIDATION_FAIL_MESSAGE,
@@ -33,6 +34,7 @@ import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
 
 import styled from '@cyfm/styled';
 import Button from 'components/Button';
+import Console from 'components/Console';
 import WriteEditorPage from 'pages/WriteEditorPage';
 import TestCodeEditor from 'components/TestCodeEditor';
 import FullWidthInput from 'components/FullWidthInput';
@@ -143,6 +145,7 @@ const WritePage = () => {
 
   const { isLogin } = useContext(LoginContext);
   const [code, setCode] = useState('');
+  const [output, setOutput] = useState('');
   const [category, setCategory] = useState('JavaScript');
   const [level, setLevel] = useState('1');
   const [isOpenCategory, setOpenCategory] = useState(false);
@@ -190,6 +193,47 @@ const WritePage = () => {
     },
     [editorRef],
   );
+
+  const onExecute = useSandbox(code, dispatcher => {
+    console.clear();
+    setOutput('');
+    const logConsole = (message: string) =>
+      setOutput(prev => `${prev}\n${message}`.trim());
+
+    logConsole('[실행 시작...]');
+    const startTime = Date.now();
+
+    const loadTimer = setTimeout(() => {
+      setLoading(true);
+    }, 500);
+
+    const timeout = 5 * 1000;
+    const killTimer = setTimeout(() => {
+      logConsole('TimeoutError: timeout 5s');
+      dispatcher.dispatchEvent(new CustomEvent('kill'));
+    }, timeout);
+
+    dispatcher.addEventListener('stdout', (event: CustomEventInit) => {
+      logConsole(event.detail);
+    });
+    dispatcher.addEventListener('stderr', (event: CustomEventInit) => {
+      logConsole(event.detail);
+    });
+    dispatcher.addEventListener(
+      'exit',
+      (event: CustomEventInit) => {
+        clearTimeout(killTimer);
+        clearTimeout(loadTimer);
+        setLoading(false);
+
+        const endTime = Date.now();
+        setOutput(prev =>
+          `${prev}\n\n[실행 완료: ${endTime - startTime}ms]`.trim(),
+        );
+      },
+      { once: true },
+    );
+  });
 
   function onMarkdownEditorLoad(this: Editor) {
     markdownRef.current = this;
@@ -301,7 +345,9 @@ const WritePage = () => {
                 onLoad={onMarkdownEditorLoad}
                 ref={markdownRef as RefObject<Editor>}
               />
-              <ConsoleWrapper></ConsoleWrapper>
+              <ConsoleWrapper>
+                <Console value={output} readOnly />
+              </ConsoleWrapper>
             </>
           }
           middlePane={
@@ -372,7 +418,7 @@ const WritePage = () => {
                 />
               </TestCodeWrapper>
               <ButtonFooter>
-                <Button>실행</Button>
+                <Button onClick={onExecute}>실행</Button>
                 <Button onClick={submitValidation}>제출</Button>
               </ButtonFooter>
               <LoadingModal isOpen={isLoading} />
