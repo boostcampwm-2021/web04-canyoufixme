@@ -102,11 +102,18 @@ const TagButton = styled(Button)`
   text-align: center;
 `;
 
-const ConsoleWrapper = styled.div``;
+const ConsoleWrapper = styled.div`
+  padding: 20px;
+  height: 100%;
+  flex-basis: 50%;
+  background: #24262a;
+  color: white;
+`;
 
 const CodeEditorWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
   flex-basis: 100%;
-  width: 100%;
 `;
 
 const TestCodeWrapper = styled.div`
@@ -388,6 +395,7 @@ const WritePage = () => {
                   onChange={onChange}
                   mode={CATEGORY[category as keyof typeof CATEGORY]}
                   width="100%"
+                  height="100%"
                   theme="twilight"
                   name="code"
                   value={code}
