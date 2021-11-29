@@ -1,12 +1,9 @@
 import React from 'react';
 import Modal from 'react-modal';
 
-import { ModalReducerAction } from './ModalType';
+import type { ModalBaseProps } from './ModalType';
 
-interface ModalProps {
-  isOpen: boolean;
-  setter: React.Dispatch<ModalReducerAction>;
-  target: string;
+interface ModalProps extends ModalBaseProps {
   children: React.ReactNode;
 }
 

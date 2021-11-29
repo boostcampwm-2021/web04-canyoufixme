@@ -4,14 +4,10 @@ import { nanoid } from 'nanoid';
 
 import styled from '@cyfm/styled';
 
-import { ModalReducerAction } from './ModalType';
-
 import Button from './ModalButton';
+import type { ModalBaseProps } from './ModalType';
 
-interface ModalProps {
-  isOpen: boolean;
-  setter: React.Dispatch<ModalReducerAction>;
-  target: string;
+interface ModalProps extends ModalBaseProps {
   value: string;
   changeValue: (value: string) => void;
   selections: string[];

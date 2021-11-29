@@ -3,15 +3,12 @@ import { nanoid } from 'nanoid';
 
 import styled from '@cyfm/styled';
 
-import { ModalReducerAction } from './ModalType';
-
 import Modal from './Modal';
 import Button from './ModalButton';
 
-interface ModalProps {
-  isOpen: boolean;
-  setter: React.Dispatch<ModalReducerAction>;
-  target: string;
+import type { ModalBaseProps } from './ModalType';
+
+interface ModalProps extends ModalBaseProps {
   message: string;
   close?: boolean;
 }

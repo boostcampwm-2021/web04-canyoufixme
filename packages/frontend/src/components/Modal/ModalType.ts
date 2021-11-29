@@ -13,3 +13,9 @@ export type CloseAction = {
 };
 
 export type ModalReducerAction = OpenAction | CloseAction;
+
+export interface ModalBaseProps {
+  isOpen: boolean;
+  setter: React.Dispatch<ModalReducerAction>;
+  target: string;
+}
