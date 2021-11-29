@@ -1,4 +1,4 @@
-export function execCodeWithWorker(code) {
+export function execCodeWithWorker(code, opts) {
   function codeToUrl(code) {
     const blob = new Blob(['(' + String(code) + ')()'], {
       type: 'text/javascript',
@@ -10,6 +10,14 @@ export function execCodeWithWorker(code) {
   const worker = new Worker(
     codeToUrl(`
       function () {
+        ${
+          opts.dependencies
+            ? 'importScripts(' +
+              opts.dependencies.map(d => '"' + d + '"').join(', ') +
+              ')'
+            : ''
+        }
+
         // 특정 메소드를 사용자 접근 불가하도록 제거
         delete WorkerGlobalScope.prototype.importScripts;
         delete WorkerGlobalScope.prototype.fetch;
