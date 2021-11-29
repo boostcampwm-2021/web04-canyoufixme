@@ -1,18 +1,29 @@
 import React from 'react';
 import Modal from 'react-modal';
 
+import { ModalReducerAction } from './ModalType';
+
 interface ModalProps {
   isOpen: boolean;
-  setter: (isOpen: boolean) => void;
+  setter: React.Dispatch<ModalReducerAction>;
+  target: string;
   children: React.ReactNode;
 }
 
 const CustomModal = (props: ModalProps) => {
-  const { isOpen, setter, children } = props;
+  const { isOpen, setter, target, children } = props;
+  const closeModal = () =>
+    setter({
+      type: 'close',
+      payload: {
+        target: target,
+      },
+    });
+
   return (
     <Modal
       isOpen={isOpen}
-      onRequestClose={() => setter(false)}
+      onRequestClose={closeModal}
       shouldFocusAfterRender={false}
       style={{
         overlay: {
