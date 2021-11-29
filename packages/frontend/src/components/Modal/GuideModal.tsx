@@ -6,7 +6,7 @@ import styled from '@cyfm/styled';
 
 import Button from './ModalButton';
 
-import TESTCASES from './GuidelineCase';
+import GUIDELINES from './GuidelineCase';
 
 interface ModalProps {
   isOpen: boolean;
@@ -126,11 +126,11 @@ const GuideModal = (props: ModalProps) => {
           </PageButton>
         </TitleWrapper>
         <ContentWrapper>
-          {TESTCASES.map(testcase => (
+          {GUIDELINES.map(guideline => (
             <TestCaseWrapper key={nanoid()}>
-              <TestCaseTitle>{testcase.title}</TestCaseTitle>
-              <TestCaseContent>{testcase.content}</TestCaseContent>
-              {testcase.codes.map(code => (
+              <TestCaseTitle>{guideline.title}</TestCaseTitle>
+              <TestCaseContent>{guideline.content}</TestCaseContent>
+              {guideline.codes.map(code => (
                 <TestCaseCode>{code}</TestCaseCode>
               ))}
             </TestCaseWrapper>

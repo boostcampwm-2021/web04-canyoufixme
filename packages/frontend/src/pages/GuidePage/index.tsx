@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid';
 
 import styled from '@cyfm/styled';
 
-import TESTCASES from './GuidelineCase';
+import GUIDELINES from './GuidelineCase';
 
 const GuideWrapper = styled.div`
   display: flex;
@@ -66,11 +66,11 @@ const GuidePage = () => {
     <GuideWrapper>
       <TitleWrapper>테스트케이스 가이드라인</TitleWrapper>
       <ContentWrapper>
-        {TESTCASES.map(testcase => (
+        {GUIDELINES.map(guideline => (
           <TestCaseWrapper key={nanoid()}>
-            <TestCaseTitle>{testcase.title}</TestCaseTitle>
-            <TestCaseContent>{testcase.content}</TestCaseContent>
-            {testcase.codes.map(code => (
+            <TestCaseTitle>{guideline.title}</TestCaseTitle>
+            <TestCaseContent>{guideline.content}</TestCaseContent>
+            {guideline.codes.map(code => (
               <TestCaseCode>{code}</TestCaseCode>
             ))}
           </TestCaseWrapper>

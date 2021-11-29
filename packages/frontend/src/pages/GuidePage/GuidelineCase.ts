@@ -1,10 +1,6 @@
-interface TestCase {
-  title: string;
-  content: string;
-  codes: string[];
-}
+import type { IGuideline } from '@cyfm/types';
 
-const TESTCASES: TestCase[] = [
+const GUIDELINES: IGuideline[] = [
   {
     title: `expect(val1).to.equal(val2);`,
     content: `'val1'과 'val2'가 동일한지 확인할 때 사용합니다.`,
@@ -39,4 +35,4 @@ const TESTCASES: TestCase[] = [
   },
 ];
 
-export default TESTCASES;
+export default GUIDELINES;

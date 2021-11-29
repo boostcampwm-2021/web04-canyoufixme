@@ -41,3 +41,9 @@ export interface ITestCase {
 export type ITestCaseResult = Pick<ITestCase, 'id'> & {
   result: ResultCode;
 };
+
+export interface IGuideline {
+  title: string;
+  content: string;
+  codes: string[];
+}
