@@ -1,3 +1,5 @@
+import { ResultCode } from './enums';
+
 export interface IUser {
   name: string;
 }
@@ -29,3 +31,13 @@ export interface ISubmitLog {
   user: IUser;
   problem: IProblem;
 }
+
+export interface ITestCase {
+  title: string;
+  code: string;
+  id: string;
+}
+
+export type ITestCaseResult = Pick<ITestCase, 'id'> & {
+  result: ResultCode;
+};
