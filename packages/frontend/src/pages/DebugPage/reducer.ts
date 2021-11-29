@@ -1,3 +1,5 @@
+import { ModalReducerAction } from 'components/Modal/ModalType';
+
 type DebugStates = {
   content: string;
   testCode: string[];
@@ -37,4 +39,35 @@ const debugReducer = (
   }
 };
 
-export { debugReducer };
+type ModalState = {
+  openLoading: boolean;
+  openMessage: boolean;
+};
+
+const modalReducer = (
+  state: ModalState,
+  action: ModalReducerAction,
+): ModalState => {
+  switch (action.type) {
+    case 'open':
+      switch (action.payload.target) {
+        case 'loading':
+          return { ...state, openLoading: true };
+        case 'message':
+          return { ...state, openMessage: true };
+        default:
+          return state;
+      }
+    case 'close':
+      switch (action.payload.target) {
+        case 'loading':
+          return { ...state, openLoading: false };
+        case 'message':
+          return { ...state, openMessage: false };
+        default:
+          return state;
+      }
+  }
+};
+
+export { debugReducer, modalReducer };

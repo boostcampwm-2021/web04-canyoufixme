@@ -31,7 +31,7 @@ import LoadingModal from 'components/Modal/LoadingModal';
 
 import { useSandbox } from 'hooks/useSandbox';
 import { useBlockUnload } from 'hooks/useBlockUnload';
-import { debugReducer } from './reducer';
+import { debugReducer, modalReducer } from './reducer';
 
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-twilight';
@@ -72,11 +72,14 @@ const DebugPage: React.FC = () => {
     code: '',
     testCode: [],
   });
+  const [modalStates, modalDispatch] = useReducer(modalReducer, {
+    openLoading: false,
+    openMessage: false,
+  });
+
   const { isLogin } = useContext(LoginContext);
   const [output, setOutput] = useState('');
-  const [isLoading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [isMessage, setShowMessage] = useState(false);
 
   const history = useHistory();
 
@@ -144,7 +147,10 @@ const DebugPage: React.FC = () => {
   const submit = () => {
     if (!isLogin) {
       setMessage(LOGIN_VALIDATION_FAIL_MESSAGE);
-      setShowMessage(true);
+      modalDispatch({
+        type: 'open',
+        payload: { target: 'message' },
+      });
       return;
     }
 
@@ -175,7 +181,7 @@ const DebugPage: React.FC = () => {
     const startTime = Date.now();
 
     const loadTimer = setTimeout(() => {
-      setLoading(true);
+      modalDispatch({ type: 'open', payload: { target: 'loading' } });
     }, 500);
 
     const timeout = 5 * 1000;
@@ -195,7 +201,7 @@ const DebugPage: React.FC = () => {
       (event: CustomEventInit) => {
         clearTimeout(killTimer);
         clearTimeout(loadTimer);
-        setLoading(false);
+        modalDispatch({ type: 'close', payload: { target: 'loading' } });
 
         const endTime = Date.now();
         setOutput(prev =>
@@ -267,10 +273,11 @@ const DebugPage: React.FC = () => {
             <Button onClick={onExecute}>실행</Button>
             <Button onClick={onSubmit}>제출</Button>
           </ButtonFooter>
-          <LoadingModal isOpen={isLoading} />
+          <LoadingModal isOpen={modalStates.openLoading} />
           <MessageModal
-            isOpen={isMessage}
-            setter={setShowMessage}
+            isOpen={modalStates.openMessage}
+            setter={modalDispatch}
+            target={'message'}
             message={message}
             close={true}
           />
