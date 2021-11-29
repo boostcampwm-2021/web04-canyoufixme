@@ -37,11 +37,7 @@ import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-twilight';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
-import {
-  LOGIN_VALIDATION_FAIL_MESSAGE,
-  SUBMIT_FAIL_MESSAGE,
-  TIMEOUT_MESSAGE,
-} from './message';
+import { LOGIN_VALIDATION_FAIL_MESSAGE } from './message';
 
 const ViewerWrapper = styled.div`
   display: flex;
@@ -79,9 +75,9 @@ const DebugPage: React.FC = () => {
   const { isLogin } = useContext(LoginContext);
   const [output, setOutput] = useState('');
   const [isLoading, setLoading] = useState(false);
-  const [isTimeover, setTimeover] = useState(false);
-  const [isError, setError] = useState(false);
-  const [isLoginCheck, setLoginCheck] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isMessage, setShowMessage] = useState(false);
+
   const history = useHistory();
 
   const unblockRef = useRef(false);
@@ -147,7 +143,8 @@ const DebugPage: React.FC = () => {
 
   const submit = () => {
     if (!isLogin) {
-      setLoginCheck(true);
+      setMessage(LOGIN_VALIDATION_FAIL_MESSAGE);
+      setShowMessage(true);
       return;
     }
 
@@ -272,21 +269,9 @@ const DebugPage: React.FC = () => {
           </ButtonFooter>
           <LoadingModal isOpen={isLoading} />
           <MessageModal
-            isOpen={isTimeover}
-            setter={setTimeover}
-            message={TIMEOUT_MESSAGE}
-            close={true}
-          />
-          <MessageModal
-            isOpen={isError}
-            setter={setError}
-            message={SUBMIT_FAIL_MESSAGE}
-            close={true}
-          />
-          <MessageModal
-            isOpen={isLoginCheck}
-            setter={setLoginCheck}
-            message={LOGIN_VALIDATION_FAIL_MESSAGE}
+            isOpen={isMessage}
+            setter={setShowMessage}
+            message={message}
             close={true}
           />
         </>
