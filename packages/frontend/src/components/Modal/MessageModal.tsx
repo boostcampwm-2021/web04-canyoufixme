@@ -9,7 +9,7 @@ import Button from './ModalButton';
 interface ModalProps {
   isOpen: boolean;
   setter: (isOpen: boolean) => void;
-  messages: string[];
+  message: string;
   close?: boolean;
 }
 
@@ -34,14 +34,14 @@ const ButtonWrapper = styled.div`
 `;
 
 const MessageModal = (props: ModalProps) => {
-  const { isOpen, setter, messages } = props;
+  const { isOpen, setter, message } = props;
 
   const closeModal = () => setter(false);
   return (
     <Modal isOpen={isOpen} setter={setter}>
       <ContentWrapper>
-        {messages.map(message => (
-          <MessageWrapper key={nanoid()}>{message}</MessageWrapper>
+        {message.split('\n').map(line => (
+          <MessageWrapper key={nanoid()}>{line}</MessageWrapper>
         ))}
       </ContentWrapper>
       {props.close ? (
