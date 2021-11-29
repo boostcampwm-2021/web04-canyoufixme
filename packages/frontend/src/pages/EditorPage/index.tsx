@@ -79,31 +79,33 @@ const EditorPage = (props: SlotProps) => {
   );
 
   useEffect(() => {
-    syncWorkerRef.current = new SharedWorker(syncWorkerUrl);
-    const syncWorker = syncWorkerRef.current;
+    if ('SharedWorker' in window) {
+      syncWorkerRef.current = new SharedWorker(syncWorkerUrl);
+      const syncWorker = syncWorkerRef.current;
 
-    const receivedMessage = (event: MessageEvent) => {
-      switch (event.data) {
-        case 'PING':
-          syncWorker?.port.postMessage('PONG');
-          break;
-        default:
-          if (event.data.startsWith('DATA')) {
-            const data = JSON.parse(event.data.substring('DATA'.length));
-            if (data.type === 'editorWidth') {
-              setLeftPaneWidth(data.payload.width);
+      const receivedMessage = (event: MessageEvent) => {
+        switch (event.data) {
+          case 'PING':
+            syncWorker?.port.postMessage('PONG');
+            break;
+          default:
+            if (event.data.startsWith('DATA')) {
+              const data = JSON.parse(event.data.substring('DATA'.length));
+              if (data.type === 'editorWidth') {
+                setLeftPaneWidth(data.payload.width);
+              }
             }
-          }
-          break;
-      }
-    };
+            break;
+        }
+      };
 
-    syncWorker?.port.addEventListener('message', receivedMessage);
-    syncWorker?.port.start();
-    syncWorker?.port.postMessage('PING');
+      syncWorker?.port.addEventListener('message', receivedMessage);
+      syncWorker?.port.start();
+      syncWorker?.port.postMessage('PING');
 
-    return () =>
-      syncWorker?.port.removeEventListener('message', receivedMessage);
+      return () =>
+        syncWorker?.port.removeEventListener('message', receivedMessage);
+    }
   }, []);
 
   return (
