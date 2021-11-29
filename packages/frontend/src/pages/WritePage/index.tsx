@@ -17,11 +17,14 @@ import { Redirect, useHistory } from 'react-router-dom';
 import { LoginContext } from 'contexts/LoginContext';
 import { useSandbox } from 'hooks/useSandbox';
 import { useBlockUnload } from 'hooks/useBlockUnload';
+import { LANGUAGE_SELECTIONS, VALID_LANGUAGES } from './constant';
 import {
   VALIDATION_FAIL_MESSAGE,
-  LANGUAGE_SELECTIONS,
-  VALID_LANGUAGES,
-} from './constant';
+  CHECK_BEFORE_SUBMIT_MESSAGE,
+  CHECK_IS_VALID_LANGUAGE,
+  SUBMIT_SUCCESS_MESSAGE,
+  SUBMIT_FAIL_MESSAGE,
+} from './message';
 
 import 'ace-builds/src-noconflict/theme-twilight';
 import 'ace-builds/src-noconflict/mode-c_cpp';
@@ -160,7 +163,7 @@ const WritePage = () => {
   const [isError, setError] = useState(false);
   const [isValid, setValid] = useState(false);
   const [isValidLang, setValidLang] = useState(false);
-  const [validationMessages, setValidationMessages] = useState<string[]>([]);
+  const [validationMessages, setValidationMessages] = useState<string>('');
 
   const unblockRef = useRef(false);
   useBlockUnload(code, unblockRef);
@@ -444,11 +447,7 @@ const WritePage = () => {
               <ConfirmModal
                 isOpen={isSubmit}
                 setter={setSubmit}
-                messages={[
-                  '제출 후에는 내용을',
-                  '변경할 수 없습니다.',
-                  '정말로 제출하시겠습니까?',
-                ]}
+                message={CHECK_BEFORE_SUBMIT_MESSAGE}
                 callback={() => {
                   setSubmit(false);
                   onSubmit();
@@ -457,32 +456,25 @@ const WritePage = () => {
               <MessageModal
                 isOpen={isValid}
                 setter={setValid}
-                messages={validationMessages}
+                message={validationMessages}
                 close={true}
               />
               <MessageModal
                 isOpen={isValidLang}
                 setter={setValidLang}
-                messages={[
-                  '현재는 지원하지 않는 언어입니다.',
-                  '빠른 시일 내에 지원하겠습니다.',
-                  '현재 사용 가능 언어 : JavaScript',
-                ]}
+                message={CHECK_IS_VALID_LANGUAGE}
                 close={true}
               />
               <MessageModal
                 isOpen={isSuccess}
                 setter={setSuccess}
-                messages={[
-                  '문제 제출에 성공했습니다.',
-                  '잠시 후 문제 리스트로 이동합니다.',
-                ]}
+                message={SUBMIT_SUCCESS_MESSAGE}
                 close={false}
               />
               <MessageModal
                 isOpen={isError}
                 setter={setError}
-                messages={['출제에 실패했습니다.', '담당자에게 문의 바랍니다.']}
+                message={SUBMIT_FAIL_MESSAGE}
                 close={true}
               />
             </>
