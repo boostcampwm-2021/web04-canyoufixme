@@ -109,13 +109,13 @@ const App: React.FC = () => {
         <ConfirmModal
           isOpen={isLogoutOpen}
           setter={setLogoutOpen}
-          messages={['로그아웃 하시겠습니까?']}
+          message={'로그아웃 하시겠습니까?'}
           callback={logout}
         />
         <MessageModal
           isOpen={isMessageOpen}
           setter={setMessageOpen}
-          messages={['비정상적인 접근입니다.', '로그인 상태를 확인해주세요.']}
+          message={'비정상적인 접근입니다.\n로그인 상태를 확인해주세요.'}
           close={true}
         />
         <LoginContext.Provider value={login}>

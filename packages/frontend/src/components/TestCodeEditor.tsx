@@ -55,18 +55,18 @@ const TestCodeEditor = ({
   setTestCases: React.Dispatch<React.SetStateAction<TestCase[]>>;
 }) => {
   const [isMessage, setMessage] = useState(false);
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<string>('');
   const titleRef: MutableRefObject<HTMLInputElement | undefined> = useRef();
   const codeRef: MutableRefObject<HTMLInputElement | undefined> = useRef();
 
   const inputValidation = (title: string, code: string) => {
     if (title.length === 0) {
-      setMessages(['테스트케이스 제목을 입력해주세요.']);
+      setMessages('테스트케이스 제목을 입력해주세요.');
       return false;
     }
 
     if (code.length === 0) {
-      setMessages(['테스트케이스 코드를 입력해주세요.']);
+      setMessages('테스트케이스 코드를 입력해주세요.');
       return false;
     }
 
@@ -106,7 +106,7 @@ const TestCodeEditor = ({
       <MessageModal
         isOpen={isMessage}
         setter={setMessage}
-        messages={messages}
+        message={messages}
         close={true}
       />
       <TestCodeViewer testCases={testCases} remove={remove} />
