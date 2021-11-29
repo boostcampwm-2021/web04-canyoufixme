@@ -160,10 +160,8 @@ const WritePage = () => {
   const [isLoading, setLoading] = useState(false);
   const [isSubmit, setSubmit] = useState(false);
   const [isSuccess, setSuccess] = useState(false);
-  const [isError, setError] = useState(false);
-  const [isValid, setValid] = useState(false);
-  const [isValidLang, setValidLang] = useState(false);
-  const [validationMessages, setValidationMessages] = useState<string>('');
+  const [message, setMessage] = useState('');
+  const [isShowMessage, setShowMessage] = useState(false);
 
   const unblockRef = useRef(false);
   useBlockUnload(code, unblockRef);
@@ -259,7 +257,7 @@ const WritePage = () => {
   const inputValidation = useCallback(() => {
     const titleContext = titleInputRef.current?.value;
     if ((titleContext as string).length === 0) {
-      setValidationMessages(VALIDATION_FAIL_MESSAGE['title']);
+      setMessage(VALIDATION_FAIL_MESSAGE['title']);
       return false;
     }
 
@@ -267,19 +265,19 @@ const WritePage = () => {
       .getInstance()
       .getMarkdown();
     if ((markdownContext as string).length === 0) {
-      setValidationMessages(VALIDATION_FAIL_MESSAGE['markdown']);
+      setMessage(VALIDATION_FAIL_MESSAGE['markdown']);
       return false;
     }
 
     const codeContext = code;
     if ((codeContext as string).length === 0) {
-      setValidationMessages(VALIDATION_FAIL_MESSAGE['code']);
+      setMessage(VALIDATION_FAIL_MESSAGE['code']);
       return false;
     }
 
     const testcaseContext = testCases;
     if (testcaseContext.length === 0) {
-      setValidationMessages(VALIDATION_FAIL_MESSAGE['testcase']);
+      setMessage(VALIDATION_FAIL_MESSAGE['testcase']);
       return false;
     }
 
@@ -290,19 +288,16 @@ const WritePage = () => {
     if (VALID_LANGUAGES.includes(category)) {
       return true;
     } else {
+      setMessage(CHECK_IS_VALID_LANGUAGE);
       return false;
     }
   }, [category]);
 
   const submitValidation = () => {
-    if (isValidLanguage()) {
-      if (inputValidation()) {
-        setSubmit(true);
-      } else {
-        setValid(true);
-      }
+    if (isValidLanguage() && inputValidation()) {
+      setSubmit(true);
     } else {
-      setValidLang(true);
+      setShowMessage(true);
     }
   };
 
@@ -334,10 +329,12 @@ const WritePage = () => {
           history.push('/');
         }, 2000);
       } else {
-        setError(true);
+        setMessage(SUBMIT_FAIL_MESSAGE);
+        setShowMessage(true);
       }
     } catch (err) {
-      setError(true);
+      setMessage(SUBMIT_FAIL_MESSAGE);
+      setShowMessage(true);
     }
   };
 
@@ -454,15 +451,9 @@ const WritePage = () => {
                 }}
               />
               <MessageModal
-                isOpen={isValid}
-                setter={setValid}
-                message={validationMessages}
-                close={true}
-              />
-              <MessageModal
-                isOpen={isValidLang}
-                setter={setValidLang}
-                message={CHECK_IS_VALID_LANGUAGE}
+                isOpen={isShowMessage}
+                setter={setShowMessage}
+                message={message}
                 close={true}
               />
               <MessageModal
@@ -470,12 +461,6 @@ const WritePage = () => {
                 setter={setSuccess}
                 message={SUBMIT_SUCCESS_MESSAGE}
                 close={false}
-              />
-              <MessageModal
-                isOpen={isError}
-                setter={setError}
-                message={SUBMIT_FAIL_MESSAGE}
-                close={true}
               />
             </>
           }
