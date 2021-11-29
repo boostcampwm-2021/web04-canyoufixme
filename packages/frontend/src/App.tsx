@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useContext, useMemo } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useContext,
+  useReducer,
+  useMemo,
+} from 'react';
 import { BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom';
 import Modal from 'react-modal';
 import { LoginContext } from 'contexts/LoginContext';
@@ -7,6 +13,8 @@ import './App.css';
 
 import styled from '@cyfm/styled';
 import logo from 'assets/images/upscale.png';
+
+import { ModalReducerAction } from 'components/Modal/ModalType';
 
 import IntroPage from 'pages/IntroPage';
 import ListPage from 'pages/ListPage';
@@ -20,6 +28,11 @@ import NotFoundPage from 'pages/NotFoundPage';
 import TopNavLink from 'components/TopNavLink';
 import MessageModal from 'components/Modal/MessageModal';
 import ConfirmModal from 'components/Modal/ConfirmModal';
+
+type ModalState = {
+  openLogout: boolean;
+  openMessage: boolean;
+};
 
 const Header = styled.header`
   color: white;
@@ -48,6 +61,7 @@ const App: React.FC = () => {
   const loginContext = useContext(LoginContext);
   const socketContext = useContext(SocketContext);
   const socket = socketContext.socket;
+
   const [isLogin, setLogin] = useState(loginContext.isLogin);
   const login = useMemo(() => {
     return {
@@ -55,8 +69,35 @@ const App: React.FC = () => {
       setLogin,
     };
   }, [isLogin]);
-  const [isLogoutOpen, setLogoutOpen] = useState(false);
-  const [isMessageOpen, setMessageOpen] = useState(false);
+
+  const [modalStates, dispatch] = useReducer(
+    (state: ModalState, action: ModalReducerAction): ModalState => {
+      switch (action.type) {
+        case 'open':
+          switch (action.payload.target) {
+            case 'logout':
+              return { ...state, openLogout: true };
+            case 'message':
+              return { ...state, openMessage: true };
+            default:
+              return state;
+          }
+        case 'close':
+          switch (action.payload.target) {
+            case 'logout':
+              return { ...state, openLogout: false };
+            case 'message':
+              return { ...state, openMessage: false };
+            default:
+              return state;
+          }
+      }
+    },
+    {
+      openLogout: false,
+      openMessage: false,
+    },
+  );
 
   const logout = useCallback(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/logout`, {
@@ -66,10 +107,10 @@ const App: React.FC = () => {
       .then(res => res.json())
       .then(res => {
         if (res.message !== 'success') {
-          setMessageOpen(true);
+          dispatch({ type: 'open', payload: { target: 'message' } });
           return;
         }
-        setLogoutOpen(false);
+        dispatch({ type: 'close', payload: { target: 'logout' } });
         setLogin(false);
       });
   }, []);
@@ -77,9 +118,9 @@ const App: React.FC = () => {
   const openLogoutModal = useCallback(
     (e: MouseEvent) => {
       e.preventDefault();
-      setLogoutOpen(true);
+      dispatch({ type: 'open', payload: { target: 'logout' } });
     },
-    [setLogoutOpen],
+    [dispatch],
   );
 
   return (
@@ -107,14 +148,16 @@ const App: React.FC = () => {
           ''
         )}
         <ConfirmModal
-          isOpen={isLogoutOpen}
-          setter={setLogoutOpen}
+          isOpen={modalStates.openLogout}
+          setter={dispatch}
+          target={'logout'}
           message={'로그아웃 하시겠습니까?'}
           callback={logout}
         />
         <MessageModal
-          isOpen={isMessageOpen}
-          setter={setMessageOpen}
+          isOpen={modalStates.openMessage}
+          setter={dispatch}
+          target={'message'}
           message={'비정상적인 접근입니다.\n로그인 상태를 확인해주세요.'}
           close={true}
         />
