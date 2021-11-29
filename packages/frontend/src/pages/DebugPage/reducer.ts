@@ -1,8 +1,7 @@
-type DebugStates = {
-  content: string;
-  testCode: string[];
+import type { IProblemCode } from '@cyfm/types';
+
+type DebugStates = IProblemCode & {
   initCode: string;
-  code: string;
 };
 
 type InitAction = {

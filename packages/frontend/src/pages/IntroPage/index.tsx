@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 
 import styled from '@cyfm/styled';
+import type { IProblem } from '@cyfm/types';
 
 import logo from 'assets/images/logo.svg';
 

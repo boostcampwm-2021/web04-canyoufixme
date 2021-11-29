@@ -1,39 +1,25 @@
-interface User {
-  id: number;
-  name: string;
-  oauthType: string;
-  token: string;
-}
+import type { IProblem } from '@cyfm/types';
 
-interface Item {
-  id: number;
-  title: string;
-  author: User;
-  category: string;
-  codeId: string;
-  level: number;
-}
-
-interface paginationState {
-  items: Item[];
+interface IPaginationState {
+  items: IProblem[];
   offset: number;
 }
 
-interface paginationAction {
+interface IPaginationAction {
   type: string;
-  items?: Item[];
+  items?: IProblem[];
   offset: number;
 }
 
 const paginationReducer = (
-  state: paginationState,
-  action: paginationAction,
-): paginationState => {
+  state: IPaginationState,
+  action: IPaginationAction,
+): IPaginationState => {
   switch (action.type) {
     case 'addItems':
       return {
         ...state,
-        items: [...state.items, ...(action.items as Item[])],
+        items: [...state.items, ...(action.items as IProblem[])],
       };
     case 'incOffset':
       return {
