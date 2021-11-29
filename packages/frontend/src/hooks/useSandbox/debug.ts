@@ -33,7 +33,16 @@ class Exit extends Error {
     this.name = 'Exit';
   }
 }
-function execCodeWithSandbox(code: string) {
+
+export interface ISandboxOptions {
+  dependencies?: string[];
+}
+export function execCodeWithSandbox(
+  code: string,
+  options: ISandboxOptions = {
+    dependencies: [],
+  },
+) {
   const sandbox = document.createElement('iframe');
   sandbox.style.display = 'none';
   sandbox.height = sandbox.width = '0';
@@ -44,11 +53,17 @@ function execCodeWithSandbox(code: string) {
         <meta charset="utf-8">
         <meta
           http-equiv="content-security-policy"
-          content="script-src blob: 'unsafe-inline' 'unsafe-eval';">
+          content="script-src ${options.dependencies?.join(
+            ' ',
+          )} blob: 'unsafe-inline' 'unsafe-eval';">
       </head>
       <body>
         <script>
-          (${sandboxFunction})(\`${code}\`, (${execCodeWithWorker}), \`${window.origin}\`);
+          (${sandboxFunction})
+            (\`${code}\`,
+            (${execCodeWithWorker}),
+            \`${window.origin}\`,
+            ${JSON.stringify(options)});
         </script>
       </body>
     </html>
@@ -92,5 +107,3 @@ function execCodeWithSandbox(code: string) {
 
   return dispatcher;
 }
-
-export default execCodeWithSandbox;

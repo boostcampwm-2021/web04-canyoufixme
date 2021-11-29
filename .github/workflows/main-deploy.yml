@@ -19,4 +19,6 @@ jobs:
             echo "${{ secrets.MAIN_BE_DOT_ENV }}" > ./web04-canyoufixme/packages/backend/.env.production
             export API_HOST="$(echo "${{ secrets.MAIN_API_URL }}" | grep -E -o '([a-z0-9-]+\.)+[a-z]+')"
             export API_PORT="$(echo "${{ secrets.MAIN_API_URL }}" | grep -o '[0-9]*$')"
+            export PM2_PUBLIC_KEY="${{ secrets.PM2_PUBLIC_KEY }}"
+            export PM2_SECRET_KEY="${{ secrets.PM2_SECRET_KEY }}"
             API_URL=${{ secrets.MAIN_API_URL }} CLIENT_ID=${{ secrets.MAIN_CLIENT_ID }} ./deploy.sh
