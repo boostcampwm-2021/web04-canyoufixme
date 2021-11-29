@@ -7,12 +7,13 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import type { ISubmitLog } from '@cyfm/types';
 
 import { User } from './User';
 import { Problem } from './Problem';
 
 @Entity()
-export class SubmitLog extends BaseEntity {
+export class SubmitLog extends BaseEntity implements ISubmitLog {
   @PrimaryGeneratedColumn()
   id: number;
 

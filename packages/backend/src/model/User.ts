@@ -1,7 +1,8 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import type { IUser } from '@cyfm/types';
 
 @Entity()
-export class User extends BaseEntity {
+export class User extends BaseEntity implements IUser {
   @PrimaryGeneratedColumn()
   id: number;
 
