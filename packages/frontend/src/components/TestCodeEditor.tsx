@@ -1,8 +1,10 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useReducer } from 'react';
 import type { MutableRefObject } from 'react';
 import { nanoid } from 'nanoid';
 import Button from 'components/Button';
 import styled from '@cyfm/styled';
+
+import { ModalReducerAction } from 'components/Modal/ModalType';
 
 import TestCodeViewer from './TestCodeViewer';
 import MessageModal from 'components/Modal/MessageModal';
@@ -12,6 +14,10 @@ interface TestCase {
   code: string;
   id: string;
 }
+
+type ModalState = {
+  openMessage: boolean;
+};
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -54,8 +60,31 @@ const TestCodeEditor = ({
   testCases: TestCase[];
   setTestCases: React.Dispatch<React.SetStateAction<TestCase[]>>;
 }) => {
-  const [isMessage, setMessage] = useState(false);
-  const [messages, setMessages] = useState<string>('');
+  const [modalStates, dispatch] = useReducer(
+    (state: ModalState, action: ModalReducerAction): ModalState => {
+      switch (action.type) {
+        case 'open':
+          switch (action.payload.target) {
+            case 'message':
+              return { ...state, openMessage: true };
+            default:
+              return state;
+          }
+        case 'close':
+          switch (action.payload.target) {
+            case 'message':
+              return { ...state, openMessage: false };
+            default:
+              return state;
+          }
+      }
+    },
+    {
+      openMessage: false,
+    },
+  );
+
+  const [messages, setMessages] = useState('');
   const titleRef: MutableRefObject<HTMLInputElement | undefined> = useRef();
   const codeRef: MutableRefObject<HTMLInputElement | undefined> = useRef();
 
@@ -88,7 +117,7 @@ const TestCodeEditor = ({
       titleInput.value = '';
       codeInput.value = '';
     } else {
-      setMessage(true);
+      dispatch({ type: 'open', payload: { target: 'message' } });
     }
   }, [titleRef, codeRef, setTestCases]);
 
@@ -104,8 +133,9 @@ const TestCodeEditor = ({
   return (
     <Wrapper>
       <MessageModal
-        isOpen={isMessage}
-        setter={setMessage}
+        isOpen={modalStates.openMessage}
+        setter={dispatch}
+        target={'message'}
         message={messages}
         close={true}
       />
