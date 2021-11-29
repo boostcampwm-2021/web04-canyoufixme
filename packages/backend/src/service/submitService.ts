@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-plusplus */
-/* eslint-disable dot-notation */
 import { SubmitCodeModel } from '../settings/mongoConfig';
 import { SubmitLog } from '../model/SubmitLog';
 import { Problem } from '../model/Problem';
@@ -14,6 +13,7 @@ const saveSubmitCode = async ({ code, testResult }) => {
   return codeData;
 };
 
+/* eslint-disable-next-line dot-notation */
 const getCodeId = codeData => codeData['_id'].toString();
 
 const saveSubmitLog = async ({ problem, user, codeId, testResult }) => {
