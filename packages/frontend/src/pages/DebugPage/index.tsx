@@ -27,7 +27,6 @@ import Button from 'components/Button';
 import Console from 'components/Console';
 import { LoginContext } from 'contexts/LoginContext';
 import MessageModal from 'components/Modal/MessageModal';
-import ConfirmModal from 'components/Modal/ConfirmModal';
 import LoadingModal from 'components/Modal/LoadingModal';
 
 import { useSandbox } from 'hooks/useSandbox';
@@ -38,6 +37,11 @@ import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-twilight';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
+import {
+  LOGIN_VALIDATION_FAIL_MESSAGE,
+  SUBMIT_FAIL_MESSAGE,
+  TIMEOUT_MESSAGE,
+} from './message';
 
 const ViewerWrapper = styled.div`
   display: flex;
@@ -75,8 +79,6 @@ const DebugPage: React.FC = () => {
   const { isLogin } = useContext(LoginContext);
   const [output, setOutput] = useState('');
   const [isLoading, setLoading] = useState(false);
-  const [isSuccess, setSuccess] = useState(false);
-  const [isFail, setFail] = useState(false);
   const [isTimeover, setTimeover] = useState(false);
   const [isError, setError] = useState(false);
   const [isLoginCheck, setLoginCheck] = useState(false);
@@ -269,36 +271,22 @@ const DebugPage: React.FC = () => {
             <Button onClick={onSubmit}>제출</Button>
           </ButtonFooter>
           <LoadingModal isOpen={isLoading} />
-          <ConfirmModal
-            isOpen={isSuccess}
-            setter={setSuccess}
-            messages={['정답입니다!', '다른 문제를 풀러 가시겠습니까?']}
-            callback={() => {
-              history.push('/');
-            }}
-          />
-          <MessageModal
-            isOpen={isFail}
-            setter={setFail}
-            messages={['틀렸습니다.', '다시 도전해 보세요!']}
-            close={true}
-          />
           <MessageModal
             isOpen={isTimeover}
             setter={setTimeover}
-            messages={['실행 시간이 5초를 초과했습니다.']}
+            message={TIMEOUT_MESSAGE}
             close={true}
           />
           <MessageModal
             isOpen={isError}
             setter={setError}
-            messages={['제출에 실패했습니다.', '담당자에게 문의 바랍니다.']}
+            message={SUBMIT_FAIL_MESSAGE}
             close={true}
           />
           <MessageModal
             isOpen={isLoginCheck}
             setter={setLoginCheck}
-            messages={['문제 풀이 제출을 위해서는', '로그인이 필요합니다.']}
+            message={LOGIN_VALIDATION_FAIL_MESSAGE}
             close={true}
           />
         </>
