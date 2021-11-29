@@ -48,25 +48,14 @@ const modalReducer = (
   state: ModalState,
   action: ModalReducerAction,
 ): ModalState => {
-  switch (action.type) {
-    case 'open':
-      switch (action.payload.target) {
-        case 'loading':
-          return { ...state, openLoading: true };
-        case 'message':
-          return { ...state, openMessage: true };
-        default:
-          return state;
-      }
-    case 'close':
-      switch (action.payload.target) {
-        case 'loading':
-          return { ...state, openLoading: false };
-        case 'message':
-          return { ...state, openMessage: false };
-        default:
-          return state;
-      }
+  const isOpen = action.type === 'open';
+  switch (action.payload.target) {
+    case 'loading':
+      return { ...state, openLoading: isOpen };
+    case 'message':
+      return { ...state, openMessage: isOpen };
+    default:
+      return state;
   }
 };
 

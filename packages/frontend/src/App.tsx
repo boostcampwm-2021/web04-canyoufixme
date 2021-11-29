@@ -72,25 +72,14 @@ const App: React.FC = () => {
 
   const [modalStates, dispatch] = useReducer(
     (state: ModalState, action: ModalReducerAction): ModalState => {
-      switch (action.type) {
-        case 'open':
-          switch (action.payload.target) {
-            case 'logout':
-              return { ...state, openLogout: true };
-            case 'message':
-              return { ...state, openMessage: true };
-            default:
-              return state;
-          }
-        case 'close':
-          switch (action.payload.target) {
-            case 'logout':
-              return { ...state, openLogout: false };
-            case 'message':
-              return { ...state, openMessage: false };
-            default:
-              return state;
-          }
+      const isOpen = action.type === 'open';
+      switch (action.payload.target) {
+        case 'logout':
+          return { ...state, openLogout: isOpen };
+        case 'message':
+          return { ...state, openMessage: isOpen };
+        default:
+          return state;
       }
     },
     {

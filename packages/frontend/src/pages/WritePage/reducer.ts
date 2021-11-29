@@ -27,42 +27,22 @@ const modalReducer = (
   state: ModalState,
   action: ModalReducerAction,
 ): ModalState => {
-  switch (action.type) {
-    case 'open':
-      switch (action.payload.target) {
-        case 'category':
-          return { ...state, openCategory: true };
-        case 'level':
-          return { ...state, openLevel: true };
-        case 'loading':
-          return { ...state, openLoading: true };
-        case 'submit':
-          return { ...state, openSubmit: true };
-        case 'success':
-          return { ...state, openSuccess: true };
-        case 'message':
-          return { ...state, openMessage: true };
-        default:
-          return state;
-      }
-
-    case 'close':
-      switch (action.payload.target) {
-        case 'category':
-          return { ...state, openCategory: false };
-        case 'level':
-          return { ...state, openLevel: false };
-        case 'loading':
-          return { ...state, openLoading: false };
-        case 'submit':
-          return { ...state, openSubmit: false };
-        case 'success':
-          return { ...state, openSuccess: false };
-        case 'message':
-          return { ...state, openMessage: false };
-        default:
-          return state;
-      }
+  const isOpen = action.type === 'open';
+  switch (action.payload.target) {
+    case 'category':
+      return { ...state, openCategory: isOpen };
+    case 'level':
+      return { ...state, openLevel: isOpen };
+    case 'loading':
+      return { ...state, openLoading: isOpen };
+    case 'submit':
+      return { ...state, openSubmit: isOpen };
+    case 'success':
+      return { ...state, openSuccess: isOpen };
+    case 'message':
+      return { ...state, openMessage: isOpen };
+    default:
+      return state;
   }
 };
 

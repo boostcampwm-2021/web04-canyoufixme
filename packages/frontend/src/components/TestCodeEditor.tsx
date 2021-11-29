@@ -62,21 +62,10 @@ const TestCodeEditor = ({
 }) => {
   const [modalStates, dispatch] = useReducer(
     (state: ModalState, action: ModalReducerAction): ModalState => {
-      switch (action.type) {
-        case 'open':
-          switch (action.payload.target) {
-            case 'message':
-              return { ...state, openMessage: true };
-            default:
-              return state;
-          }
-        case 'close':
-          switch (action.payload.target) {
-            case 'message':
-              return { ...state, openMessage: false };
-            default:
-              return state;
-          }
+      if (action.payload.target === 'message') {
+        return { ...state, openMessage: action.type === 'open' };
+      } else {
+        return state;
       }
     },
     {
