@@ -19,8 +19,9 @@ import babelParser from 'prettier/parser-babel';
 import prettier from 'prettier/standalone';
 
 import styled from '@cyfm/styled';
-import FullWidthViewer from 'components/FullWidthViewer';
+import { debouncePromise } from '@cyfm/debounce';
 
+import FullWidthViewer from 'components/FullWidthViewer';
 import EditorPage from 'pages/EditorPage';
 import Button from 'components/Button';
 import Console from 'components/Console';
@@ -142,7 +143,7 @@ const DebugPage: React.FC = () => {
     [editorRef],
   );
 
-  const onSubmit = useCallback(async () => {
+  const submit = () => {
     if (!isLogin) {
       setLoginCheck(true);
       return;
@@ -154,7 +155,16 @@ const DebugPage: React.FC = () => {
       testCode: debugStates.testCode,
       problemId: id,
     });
-  }, [debugStates.testCode, history, id]);
+  };
+
+  const submitPromise = debouncePromise(submit, 3000);
+
+  const onSubmit = useCallback(submitPromise, [
+    submitPromise,
+    debugStates.testCode,
+    history,
+    id,
+  ]);
 
   const onExecute = useSandbox(debugStates.code, dispatcher => {
     console.clear();
