@@ -42,6 +42,13 @@ RUN node-prune
 
 FROM nginx-server AS production
 
+ARG PM2_PUBLIC_KEY
+ARG PM2_SECRET_KEY
+ARG PM2_PUBLIC_KEY=$PM2_PUBLIC_KEY
+ARG PM2_SECRET_KEY=$PM2_SECRET_KEY
+
+RUN yarn --silent global add pm2
+
 WORKDIR /app
 
 COPY --from=builder /app/packages/backend/dist ./dist
