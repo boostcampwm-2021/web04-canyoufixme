@@ -96,7 +96,7 @@ const DebugPage: React.FC = () => {
   const id = match?.params.id;
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/debug/${id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/problem/${id}`)
       .then(res => res.json())
       .then(
         ({
