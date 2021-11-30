@@ -4,6 +4,9 @@ import { SubmitCodeModel } from '../settings/mongoConfig';
 import { SubmitLog } from '../model/SubmitLog';
 import { Problem } from '../model/Problem';
 
+import { WRONG_ANSWER_MESSAGE, CORRECT_ANSWER_MESSAGE } from '../util/constant';
+import { getCodeId } from '../util/common';
+
 const saveSubmitCode = async ({ code, testResult }) => {
   const submitCode = new SubmitCodeModel();
   submitCode.code = code;
@@ -12,9 +15,6 @@ const saveSubmitCode = async ({ code, testResult }) => {
   const codeData = await submitCode.save();
   return codeData;
 };
-
-/* eslint-disable-next-line dot-notation */
-const getCodeId = codeData => codeData['_id'].toString();
 
 const saveSubmitLog = async ({ problem, user, codeId, testResult }) => {
   let wrongTestCount = 0;
@@ -26,7 +26,8 @@ const saveSubmitLog = async ({ problem, user, codeId, testResult }) => {
   const submitLog = new SubmitLog();
   submitLog.problem = problem;
   submitLog.user = user;
-  submitLog.status = wrongTestCount !== 0 ? '틀렸습니다.' : '맞았습니다!!!';
+  submitLog.status =
+    wrongTestCount !== 0 ? WRONG_ANSWER_MESSAGE : CORRECT_ANSWER_MESSAGE;
   submitLog.wrongTestCount = wrongTestCount;
   submitLog.correctTestCount = correctTestCount;
   submitLog.codeId = codeId;
