@@ -10,6 +10,22 @@ const getTestCode = async problemId => {
   return problemCodeData.testCode;
 };
 
+const parallelGrading = async ({ socket, id, code, testCode }) => {
+  const results = await Promise.all(
+    testCode.map(async (test, idx) => {
+      const result = await gradingWithWorker({
+        id: id[idx],
+        socket,
+        code,
+        testCode: test,
+      });
+      return result;
+    }),
+  );
+
+  return results;
+};
+
 export const socketConnection = (httpServer, sessionConfig) => {
   const io = new Server(httpServer, {
     cors: {
@@ -34,17 +50,7 @@ export const socketConnection = (httpServer, sessionConfig) => {
     socket.on('submit', async ({ code, id, problemId }) => {
       const testCode = await getTestCode(problemId);
 
-      const results = await Promise.all(
-        testCode.map(async (test, idx) => {
-          const result = await gradingWithWorker({
-            id: id[idx],
-            socket,
-            code,
-            testCode: test,
-          });
-          return result;
-        }),
-      );
+      const results = await parallelGrading({ socket, id, code, testCode });
 
       await saveSubmit({
         user,
