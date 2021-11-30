@@ -15,6 +15,16 @@ module.exports = {
       plugin: CracoEsbuildPlugin,
       options: {
         enableSvgr: true,
+        esbuildLoaderOptions: {
+          loader: 'tsx',
+          target: 'es2015',
+        },
+        esbuildJestOptions: {
+          loaders: {
+            '.ts': 'ts',
+            '.tsx': 'tsx',
+          },
+        },
       },
     },
     {
