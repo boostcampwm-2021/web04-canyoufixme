@@ -31,17 +31,13 @@ import LoadingModal from 'components/Modal/LoadingModal';
 
 import { useSandbox } from 'hooks/useSandbox';
 import { useBlockUnload } from 'hooks/useBlockUnload';
-import { debugReducer } from './reducer';
+import { debugReducer, modalReducer } from './reducer';
 
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-twilight';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
-import {
-  LOGIN_VALIDATION_FAIL_MESSAGE,
-  SUBMIT_FAIL_MESSAGE,
-  TIMEOUT_MESSAGE,
-} from './message';
+import { LOGIN_VALIDATION_FAIL_MESSAGE } from './message';
 
 const ViewerWrapper = styled.div`
   display: flex;
@@ -76,12 +72,15 @@ const DebugPage: React.FC = () => {
     code: '',
     testCode: [],
   });
+  const [modalStates, modalDispatch] = useReducer(modalReducer, {
+    openLoading: false,
+    openMessage: false,
+  });
+
   const { isLogin } = useContext(LoginContext);
   const [output, setOutput] = useState('');
-  const [isLoading, setLoading] = useState(false);
-  const [isTimeover, setTimeover] = useState(false);
-  const [isError, setError] = useState(false);
-  const [isLoginCheck, setLoginCheck] = useState(false);
+  const [message, setMessage] = useState('');
+
   const history = useHistory();
 
   const unblockRef = useRef(false);
@@ -147,7 +146,11 @@ const DebugPage: React.FC = () => {
 
   const submit = () => {
     if (!isLogin) {
-      setLoginCheck(true);
+      setMessage(LOGIN_VALIDATION_FAIL_MESSAGE);
+      modalDispatch({
+        type: 'open',
+        payload: { target: 'message' },
+      });
       return;
     }
 
@@ -178,7 +181,7 @@ const DebugPage: React.FC = () => {
     const startTime = Date.now();
 
     const loadTimer = setTimeout(() => {
-      setLoading(true);
+      modalDispatch({ type: 'open', payload: { target: 'loading' } });
     }, 500);
 
     const timeout = 5 * 1000;
@@ -198,7 +201,7 @@ const DebugPage: React.FC = () => {
       (event: CustomEventInit) => {
         clearTimeout(killTimer);
         clearTimeout(loadTimer);
-        setLoading(false);
+        modalDispatch({ type: 'close', payload: { target: 'loading' } });
 
         const endTime = Date.now();
         setOutput(prev =>
@@ -270,23 +273,12 @@ const DebugPage: React.FC = () => {
             <Button onClick={onExecute}>실행</Button>
             <Button onClick={onSubmit}>제출</Button>
           </ButtonFooter>
-          <LoadingModal isOpen={isLoading} />
+          <LoadingModal isOpen={modalStates.openLoading} />
           <MessageModal
-            isOpen={isTimeover}
-            setter={setTimeover}
-            message={TIMEOUT_MESSAGE}
-            close={true}
-          />
-          <MessageModal
-            isOpen={isError}
-            setter={setError}
-            message={SUBMIT_FAIL_MESSAGE}
-            close={true}
-          />
-          <MessageModal
-            isOpen={isLoginCheck}
-            setter={setLoginCheck}
-            message={LOGIN_VALIDATION_FAIL_MESSAGE}
+            isOpen={modalStates.openMessage}
+            setter={modalDispatch}
+            target={'message'}
+            message={message}
             close={true}
           />
         </>

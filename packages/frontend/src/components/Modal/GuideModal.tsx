@@ -8,11 +8,13 @@ import Button from './ModalButton';
 
 import GUIDELINES from './GuidelineCase';
 
-interface ModalProps {
-  isOpen: boolean;
+import Button from './ModalButton';
+import type { ModalBaseProps } from './ModalType';
+
+type ModalProps = ModalBaseProps & {
   setter: (isOpen: boolean) => void;
   close?: boolean;
-}
+};
 
 const ModalWrapper = styled.div`
   display: flex;

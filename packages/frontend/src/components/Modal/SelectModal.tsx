@@ -5,10 +5,9 @@ import { nanoid } from 'nanoid';
 import styled from '@cyfm/styled';
 
 import Button from './ModalButton';
+import type { ModalBaseProps } from './ModalType';
 
-interface ModalProps {
-  isOpen: boolean;
-  setter: (isOpen: boolean) => void;
+interface ModalProps extends ModalBaseProps {
   value: string;
   changeValue: (value: string) => void;
   selections: string[];
@@ -40,13 +39,19 @@ const ButtonWrapper = styled.div`
 `;
 
 const SelectModal = (props: ModalProps) => {
-  const { isOpen, setter, value, changeValue, selections } = props;
+  const { isOpen, setter, target, value, changeValue, selections } = props;
 
-  const closeModal = () => setter(false);
+  const closeModal = () =>
+    setter({
+      type: 'close',
+      payload: {
+        target: target,
+      },
+    });
   return (
     <Modal
       isOpen={isOpen}
-      onRequestClose={() => setter(false)}
+      onRequestClose={closeModal}
       shouldFocusAfterRender={false}
       style={{
         overlay: {

@@ -2,6 +2,7 @@ import React, {
   useEffect,
   useState,
   useRef,
+  useReducer,
   useCallback,
   useContext,
 } from 'react';
@@ -17,7 +18,12 @@ import { Redirect, useHistory } from 'react-router-dom';
 import { LoginContext } from 'contexts/LoginContext';
 import { useSandbox } from 'hooks/useSandbox';
 import { useBlockUnload } from 'hooks/useBlockUnload';
-import { LANGUAGE_SELECTIONS, VALID_LANGUAGES } from './constant';
+import { modalReducer } from './reducer';
+import {
+  LANGUAGE_SELECTIONS,
+  LEVEL_SELECTIONS,
+  VALID_LANGUAGES,
+} from './constant';
 import {
   VALIDATION_FAIL_MESSAGE,
   CHECK_BEFORE_SUBMIT_MESSAGE,
@@ -152,15 +158,17 @@ const WritePage = () => {
   const [output, setOutput] = useState('');
   const [category, setCategory] = useState<Language>('JavaScript');
   const [level, setLevel] = useState('1');
-  const [isOpenCategory, setOpenCategory] = useState(false);
-  const [isOpenLevel, setOpenLevel] = useState(false);
-  const [isLoading, setLoading] = useState(false);
-  const [isSubmit, setSubmit] = useState(false);
-  const [isSuccess, setSuccess] = useState(false);
-  const [isError, setError] = useState(false);
-  const [isValid, setValid] = useState(false);
-  const [isValidLang, setValidLang] = useState(false);
-  const [validationMessages, setValidationMessages] = useState<string>('');
+
+  const [modalStates, dispatch] = useReducer(modalReducer, {
+    openCategory: false,
+    openLevel: false,
+    openLoading: false,
+    openSubmit: false,
+    openSuccess: false,
+    openMessage: false,
+  });
+
+  const [message, setMessage] = useState('');
 
   const unblockRef = useRef(false);
   useBlockUnload(code, unblockRef);
@@ -214,7 +222,7 @@ const WritePage = () => {
       const startTime = Date.now();
 
       const loadTimer = setTimeout(() => {
-        setLoading(true);
+        dispatch({ type: 'open', payload: { target: 'loading' } });
       }, 500);
 
       const timeout = 5 * 1000;
@@ -234,7 +242,7 @@ const WritePage = () => {
         (event: CustomEventInit) => {
           clearTimeout(killTimer);
           clearTimeout(loadTimer);
-          setLoading(false);
+          dispatch({ type: 'close', payload: { target: 'loading' } });
 
           const endTime = Date.now();
           setOutput(prev =>
@@ -256,7 +264,7 @@ const WritePage = () => {
   const inputValidation = useCallback(() => {
     const titleContext = titleInputRef.current?.value;
     if ((titleContext as string).length === 0) {
-      setValidationMessages(VALIDATION_FAIL_MESSAGE['title']);
+      setMessage(VALIDATION_FAIL_MESSAGE['title']);
       return false;
     }
 
@@ -264,19 +272,19 @@ const WritePage = () => {
       .getInstance()
       .getMarkdown();
     if ((markdownContext as string).length === 0) {
-      setValidationMessages(VALIDATION_FAIL_MESSAGE['markdown']);
+      setMessage(VALIDATION_FAIL_MESSAGE['markdown']);
       return false;
     }
 
     const codeContext = code;
     if ((codeContext as string).length === 0) {
-      setValidationMessages(VALIDATION_FAIL_MESSAGE['code']);
+      setMessage(VALIDATION_FAIL_MESSAGE['code']);
       return false;
     }
 
     const testcaseContext = testCases;
     if (testcaseContext.length === 0) {
-      setValidationMessages(VALIDATION_FAIL_MESSAGE['testcase']);
+      setMessage(VALIDATION_FAIL_MESSAGE['testcase']);
       return false;
     }
 
@@ -287,19 +295,16 @@ const WritePage = () => {
     if (VALID_LANGUAGES.includes(category)) {
       return true;
     } else {
+      setMessage(CHECK_IS_VALID_LANGUAGE);
       return false;
     }
   }, [category]);
 
   const submitValidation = () => {
-    if (isValidLanguage()) {
-      if (inputValidation()) {
-        setSubmit(true);
-      } else {
-        setValid(true);
-      }
+    if (isValidLanguage() && inputValidation()) {
+      dispatch({ type: 'open', payload: { target: 'submit' } });
     } else {
-      setValidLang(true);
+      dispatch({ type: 'open', payload: { target: 'message' } });
     }
   };
 
@@ -314,7 +319,7 @@ const WritePage = () => {
     };
 
     try {
-      setLoading(true);
+      dispatch({ type: 'open', payload: { target: 'loading' } });
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/problem`, {
         method: 'POST',
         credentials: 'include',
@@ -323,18 +328,20 @@ const WritePage = () => {
           'Content-Type': 'application/json',
         },
       });
-      setLoading(false);
+      dispatch({ type: 'close', payload: { target: 'loading' } });
       if (res.status === 201) {
-        setSuccess(true);
+        dispatch({ type: 'open', payload: { target: 'success' } });
         unblockRef.current = true;
         setTimeout(() => {
           history.push('/');
         }, 2000);
       } else {
-        setError(true);
+        setMessage(SUBMIT_FAIL_MESSAGE);
+        dispatch({ type: 'open', payload: { target: 'message' } });
       }
     } catch (err) {
-      setError(true);
+      setMessage(SUBMIT_FAIL_MESSAGE);
+      dispatch({ type: 'open', payload: { target: 'message' } });
     }
   };
 
@@ -373,30 +380,43 @@ const WritePage = () => {
               <CodeEditorWrapper>
                 <CategoryLevelWrapper>
                   <SelectModal
-                    isOpen={isOpenCategory}
-                    setter={setOpenCategory}
+                    isOpen={modalStates.openCategory}
+                    setter={dispatch}
+                    target={'category'}
                     value={category}
                     changeValue={setCategory as (value: string) => void}
                     selections={LANGUAGE_SELECTIONS}
                     close={true}
                   />
                   <SelectModal
-                    isOpen={isOpenLevel}
-                    setter={setOpenLevel}
+                    isOpen={modalStates.openLevel}
+                    setter={dispatch}
+                    target={'level'}
                     value={level}
                     changeValue={setLevel}
-                    selections={['1', '2', '3']}
+                    selections={LEVEL_SELECTIONS}
                     close={true}
                   />
                   <CategoryWrapper>
                     <TagLabel>카테고리</TagLabel>
-                    <TagButton onClick={() => setOpenCategory(true)}>
+                    <TagButton
+                      onClick={() =>
+                        dispatch({
+                          type: 'open',
+                          payload: { target: 'category' },
+                        })
+                      }
+                    >
                       {category}
                     </TagButton>
                   </CategoryWrapper>
                   <LevelWrapper>
                     <TagLabel>난이도</TagLabel>
-                    <TagButton onClick={() => setOpenLevel(true)}>
+                    <TagButton
+                      onClick={() =>
+                        dispatch({ type: 'open', payload: { target: 'level' } })
+                      }
+                    >
                       {level}
                     </TagButton>
                   </LevelWrapper>
@@ -440,39 +460,30 @@ const WritePage = () => {
                 <Button onClick={onExecute}>실행</Button>
                 <Button onClick={submitValidation}>제출</Button>
               </ButtonFooter>
-              <LoadingModal isOpen={isLoading} />
+              <LoadingModal isOpen={modalStates.openLoading} />
               <ConfirmModal
-                isOpen={isSubmit}
-                setter={setSubmit}
+                isOpen={modalStates.openSubmit}
+                setter={dispatch}
+                target={'submit'}
                 message={CHECK_BEFORE_SUBMIT_MESSAGE}
                 callback={() => {
-                  setSubmit(false);
+                  dispatch({ type: 'close', payload: { target: 'false' } });
                   onSubmit();
                 }}
               />
               <MessageModal
-                isOpen={isValid}
-                setter={setValid}
-                message={validationMessages}
+                isOpen={modalStates.openMessage}
+                setter={dispatch}
+                target={'message'}
+                message={message}
                 close={true}
               />
               <MessageModal
-                isOpen={isValidLang}
-                setter={setValidLang}
-                message={CHECK_IS_VALID_LANGUAGE}
-                close={true}
-              />
-              <MessageModal
-                isOpen={isSuccess}
-                setter={setSuccess}
+                isOpen={modalStates.openSuccess}
+                setter={dispatch}
+                target={'success'}
                 message={SUBMIT_SUCCESS_MESSAGE}
                 close={false}
-              />
-              <MessageModal
-                isOpen={isError}
-                setter={setError}
-                message={SUBMIT_FAIL_MESSAGE}
-                close={true}
               />
             </>
           }
