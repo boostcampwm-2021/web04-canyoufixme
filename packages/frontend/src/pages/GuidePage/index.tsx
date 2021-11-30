@@ -4,9 +4,14 @@ import styled from '@cyfm/styled';
 
 import GUIDELINES from './GuidelineCase';
 
+import logo from 'assets/images/chai.png';
+import { CHAI_API_LINK } from './constant';
+import { LINK_MESSAGE } from './message';
+
 const GuideWrapper = styled.div`
   display: flex;
   margin: 3rem auto;
+  padding: 1rem;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -61,7 +66,26 @@ const TestCaseCode = styled.div`
   border-radius: 5px;
 `;
 
+const LinkWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const TextWrapper = styled.div`
+  font-size: 1.5rem;
+  margin: 10px 0;
+`;
+
+const ImageWrapper = styled.div`
+  display: flex;
+`;
+
 const GuidePage = () => {
+  const linkToChai = () => {
+    window.open(CHAI_API_LINK);
+  };
+
   return (
     <GuideWrapper>
       <TitleWrapper>테스트케이스 가이드라인</TitleWrapper>
@@ -76,6 +100,17 @@ const GuidePage = () => {
           </TestCaseWrapper>
         ))}
       </ContentWrapper>
+      <LinkWrapper>
+        <TextWrapper>{LINK_MESSAGE}</TextWrapper>
+        <ImageWrapper>
+          <img
+            src={logo}
+            alt="chai"
+            style={{ width: '5em', height: '5em', cursor: 'pointer' }}
+            onClick={linkToChai}
+          />
+        </ImageWrapper>
+      </LinkWrapper>
     </GuideWrapper>
   );
 };
