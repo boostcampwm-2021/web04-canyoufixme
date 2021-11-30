@@ -5,7 +5,7 @@
     "start": "nodemon --exec ts-node --files -T -r dotenv/config src/app.ts dotenv_config_path=.env.development",
     "start:prod": "DOTENV_CONFIG_PATH=.env.production pm2-runtime --node-args='-r dotenv/config' dist/app.js",
     "build": "tsc",
-    "test": "jest --config ./jest.config.ts"
+    "test": "jest --verbose --config ./jest.config.ts"
   },
   "dependencies": {
     "axios": "^0.24.0",
