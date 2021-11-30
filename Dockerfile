@@ -3,14 +3,13 @@ FROM node:14.17.3-alpine AS node-base
 RUN apk update && apk add gettext
 RUN wget -q -O- https://gobinaries.com/tj/node-prune | sh
 
+RUN yarn config set network-timeout 300000
 
 FROM node-base AS nginx-server
-
 RUN apk add nginx && rm -rf /var/cache/apk/*
 
 
 FROM node-base AS builder
-
 WORKDIR /app
 
 COPY ["package.json", "yarn.lock", "lerna.json", "./"]
