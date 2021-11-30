@@ -166,4 +166,7 @@ export {
   mostSubmitProblems,
   mostCorrectProblems,
   mostWrongProblems,
+  getAllSomethingNum,
+  mostSomethingProblems,
+  dataTransfer,
 };

@@ -1,3 +1,4 @@
+/* eslint-disable no-return-await */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable dot-notation */
 import express from 'express';
@@ -51,7 +52,7 @@ const saveProblem = async ({ title, category, level, author, codeId }) => {
   problem.author = author;
   problem.codeId = codeId;
 
-  await problem.save();
+  return await problem.save();
 };
 
 const writeProblem = async (req: express.Request, res: express.Response) => {
@@ -69,4 +70,4 @@ const writeProblem = async (req: express.Request, res: express.Response) => {
   }
 };
 
-export { getList, writeProblem };
+export { getList, writeProblem, isNumberAndNatural, saveProblem, saveCode };
