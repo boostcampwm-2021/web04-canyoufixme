@@ -16,19 +16,18 @@ WORKDIR /app
 COPY ["package.json", "yarn.lock", "lerna.json", "./"]
 COPY packages/debounce/package.json packages/debounce/package.json
 COPY packages/styled/package.json packages/styled/package.json
+COPY packages/types/package.json packages/types/package.json
 COPY packages/backend/package.json packages/backend/package.json
 COPY packages/frontend/package.json packages/frontend/package.json
-COPY packages/types/package.json packages/types/package.json
 
-
-RUN yarn --silent --frozen-lockfile --ignore-scripts
+RUN yarn --silent --frozen-lockfile --ignore-scripts install
+RUN yarn --silent --frozen-lockfile --ignore-scripts bootstrap
 
 COPY packages/types/ packages/types/
-RUN yarn bootstrap
+COPY tsconfig.json ./
+RUN yarn build:types
 
 COPY packages/backend/ packages/backend/
-COPY tsconfig.json ./
-
 RUN yarn build:backend
 
 ARG API_URL
