@@ -11,6 +11,8 @@ import styled from '@cyfm/styled';
 import { paginationReducer } from './reducer';
 import LoadingModal from 'components/Modal/LoadingModal';
 
+import type { IProblem } from '@cyfm/types';
+
 const Background = styled.div`
   width: 100%;
 `;
@@ -44,23 +46,7 @@ const Sign = styled.div`
   font-size: 1.5em;
 `;
 
-interface User {
-  id: number;
-  name: string;
-  oauthType: string;
-  token: string;
-}
-
-interface Item {
-  id: number;
-  title: string;
-  author: User;
-  category: string;
-  codeId: string;
-  level: number;
-}
-
-let result: Item[] | null;
+let result: IProblem[] | null;
 let timeout: number;
 
 const ListPage: React.FC = () => {
@@ -134,7 +120,7 @@ const ListPage: React.FC = () => {
   return (
     <Background>
       <ListWrapper ref={itemsList}>
-        {paginationState.items.map((item: Item) => (
+        {paginationState.items.map(item => (
           <SignLink to={`/debug/${item.codeId}`} key={item.codeId}>
             <Sign>{item.title}</Sign>
           </SignLink>

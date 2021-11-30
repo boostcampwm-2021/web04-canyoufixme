@@ -53,20 +53,17 @@ import ConfirmModal from 'components/Modal/ConfirmModal';
 import LoadingModal from 'components/Modal/LoadingModal';
 import SelectModal from 'components/Modal/SelectModal';
 
-interface TestCase {
-  title: string;
-  code: string;
-  id: string;
-}
+import type { ITestCase, Category } from '@cyfm/types';
 
-const CATEGORY = {
+type Language = keyof typeof Category;
+const CATEGORY: Record<Language, string> = {
   'C++': 'c_cpp',
   Java: 'java',
   JavaScript: 'javascript',
   Python: 'python',
 };
 
-const TABSIZE = {
+const TABSIZE: Record<Language, number> = {
   'C++': 2,
   Java: 2,
   JavaScript: 2,
@@ -159,7 +156,7 @@ const WritePage = () => {
   const { isLogin } = useContext(LoginContext);
   const [code, setCode] = useState('');
   const [output, setOutput] = useState('');
-  const [category, setCategory] = useState('JavaScript');
+  const [category, setCategory] = useState<Language>('JavaScript');
   const [level, setLevel] = useState('1');
 
   const [modalStates, dispatch] = useReducer(modalReducer, {
@@ -196,9 +193,9 @@ const WritePage = () => {
     useRef();
 
   const [testCases, setTestCases]: [
-    TestCase[],
-    React.Dispatch<React.SetStateAction<TestCase[]>>,
-  ] = useState<TestCase[]>([]);
+    ITestCase[],
+    React.Dispatch<React.SetStateAction<ITestCase[]>>,
+  ] = useState<ITestCase[]>([]);
 
   const onChange = useCallback(setCode, [setCode]);
 
@@ -387,7 +384,7 @@ const WritePage = () => {
                     setter={dispatch}
                     target={'category'}
                     value={category}
-                    changeValue={setCategory}
+                    changeValue={setCategory as (value: string) => void}
                     selections={LANGUAGE_SELECTIONS}
                     close={true}
                   />

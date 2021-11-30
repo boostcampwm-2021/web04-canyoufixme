@@ -4,7 +4,9 @@ import { nanoid } from 'nanoid';
 
 import styled from '@cyfm/styled';
 
-import TESTCASES from './GuidelineCase';
+import Button from './ModalButton';
+
+import GUIDELINES from './GuidelineCase';
 
 import Button from './ModalButton';
 import type { ModalBaseProps } from './ModalType';
@@ -126,11 +128,11 @@ const GuideModal = (props: ModalProps) => {
           </PageButton>
         </TitleWrapper>
         <ContentWrapper>
-          {TESTCASES.map(testcase => (
+          {GUIDELINES.map(guideline => (
             <TestCaseWrapper key={nanoid()}>
-              <TestCaseTitle>{testcase.title}</TestCaseTitle>
-              <TestCaseContent>{testcase.content}</TestCaseContent>
-              {testcase.codes.map(code => (
+              <TestCaseTitle>{guideline.title}</TestCaseTitle>
+              <TestCaseContent>{guideline.content}</TestCaseContent>
+              {guideline.codes.map(code => (
                 <TestCaseCode>{code}</TestCaseCode>
               ))}
             </TestCaseWrapper>

@@ -4,7 +4,9 @@
       "files": ["**/*.ts", "**/*.tsx"],
       "rules": {
         "no-use-before-define": "off",
-        "@typescript-eslint/no-use-before-define": ["error"]
+        "@typescript-eslint/no-use-before-define": ["error"],
+        "no-shadow": "off",
+        "@typescript-eslint/no-shadow": ["error"]
       },
       "parser": "@typescript-eslint/parser",
       "extends": ["plugin:@typescript-eslint/recommended"]

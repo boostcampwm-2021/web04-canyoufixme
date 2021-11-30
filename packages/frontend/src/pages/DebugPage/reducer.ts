@@ -1,10 +1,8 @@
+import type { IProblemCode } from '@cyfm/types';
 import { ModalReducerAction } from 'components/Modal/ModalType';
 
-type DebugStates = {
-  content: string;
-  testCode: string[];
+type DebugStates = IProblemCode & {
   initCode: string;
-  code: string;
 };
 
 type InitAction = {

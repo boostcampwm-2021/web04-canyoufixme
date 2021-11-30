@@ -18,9 +18,13 @@ COPY packages/debounce/package.json packages/debounce/package.json
 COPY packages/styled/package.json packages/styled/package.json
 COPY packages/backend/package.json packages/backend/package.json
 COPY packages/frontend/package.json packages/frontend/package.json
+COPY packages/types/package.json packages/types/package.json
 
 
 RUN yarn --silent --frozen-lockfile --ignore-scripts
+
+COPY packages/types/ packages/types/
+RUN yarn bootstrap
 
 COPY packages/backend/ packages/backend/
 COPY tsconfig.json ./
@@ -33,7 +37,7 @@ ENV REACT_APP_API_URL=$API_URL
 ENV REACT_APP_CLIENT_ID=$CLIENT_ID
 
 COPY packages/ packages/
-RUN yarn bootstrap && yarn build:frontend
+RUN yarn build:frontend
 
 RUN yarn --prod --silent --frozen-lockfile --ignore-scripts
 RUN yarn --silent cache clean

@@ -1,7 +1,4 @@
 /* eslint-disable no-nested-ternary */
-/* eslint-disable prettier/prettier */
-/* eslint-disable prefer-destructuring */
-/* eslint-disable dot-notation */
 import express from 'express';
 import { getRepository } from 'typeorm';
 import { Problem } from '../model/Problem';

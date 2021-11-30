@@ -1,19 +1,9 @@
 import styled from '@cyfm/styled';
-
-enum ResultCode {
-  'success',
-  'fail',
-  'timeout',
-  'pending',
-}
-
-interface TestCase {
-  id: string;
-  result: ResultCode;
-}
+import { ResultCode } from '@cyfm/types';
+import type { ITestCaseResult } from '@cyfm/types';
 
 interface ResultProps {
-  TestCases: TestCase[];
+  TestCases: ITestCaseResult[];
 }
 
 const ResultViewerWrapper = styled.div`
