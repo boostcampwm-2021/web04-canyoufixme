@@ -10,22 +10,22 @@ import { req, res } from './beforeEach';
 
 let { saveProblem, saveCode } = require('../service/problemService');
 
-describe('is Number And Natural Method test', () => {
-  test('input number', () => {
+describe('isNumberAndNatural 함수 테스트', () => {
+  test('숫자 입력 후 결과 값 테스트', () => {
     expect(isNumberAndNatural(123)).toBe(true);
   });
 
-  test('input string', () => {
+  test('문자열 입력 후 결과 테스트', () => {
     expect(isNumberAndNatural('string')).toBe(false);
   });
 });
 
-describe('Problem Service create problem', () => {
-  test('should have a write Problem function', () => {
+describe('problemService 내의 writeProblem 함수 테스트', () => {
+  test('writeProblem 타입 확인 테스트', () => {
     expect(typeof writeProblem).toBe('function');
   });
 
-  test('writeProblem function called saveProblem', async () => {
+  test('writeProblem 함수의 response status code 테스트', async () => {
     try {
       await writeProblem(req, res);
       res.on('end', () => {
@@ -37,8 +37,8 @@ describe('Problem Service create problem', () => {
   });
 });
 
-describe('get problem list test', () => {
-  test('skip = 0, take = 10(default)', async () => {
+describe('problem 조회 리스트 테스트', () => {
+  test('skip = 0, take = 10(기본값) 테스트', async () => {
     try {
       await getList(req, res);
       res.on('end', () => {
@@ -50,12 +50,12 @@ describe('get problem list test', () => {
   });
 });
 
-describe('create problem test', () => {
-  test('should have a create Problem function', () => {
+describe('문제 출제 로직(saveProblem) 테스트', () => {
+  test('saveProblem 타입 확인 테스트', () => {
     expect(typeof saveProblem).toBe('function');
   });
 
-  test('create problem function return test', async () => {
+  test('saveProblem 함수의 response 정상 반환 테스트', async () => {
     saveProblem = jest.fn().mockResolvedValue('0x0');
 
     const testData = {
@@ -76,12 +76,12 @@ describe('create problem test', () => {
   });
 });
 
-describe('create code data test', () => {
-  test('should have a create code data function', () => {
+describe('문제에 대한 코드 저장 로직(saveCode) 테스트', () => {
+  test('saveCode 타입 확인 테스트', () => {
     expect(typeof saveCode).toBe('function');
   });
 
-  test('create code data function return test', async () => {
+  test('saveCode 함수의 response 정상 반환 테스트', async () => {
     saveCode = jest.fn().mockResolvedValue('0x0');
 
     const code = 'code';
