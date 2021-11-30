@@ -13,11 +13,11 @@ import {
 const router = express.Router();
 
 router.get('/', getAllData);
-router.get('/problems', getAllProblemNum);
-router.get('/submits', getAllSubmitNum);
-router.get('/users', getUserCount);
-router.get('/submit/top', mostSubmitProblems);
-router.get('/submit/correct', mostCorrectProblems);
-router.get('/submit/wrong', mostWrongProblems);
+router.get('/problems/count', getAllProblemNum);
+router.get('/submits/count', getAllSubmitNum);
+router.get('/users/count', getUserCount);
+router.get('/most-submits', mostSubmitProblems);
+router.get('/most-corrects', mostCorrectProblems);
+router.get('/most-wrongs', mostWrongProblems);
 
 export { router };
