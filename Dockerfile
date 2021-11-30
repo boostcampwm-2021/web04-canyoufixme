@@ -22,6 +22,8 @@ COPY packages/types/package.json packages/types/package.json
 
 
 RUN yarn --silent --frozen-lockfile --ignore-scripts
+
+COPY packages/types/ packages/types/
 RUN yarn bootstrap
 
 COPY packages/backend/ packages/backend/
