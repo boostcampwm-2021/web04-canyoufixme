@@ -47,3 +47,8 @@ export interface IGuideline {
   content: string;
   codes: string[];
 }
+
+export interface ITestFailed {
+  type: 'fail';
+  payload: { message: string };
+}
