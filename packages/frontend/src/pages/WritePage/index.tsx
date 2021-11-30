@@ -42,7 +42,7 @@ import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
 
 import styled from '@cyfm/styled';
-import { debouncePromise } from '@cyfm/debounce';
+import { throttlePromise } from '@cyfm/throttle';
 import Button from 'components/Button';
 import Console from 'components/Console';
 import WriteEditorPage from 'pages/WriteEditorPage';
@@ -345,7 +345,7 @@ const WritePage = () => {
     }
   };
 
-  const submitPromise = debouncePromise(submit, 3000);
+  const submitPromise = throttlePromise(submit, 3000);
 
   const onSubmit = useCallback(submitPromise, [submitPromise]);
 
