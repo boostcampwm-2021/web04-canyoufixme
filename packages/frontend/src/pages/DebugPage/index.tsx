@@ -38,7 +38,10 @@ import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-twilight';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
-import { LOGIN_VALIDATION_FAIL_MESSAGE } from './message';
+import {
+  LOGIN_VALIDATION_FAIL_MESSAGE,
+  PROBLEM_LOAD_FAIL_MESSAGE,
+} from './message';
 
 const ViewerWrapper = styled.div`
   display: flex;
@@ -108,44 +111,61 @@ const DebugPage: React.FC = () => {
   const match = useRouteMatch<{ id: string }>('/debug/:id');
   const id = match?.params.id;
 
-  useEffect(() => {
-    const query = getQuery(history.location.search);
-    fetch(`${process.env.REACT_APP_API_URL}/api/problem/${id}`)
-      .then(res => res.json())
-      .then(
-        ({
-          content,
-          code,
-          testCode,
-        }: {
+  const getProblem = useCallback(async () => {
+    const query = getQuery(history.location.pathname);
+
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/problem/${id}`,
+      );
+
+      if (res.status !== 200) {
+        setMessage(PROBLEM_LOAD_FAIL_MESSAGE);
+        modalDispatch({
+          type: 'open',
+          payload: { target: 'message' },
+        });
+      } else {
+        const json = await res.json();
+        const { content, code, testCode } = json as {
           content: string;
           code: string;
           testCode: string[];
-        }) => {
-          const prettierCode = prettier.format(code, {
-            singleQuote: true,
-            semi: true,
-            tabWidth: 2,
-            trailingComma: 'all',
-            arrowParens: 'avoid',
-            parser: 'babel',
-            plugins: [babelParser],
-          });
+        };
+        const prettierCode = prettier.format(code, {
+          singleQuote: true,
+          semi: true,
+          tabWidth: 2,
+          trailingComma: 'all',
+          arrowParens: 'avoid',
+          parser: 'babel',
+          plugins: [babelParser],
+        });
 
-          dispatch({
-            type: 'init',
-            payload: {
-              code: prettierCode,
-              content,
-              category: query['category' as keyof typeof query],
-              testCode,
-            },
-          });
+        dispatch({
+          type: 'init',
+          payload: {
+            code: prettierCode,
+            content,
+            category: query['category' as keyof typeof query],
+            testCode,
+          },
+        });
 
-          viewerRef.current?.getInstance().setMarkdown(content);
-        },
-      );
-  }, [id]);
+        viewerRef.current?.getInstance().setMarkdown(content);
+      }
+    } catch (err) {
+      setMessage(PROBLEM_LOAD_FAIL_MESSAGE);
+      modalDispatch({
+        type: 'open',
+        payload: { target: 'message' },
+      });
+    }
+  }, [history.location.pathname, id]);
+
+  useEffect(() => {
+    getProblem();
+  }, [getProblem, id]);
 
   const onChange = useCallback(
     code => dispatch({ type: 'setCode', payload: { code } }),
