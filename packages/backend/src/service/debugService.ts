@@ -1,5 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import { randomBytes } from 'crypto';
 import { Worker } from 'worker_threads';
 import { ResultCode } from '@cyfm/types';
 import type { ITestFailed } from '@cyfm/types';
@@ -12,48 +10,39 @@ class TimeoutError extends Error {
   }
 }
 
-const generateRandomKey = () => randomBytes(256).toString('hex');
-
 export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
   let worker;
   try {
-    const returnVerifyKey = generateRandomKey();
     const workerCode = `
       const { parentPort } = require('worker_threads');
-      parentPort.on('message', input => {
-        const { NodeVM, VMScript } = require('vm2');
+      parentPort.on('message', ({ code, testCode }) => {
+        const { VM } = require('vm2');
 
         const { expect } = require('chai');
-
-        const vm = new NodeVM({
-          console: 'inherit',
-          sandbox: {},
-          require: {
-            context: 'sandbox',
-            mock: {
-              module: {
-                require: undefined,
-              }
-            }
-          },
-          wrapper: 'none',
+        const sinon = require('sinon');
+        const sandbox = sinon.createSandbox({
+          useFakeTimers: true,
         });
-        vm.freeze(expect, 'expect');
+        const clock = sandbox.clock;
 
-        const script = new VMScript(
-          "require = undefined;" +
-          "module = undefined;" +
-          "delete global.Buffer;" +
-          "delete global.process;" +
-          input +
-          "\\n return '${returnVerifyKey}';",
-          { filename: 'vm.js' }
-        );
+        const vm = new VM({
+          timeout: 1000,
+          sandbox: {
+            setTimeout: clock.setTimeout,
+            clearTimeout: clock.clearTimeout,
+            setInterval: clock.setInterval,
+            clearInterval: clock.clearInterval,
+          },
+        })
+
         try {
-          const key = vm.run(script);
-          if ('${returnVerifyKey}' !== key) {
-            throw new SyntaxError('Illegal return statement');
-          }
+          vm.run(code);
+
+          vm.freeze(expect, 'expect');
+          vm.freeze(clock, 'clock');
+          vm.run(testCode);
+          clock.runAll();
+
           parentPort.postMessage({
             type: 'success'
           });
@@ -74,10 +63,10 @@ export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
       env: {},
     });
 
-    worker.postMessage(`
-      ${code};
-      ${testCode};
-    `);
+    worker.postMessage({
+      code,
+      testCode,
+    });
 
     const result = await new Promise<ITestFailed>((resolve, reject) => {
       worker.on('message', resolve);
