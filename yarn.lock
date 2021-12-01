@@ -6725,6 +6725,11 @@ esbuild-darwin-64@0.13.15:
   resolved "https://registry.yarnpkg.com/esbuild-darwin-64/-/esbuild-darwin-64-0.13.15.tgz#8e9169c16baf444eacec60d09b24d11b255a8e72"
   integrity sha512-ihOQRGs2yyp7t5bArCwnvn2Atr6X4axqPpEdCFPVp7iUj4cVSdisgvEKdNR7yH3JDjW6aQDw40iQFoTqejqxvQ==
 
+esbuild-darwin-64@^0.14.1:
+  version "0.14.1"
+  resolved "https://registry.yarnpkg.com/esbuild-darwin-64/-/esbuild-darwin-64-0.14.1.tgz#135f48f299f2ce3eb3ca1b1f3ec03d81108ab79e"
+  integrity sha512-PR3HZgbPRwsQbbOR1fJrfkt/Cs0JDyI3yzOKg2PPWk0H1AseZDBqPUY9b/0+BIjFwA5Jz/aAiq832hppsuJtNw==
+
 esbuild-darwin-arm64@0.13.15:
   version "0.13.15"
   resolved "https://registry.yarnpkg.com/esbuild-darwin-arm64/-/esbuild-darwin-arm64-0.13.15.tgz#1b07f893b632114f805e188ddfca41b2b778229a"
@@ -6758,6 +6763,11 @@ esbuild-linux-64@0.13.15:
   version "0.13.15"
   resolved "https://registry.yarnpkg.com/esbuild-linux-64/-/esbuild-linux-64-0.13.15.tgz#9cb8e4bcd7574e67946e4ee5f1f1e12386bb6dd3"
   integrity sha512-eCKzkNSLywNeQTRBxJRQ0jxRCl2YWdMB3+PkWFo2BBQYC5mISLIVIjThNtn6HUNqua1pnvgP5xX0nHbZbPj5oA==
+
+esbuild-linux-64@^0.14.1:
+  version "0.14.1"
+  resolved "https://registry.yarnpkg.com/esbuild-linux-64/-/esbuild-linux-64-0.14.1.tgz#2ee9dd76be1185abb1e967052e3b6ab16a1d3da4"
+  integrity sha512-JpxM0ar6Z+2v3vfFrxP7bFb8Wzb6gcGL9MxRqAJplDfGnee8HbfPge6svaazXeX9XJceeEqwxwWGB0qyCcxo7A==
 
 esbuild-linux-arm64@0.13.15:
   version "0.13.15"
