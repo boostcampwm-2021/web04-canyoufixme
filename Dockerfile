@@ -55,6 +55,7 @@ ENV PM2_SECRET_KEY=$PM2_SECRET_KEY
 WORKDIR /app
 
 COPY --from=builder /app/packages/types/dist/ ./packages/types/dist/
+COPY --from=builder /app/packages/types/package.json ./packages/types/package.json
 COPY --from=backend-builder /app/packages/backend/dist/ ./packages/backend/dist/
 COPY --from=frontend-builder /app/packages/frontend/build /var/www/html
 COPY --from=backend-builder /app/node_modules ./node_modules
