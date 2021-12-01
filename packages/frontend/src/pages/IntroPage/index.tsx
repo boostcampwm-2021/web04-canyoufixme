@@ -1,8 +1,10 @@
+import React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 
 import styled from '@cyfm/styled';
+import type { IProblem } from '@cyfm/types';
 
 import logo from 'assets/images/logo.svg';
 
@@ -116,23 +118,17 @@ const DebugLink = styled(Link)`
   font-weight: bold;
 `;
 
-interface Problem {
-  problem_id: number;
-  problem_title: string;
-  problem_category: string;
-  problem_level: number;
-  problem_codeId: string;
-  problem_authorId: number;
-  count: string;
-}
+type ProblemStatistics = {
+  [k in keyof IProblem as `problem_${k}`]: IProblem[k];
+};
 
 interface Statistics {
   problemCount: number;
   submitCount: number;
   userCount: number;
-  mostSubmitProblems: Problem[];
-  mostCorrectProblems: Problem[];
-  mostWrongProblems: Problem[];
+  mostSubmitProblems: ProblemStatistics[];
+  mostCorrectProblems: ProblemStatistics[];
+  mostWrongProblems: ProblemStatistics[];
 }
 
 const convertNum = (num: string) => {
@@ -151,9 +147,15 @@ const IntroPage = () => {
   const [problemCount, setProblemCount] = useState('0');
   const [submitCount, setSubmitCount] = useState('0');
   const [userCount, setUserCount] = useState('0');
-  const [mostSubmitProblems, setSubmitProblems] = useState<Problem[]>([]);
-  const [mostCorrectProblems, setCorrectProblems] = useState<Problem[]>([]);
-  const [mostWrongProblems, setWrongProblems] = useState<Problem[]>([]);
+  const [mostSubmitProblems, setSubmitProblems] = useState<ProblemStatistics[]>(
+    [],
+  );
+  const [mostCorrectProblems, setCorrectProblems] = useState<
+    ProblemStatistics[]
+  >([]);
+  const [mostWrongProblems, setWrongProblems] = useState<ProblemStatistics[]>(
+    [],
+  );
 
   const incEvent = useCallback(
     (

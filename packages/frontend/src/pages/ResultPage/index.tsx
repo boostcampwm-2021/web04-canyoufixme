@@ -1,19 +1,15 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { Redirect, useHistory } from 'react-router';
 import { nanoid } from 'nanoid';
-import { ResultCode } from './enums';
+import { ResultCode } from '@cyfm/types';
+import type { ITestCase } from '@cyfm/types';
 
 import SocketContext from 'contexts/SocketContext';
 import ResultViewer from 'components/ResultViewer';
 
-interface TestCase {
-  id: string;
-  result: ResultCode;
-}
-
 interface State {
   code?: string;
-  testCode?: TestCase[];
+  testCode?: ITestCase[];
   problemId?: string;
 }
 
@@ -29,7 +25,7 @@ const ResultPage = () => {
       .fill(0)
       .map(val => nanoid()),
   );
-  const [result, setResult] = useState<TestCase[]>(
+  const [result, setResult] = useState(
     idList.map(value => {
       return { id: value, result: ResultCode.pending };
     }),

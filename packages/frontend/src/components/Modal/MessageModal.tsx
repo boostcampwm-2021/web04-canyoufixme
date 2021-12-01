@@ -6,10 +6,10 @@ import styled from '@cyfm/styled';
 import Modal from './Modal';
 import Button from './ModalButton';
 
-interface ModalProps {
-  isOpen: boolean;
-  setter: (isOpen: boolean) => void;
-  messages: string[];
+import type { ModalBaseProps } from './ModalType';
+
+interface ModalProps extends ModalBaseProps {
+  message: string;
   close?: boolean;
 }
 
@@ -34,14 +34,20 @@ const ButtonWrapper = styled.div`
 `;
 
 const MessageModal = (props: ModalProps) => {
-  const { isOpen, setter, messages } = props;
+  const { isOpen, setter, target, message } = props;
 
-  const closeModal = () => setter(false);
+  const closeModal = () =>
+    setter({
+      type: 'close',
+      payload: {
+        target: target,
+      },
+    });
   return (
-    <Modal isOpen={isOpen} setter={setter}>
+    <Modal isOpen={isOpen} setter={setter} target={target}>
       <ContentWrapper>
-        {messages.map(message => (
-          <MessageWrapper key={nanoid()}>{message}</MessageWrapper>
+        {message.split('\n').map(line => (
+          <MessageWrapper key={nanoid()}>{line}</MessageWrapper>
         ))}
       </ContentWrapper>
       {props.close ? (
