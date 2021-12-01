@@ -19,7 +19,7 @@ import babelParser from 'prettier/parser-babel';
 import prettier from 'prettier/standalone';
 
 import styled from '@cyfm/styled';
-import { debouncePromise } from '@cyfm/debounce';
+import { throttlePromise } from '@cyfm/throttle';
 
 import FullWidthViewer from 'components/FullWidthViewer';
 import EditorPage from 'pages/EditorPage';
@@ -162,7 +162,7 @@ const DebugPage: React.FC = () => {
     });
   };
 
-  const submitPromise = debouncePromise(submit, 3000);
+  const submitPromise = throttlePromise(submit, 3000);
 
   const onSubmit = useCallback(submitPromise, [
     submitPromise,
