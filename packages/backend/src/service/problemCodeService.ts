@@ -1,6 +1,6 @@
 /* eslint-disable prefer-destructuring */
 import express from 'express';
-import { ProblemCodeModel } from '../settings/mongoConfig';
+import { ProblemCodeModel } from '../setting/mongoConfig';
 
 const findProblemCodeById = async (
   req: express.Request,

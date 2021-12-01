@@ -2,7 +2,7 @@
 /* eslint-disable dot-notation */
 import express from 'express';
 import { Problem } from '../model/Problem';
-import { ProblemCodeModel } from '../settings/mongoConfig';
+import { ProblemCodeModel } from '../setting/mongoConfig';
 import { User } from '../model/User';
 import { LOAD_FAIL, WRITE_SUCCESS, WRITE_FAIL } from '../util/constant';
 import { getCodeId } from '../util/common';

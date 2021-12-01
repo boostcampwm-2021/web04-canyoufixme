@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-plusplus */
-import { SubmitCodeModel } from '../settings/mongoConfig';
+import { SubmitCodeModel } from '../setting/mongoConfig';
 import { SubmitLog } from '../model/SubmitLog';
 import { Problem } from '../model/Problem';
 
