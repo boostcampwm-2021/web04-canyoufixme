@@ -1,3 +1,4 @@
+import React from 'react';
 import { nanoid } from 'nanoid';
 
 import styled from '@cyfm/styled';

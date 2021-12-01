@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from '@cyfm/styled';
 import { ResultCode } from '@cyfm/types';
 import type { ITestCaseResult } from '@cyfm/types';
