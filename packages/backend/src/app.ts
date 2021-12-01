@@ -1,16 +1,14 @@
 import express from 'express';
-
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
-
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
 
-import mysqlConnectionOptions from './settings/ormConfig';
-import './settings/mongoConfig';
-import { sessionStore } from './settings/sessionConfig';
-import { socketConnection } from './settings/socketConfig';
+import mysqlConnectionOptions from './setting/ormConfig';
+import './setting/mongoConfig';
+import { sessionStore } from './setting/sessionConfig';
+import { socketConnection } from './setting/socketConfig';
 
 import { router as problemController } from './controller/problemController';
 import { router as problemsController } from './controller/problemsController';
@@ -19,13 +17,10 @@ import { router as logoutController } from './controller/logoutController';
 import { router as statisticController } from './controller/statisticController';
 
 import { COOKIE_MAX_AGE, COOKIE_SECRET } from './util/constant';
-import { getDomainFromHostname } from './util/common';
-import { setHeaders } from './middlewares/setHeader';
+import { getDomainFromHostname, isProduction, origin } from './util/common';
+import { setHeaders } from './middleware/setHeader';
 
 const app: express.Application = express();
-
-const isProduction = process.env.NODE_ENV === 'production';
-const origin = new URL(process.env.ORIGIN_URL);
 
 if (isProduction) {
   app.set('trust proxy', 1);
