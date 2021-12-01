@@ -54,5 +54,5 @@ export const loginCallback = async (req: Request, res: Response) => {
     ...commonCookieOptions,
     maxAge: COOKIE_MAX_AGE,
   });
-  res.status(301).redirect(`${process.env.ORIGIN_URL}`);
+  res.redirect(`${process.env.ORIGIN_URL}`);
 };
