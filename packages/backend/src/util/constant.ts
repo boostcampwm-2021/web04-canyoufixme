@@ -1,7 +1,8 @@
+/* eslint-disable prefer-destructuring */
 export const SEC = 1000;
 export const TIMEOUT = 5;
-export const COOKIE_MAX_AGE = 1000 * 3600 * 12;
-export const COOKIE_SECRET = 'GyungGi_FourSkyking';
+export const COOKIE_MAX_AGE = SEC * 3600 * 12;
+export const COOKIE_SECRET = process.env.COOKIE_SECRET;
 
 export const WRONG_ANSWER_MESSAGE = '틀렸습니다.';
 export const CORRECT_ANSWER_MESSAGE = '맞았습니다!!!';
