@@ -143,7 +143,10 @@ const ListPage: React.FC = () => {
       <ListInit ref={listInit} />
       <ListWrapper ref={itemsList}>
         {paginationState.items.map(item => (
-          <SignLink to={`/debug/${item.codeId}`} key={item.codeId}>
+          <SignLink
+          to={`/debug/${item.codeId}?category=${item.category}`}
+          key={item.codeId}
+        >
             <Sign>{item.title}</Sign>
           </SignLink>
         ))}
