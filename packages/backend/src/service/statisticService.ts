@@ -35,7 +35,7 @@ const mostSomethingProblems = async (condition, key) => {
       ? submitLogJoinData.where('submitlog.status = :status', {
           status: CORRECT_ANSWER_MESSAGE,
         })
-      : submitLogJoinData.where('submitlog.status != :status', {
+      : submitLogJoinData.where('submitlog.status = :status', {
           status: WRONG_ANSWER_MESSAGE,
         });
 
