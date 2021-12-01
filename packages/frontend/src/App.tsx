@@ -88,20 +88,21 @@ const App: React.FC = () => {
     },
   );
 
-  const logout = useCallback(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/logout`, {
-      credentials: 'include',
-      method: 'POST',
-    })
-      .then(res => res.json())
-      .then(res => {
-        if (res.status !== 200) {
-          dispatch({ type: 'open', payload: { target: 'message' } });
-          return;
-        }
+  const logout = useCallback(async () => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/logout`, {
+        credentials: 'include',
+        method: 'POST',
+      });
+      if (res.status !== 200) {
+        dispatch({ type: 'open', payload: { target: 'message' } });
+      } else {
         dispatch({ type: 'close', payload: { target: 'logout' } });
         setLogin(false);
-      });
+      }
+    } catch (err) {
+      dispatch({ type: 'open', payload: { target: 'message' } });
+    }
   }, []);
 
   const openLogoutModal = useCallback(
