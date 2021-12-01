@@ -16,7 +16,7 @@ import MessageModal from 'components/Modal/MessageModal';
 
 import { IntroReducer, modalReducer } from './reducer';
 import logo from 'assets/images/logo.svg';
-import { DATA_LOAD_FAIL_MESSAGE, INTRO_MESSAGE } from './message';
+import { DATA_LOAD_FAIL_MESSAGE, EMPTY_DATA_TITLE, INTRO_MESSAGE } from './message';
 
 const IntroWrapper = styled.div`
   display: flex;
@@ -32,6 +32,7 @@ const IntroWrapper = styled.div`
   box-shadow: 0 0 0 6px black, 0 0 0 12px #f6cb01;
   box-sizing: border-box;
   font-size: 1.5em;
+  cursor:default;
 `;
 
 const ImageWrapper = styled.div`
@@ -116,6 +117,15 @@ const DebugRank = styled.div`
   display: inline-block;
   margin-right: 1em;
   font-size: 0.5em;
+  font-weight: bold;
+`;
+
+const DebugEmpty = styled.div`
+  display: inline-block;
+  margin: 0.2em 0;
+  font-size: 0.5em;
+  text-decoration: none;
+  color: black;
   font-weight: bold;
 `;
 
@@ -362,6 +372,12 @@ const IntroPage = () => {
                   </RankItemWrapper>
                 );
               })}
+              {Array(5-introState.mostCorrectProblems.length).fill(EMPTY_DATA_TITLE).map((value, index) => (
+                <RankItemWrapper key={nanoid()}>
+                  <DebugRank>{introState.mostCorrectProblems.length + index + 1}.</DebugRank>
+                  <DebugEmpty>{EMPTY_DATA_TITLE}</DebugEmpty>
+                </RankItemWrapper>)
+              )}
             </RankWrapper>
           </TextWrapper>
         </CardWrapper>
@@ -383,6 +399,12 @@ const IntroPage = () => {
                   </RankItemWrapper>
                 );
               })}
+              {Array(5-introState.mostWrongProblems.length).fill(EMPTY_DATA_TITLE).map((value, index) => (
+                <RankItemWrapper key={nanoid()}>
+                  <DebugRank>{introState.mostWrongProblems.length + index + 1}.</DebugRank>
+                  <DebugEmpty>{EMPTY_DATA_TITLE}</DebugEmpty>
+                </RankItemWrapper>)
+              )}
             </RankWrapper>
           </TextWrapper>
         </CardWrapper>
@@ -404,6 +426,12 @@ const IntroPage = () => {
                   </RankItemWrapper>
                 );
               })}
+              {Array(5-introState.mostSubmitProblems.length).fill(EMPTY_DATA_TITLE).map((value, index) => (
+                <RankItemWrapper key={nanoid()}>
+                  <DebugRank>{introState.mostSubmitProblems.length + index + 1}.</DebugRank>
+                  <DebugEmpty>{EMPTY_DATA_TITLE}</DebugEmpty>
+                </RankItemWrapper>)
+              )}
             </RankWrapper>
           </TextWrapper>
         </CardWrapper>

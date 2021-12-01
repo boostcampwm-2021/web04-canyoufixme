@@ -6,3 +6,5 @@ export const INTRO_MESSAGE = `개발을 하면서 버그를 잡느라 시간을 
 더욱 값진 경험이 되지 않을까요?`;
 
 export const DATA_LOAD_FAIL_MESSAGE = `서버로부터 응답이 없습니다.\n관리자에게 문의 바랍니다.`;
+
+export const EMPTY_DATA_TITLE = `기록이 없습니다.`;
