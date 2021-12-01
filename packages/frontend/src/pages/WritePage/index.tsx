@@ -209,6 +209,11 @@ const WritePage = () => {
   const [sandboxRef, console] = useSandbox({
     setter: setOutput,
     dependencies: ['https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js'],
+    timeout: 3000,
+    onLoadStart: () =>
+      dispatch({ type: 'open', payload: { target: 'loading' } }),
+    onLoadEnd: () =>
+      dispatch({ type: 'close', payload: { target: 'loading' } }),
   });
 
   const onExecute = useCallback(() => {

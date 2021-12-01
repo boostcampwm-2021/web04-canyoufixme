@@ -4,10 +4,16 @@ import type { MutableRefObject } from 'react';
 import { execCodeWithSandbox } from './debug';
 import type { ISandboxOptions } from './debug';
 
+// TODO: 공통 상수 분리
+const SIGKILL = 137;
+
 interface ISandboxHookOptions extends ISandboxOptions {
   setter: React.Dispatch<React.SetStateAction<string>>;
   onInit?: (event: CustomEvent) => void;
   onExit?: (event: CustomEvent) => void;
+  onLoadStart?: (event: CustomEvent) => void;
+  onLoadEnd?: (event: CustomEvent) => void;
+  timeout?: number;
 }
 
 interface Stringable {
@@ -25,6 +31,9 @@ export function useSandbox(
     setter: () => {},
     onInit: () => {},
     onExit: () => {},
+    onLoadStart: () => {},
+    onLoadEnd: () => {},
+    timeout: 0,
   },
 ): [MutableRefObject<EventTarget | undefined>, IConsoleLike] {
   const sandboxRef = useRef<EventTarget>();
@@ -66,7 +75,14 @@ export function useSandbox(
 
     const onExit = (options.onExit ??
       (event => {
-        console.log(`[EXIT CODE: ${(event as CustomEvent).detail || -1}]`);
+        const customEvent = event as CustomEvent;
+        if (customEvent.detail === SIGKILL) {
+          console.log(`TimeoutError: timeout`);
+        }
+        console.log(`[EXIT CODE: ${customEvent.detail || -1}]`);
+
+        // 재시작
+        sandboxRef.current = execCodeWithSandbox(options);
       })) as EventListener;
 
     sandboxRef.current.addEventListener('init', onInit);
@@ -83,13 +99,42 @@ export function useSandbox(
     sandboxRef.current.addEventListener('stdout', onOutput);
     sandboxRef.current.addEventListener('stderr', onOutputError);
 
+    let timeoutTimer: NodeJS.Timer | number = -1;
+    let delayTimer: NodeJS.Timer | number = -1;
+    const onExec = (event => {
+      if (options.timeout) {
+        clearTimeout(timeoutTimer as number);
+        timeoutTimer = setTimeout(() => {
+          sandboxRef.current?.dispatchEvent(
+            new CustomEvent('kill', { detail: SIGKILL }),
+          );
+        }, options.timeout);
+      }
+      clearTimeout(delayTimer as number);
+      delayTimer = setTimeout(() => {
+        options.onLoadStart?.(event as CustomEvent);
+      }, 1000);
+    }) as EventListener;
+    sandboxRef.current.addEventListener('exec', onExec);
+
+    const onTerminate = (event => {
+      clearTimeout(delayTimer as number);
+      clearTimeout(timeoutTimer as number);
+      options.onLoadEnd?.(event as CustomEvent);
+    }) as EventListener;
+    sandboxRef.current.addEventListener('idle', onTerminate);
+    sandboxRef.current.addEventListener('exit', onTerminate);
+
     return () => {
       sandboxRef.current?.removeEventListener('init', onInit);
       sandboxRef.current?.removeEventListener('exit', onExit);
       sandboxRef.current?.removeEventListener('stdout', onOutput);
       sandboxRef.current?.removeEventListener('stderr', onOutputError);
+      sandboxRef.current?.removeEventListener('exec', onExec);
+      sandboxRef.current?.removeEventListener('idle', onTerminate);
+      sandboxRef.current?.removeEventListener('exit', onTerminate);
     };
-  }, [sandboxRef]);
+  }, [sandboxRef.current]);
 
   return [sandboxRef, memoizedConsole];
 }

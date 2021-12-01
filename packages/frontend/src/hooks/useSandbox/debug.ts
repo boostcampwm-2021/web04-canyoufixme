@@ -88,13 +88,12 @@ export function execCodeWithSandbox(options: ISandboxOptions) {
           break;
       }
     } catch (e) {
-      // sandbox.parentNode?.removeChild(sandbox);
       dispatcher.dispatchEvent(new CustomEvent('exit', { detail: e }));
     }
   };
 
-  dispatcher.addEventListener('kill', () => {
-    port1.postMessage({ type: 'kill' });
+  dispatcher.addEventListener('kill', event => {
+    port1.postMessage({ type: 'kill', payload: (event as CustomEvent).detail });
   });
 
   dispatcher.addEventListener('exec', event => {

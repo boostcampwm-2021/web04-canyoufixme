@@ -23,6 +23,12 @@ export function sandboxFunction(process, origin) {
           payload: event.detail,
         });
       });
+      process.addEventListener('exit', function (event) {
+        postMessage({
+          type: 'exit',
+          payload: event.detail,
+        });
+      });
       process.addEventListener('idle', function (event) {
         postMessage({ type: 'idle', payload: event.detail });
       });
@@ -31,7 +37,7 @@ export function sandboxFunction(process, origin) {
         if (event.data) {
           switch (event.data.type) {
             case 'kill':
-              process.kill();
+              process.kill(event.data.payload || -1);
               break;
             case 'exec':
               process.exec(event.data.payload);

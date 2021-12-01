@@ -206,7 +206,14 @@ const DebugPage: React.FC = () => {
     id,
   ]);
 
-  const [sandboxRef, console] = useSandbox({ setter: setOutput });
+  const [sandboxRef, console] = useSandbox({
+    setter: setOutput,
+    timeout: 3000,
+    onLoadStart: () =>
+      modalDispatch({ type: 'open', payload: { target: 'loading' } }),
+    onLoadEnd: () =>
+      modalDispatch({ type: 'close', payload: { target: 'loading' } }),
+  });
 
   const onExecute = useCallback(() => {
     if (!sandboxRef.current) return;
