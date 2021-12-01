@@ -110,7 +110,7 @@ const DebugPage: React.FC = () => {
 
   useEffect(() => {
     const query = getQuery(history.location.search);
-    fetch(`${process.env.REACT_APP_API_URL}/api/debug/${id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/problem/${id}`)
       .then(res => res.json())
       .then(
         ({
