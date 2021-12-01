@@ -1,4 +1,4 @@
-const debounce = (callback, time) => {
+const throttle = (callback, time) => {
   let timeout;
   return (...args) => {
     if (!timeout) {
@@ -11,7 +11,7 @@ const debounce = (callback, time) => {
   };
 };
 
-const debouncePromise = (callback, time) => {
+const throttlePromise = (callback, time) => {
   let timeout;
   return (...args) => {
     return new Promise((resolve, reject) => {
@@ -30,4 +30,4 @@ const debouncePromise = (callback, time) => {
   };
 };
 
-export { debounce, debouncePromise };
+export { throttle, throttlePromise };

@@ -3,6 +3,7 @@ import { ModalReducerAction } from 'components/Modal/ModalType';
 
 type DebugStates = IProblemCode & {
   initCode: string;
+  category: string;
 };
 
 type InitAction = {
@@ -25,6 +26,7 @@ const debugReducer = (
         initCode: action.payload.code,
         content: state.content || action.payload.content,
         code: state.code || action.payload.code,
+        category: state.category || action.payload.category,
         testCode: [...action.payload.testCode],
       };
     case 'setCode':

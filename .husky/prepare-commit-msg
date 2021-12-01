@@ -16,7 +16,9 @@ if [ "$COMMIT_SOURCE" = "commit" ]; then
     BODY_LINENO=5
     # 제목, 본문 라인의 내용을 변경하여 덮어쓰기
     awk "
-        NR==${TITLE_LINENO} { printf \"$(git show -s --format=%s $SHA1)\" }
+        NR==${TITLE_LINENO} {
+            printf \"%s\", \"$(git show -s --format=%s $SHA1)\"
+        }
         NR==${BODY_LINENO} {
             $(git show -s --format=%b $SHA1 | sed -e 's/.*/print "&";/')
         }
