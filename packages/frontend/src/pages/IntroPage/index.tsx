@@ -12,9 +12,11 @@ import { nanoid } from 'nanoid';
 import styled from '@cyfm/styled';
 import type { IProblem } from '@cyfm/types';
 
-import { IntroReducer } from './reducer';
+import MessageModal from 'components/Modal/MessageModal';
+
+import { IntroReducer, modalReducer } from './reducer';
 import logo from 'assets/images/logo.svg';
-import { INTRO_MESSAGE } from './message';
+import { DATA_LOAD_FAIL_MESSAGE, INTRO_MESSAGE } from './message';
 
 const IntroWrapper = styled.div`
   display: flex;
@@ -139,20 +141,9 @@ interface Statistics {
   mostWrongProblems: ProblemStatistics[];
 }
 
-const convertNum = (num: string) => {
-  let length = num.length;
-  const result: string[] = [];
-  while (length > 3) {
-    result.unshift(num.slice(length - 3, length));
-    length -= 3;
-  }
-  result.unshift(num.slice(0, length));
-
-  return result.join(',');
-};
-
 const IntroPage = () => {
   const [isLoad, setLoad] = useState(false);
+  const [message, setMessage] = useState('');
   const [introState, dispatch] = useReducer(IntroReducer, {
     problemCount: '0',
     targetProblemCount: 0,
@@ -164,8 +155,11 @@ const IntroPage = () => {
     mostCorrectProblems: [],
     mostWrongProblems: [],
   });
-  const incRef: MutableRefObject<HTMLDivElement | undefined> = useRef();
+  const [modalStates, modalDispatch] = useReducer(modalReducer, {
+    openMessage: false,
+  });
 
+  const incRef: MutableRefObject<HTMLDivElement | undefined> = useRef();
   const ioRef: MutableRefObject<IntersectionObserver | undefined> = useRef();
 
   const incEvent = useCallback((target: number, time: number, key: string) => {
@@ -216,65 +210,86 @@ const IntroPage = () => {
     });
   }, ioOptions);
 
-  useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/statistics`)
-      .then(res => res.json())
-      .then(
-        async ({
+  const getStatistics = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/statistics`,
+      );
+
+      if (res.status !== 200) {
+        setMessage(DATA_LOAD_FAIL_MESSAGE);
+        modalDispatch({
+          type: 'open',
+          payload: { target: 'message' },
+        });
+      } else {
+        const json = await res.json();
+        const {
           problemCount,
           submitCount,
           userCount,
           mostSubmitProblems,
           mostCorrectProblems,
           mostWrongProblems,
-        }: Statistics) => {
-          dispatch({
-            type: 'setValue',
-            payload: {
-              key: 'targetProblemCount',
-              value: problemCount,
-            },
-          });
-          dispatch({
-            type: 'setValue',
-            payload: {
-              key: 'targetSubmitCount',
-              value: submitCount,
-            },
-          });
-          dispatch({
-            type: 'setValue',
-            payload: {
-              key: 'targetUserCount',
-              value: userCount,
-            },
-          });
+        } = json as Statistics;
 
-          dispatch({
-            type: 'setValue',
-            payload: {
-              key: 'mostSubmitProblems',
-              value: mostSubmitProblems,
-            },
-          });
-          dispatch({
-            type: 'setValue',
-            payload: {
-              key: 'mostCorrectProblems',
-              value: mostCorrectProblems,
-            },
-          });
-          dispatch({
-            type: 'setValue',
-            payload: {
-              key: 'mostWrongProblems',
-              value: mostWrongProblems,
-            },
-          });
-          setLoad(true);
-        },
-      );
+        dispatch({
+          type: 'setValue',
+          payload: {
+            key: 'targetProblemCount',
+            value: problemCount,
+          },
+        });
+        dispatch({
+          type: 'setValue',
+          payload: {
+            key: 'targetSubmitCount',
+            value: submitCount,
+          },
+        });
+        dispatch({
+          type: 'setValue',
+          payload: {
+            key: 'targetUserCount',
+            value: userCount,
+          },
+        });
+
+        dispatch({
+          type: 'setValue',
+          payload: {
+            key: 'mostSubmitProblems',
+            value: mostSubmitProblems,
+          },
+        });
+        dispatch({
+          type: 'setValue',
+          payload: {
+            key: 'mostCorrectProblems',
+            value: mostCorrectProblems,
+          },
+        });
+        dispatch({
+          type: 'setValue',
+          payload: {
+            key: 'mostWrongProblems',
+            value: mostWrongProblems,
+          },
+        });
+        setLoad(true);
+      }
+    } catch (err) {
+      setMessage(DATA_LOAD_FAIL_MESSAGE);
+      modalDispatch({
+        type: 'open',
+        payload: { target: 'message' },
+      });
+    }
   }, []);
+
+  useEffect(() => {
+    getStatistics();
+  }, [getStatistics]);
 
   useEffect(() => {
     if (isLoad) ioRef.current?.observe(incRef.current as HTMLDivElement);
@@ -393,6 +408,13 @@ const IntroPage = () => {
           </TextWrapper>
         </CardWrapper>
       </ContextWrapper>
+      <MessageModal
+        isOpen={modalStates.openMessage}
+        setter={modalDispatch}
+        target={'message'}
+        message={message}
+        close={true}
+      />
     </IntroWrapper>
   );
 };
