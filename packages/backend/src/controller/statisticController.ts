@@ -16,8 +16,8 @@ router.get('/', getAllData);
 router.get('/problems/count', getAllProblemNum);
 router.get('/submits/count', getAllSubmitNum);
 router.get('/users/count', getUserCount);
-router.get('/most-submits', mostSubmitProblems);
-router.get('/most-corrects', mostCorrectProblems);
-router.get('/most-wrongs', mostWrongProblems);
+router.get('/submits/most', mostSubmitProblems);
+router.get('/corrects/most', mostCorrectProblems);
+router.get('/wrongs/most', mostWrongProblems);
 
 export { router };
