@@ -2,7 +2,7 @@
 import { randomBytes } from 'crypto';
 import { Worker } from 'worker_threads';
 import { ResultCode } from '@cyfm/types';
-import type { ITestFailed } from '@cyfm/types';
+import type { ITestResult } from '@cyfm/types';
 import { SEC, TIMEOUT } from '../util/constant';
 
 class TimeoutError extends Error {
@@ -16,6 +16,7 @@ const generateRandomKey = () => randomBytes(256).toString('hex');
 
 export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
   let worker;
+  let result: ITestResult;
   try {
     const returnVerifyKey = generateRandomKey();
     const workerCode = `
@@ -79,7 +80,7 @@ export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
       ${testCode};
     `);
 
-    const result = await new Promise<ITestFailed>((resolve, reject) => {
+    const result = await new Promise<ITestResult>((resolve, reject) => {
       worker.on('message', resolve);
       setTimeout(() => {
         reject(new TimeoutError(`timeout ${TIMEOUT}s`));
@@ -112,5 +113,6 @@ export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
     }
   } finally {
     worker.terminate();
+    return result.type
   }
 };
