@@ -1,5 +1,6 @@
 import React, {
   useState,
+  useCallback,
   useReducer,
   useEffect,
   useRef,
@@ -71,6 +72,32 @@ const ListPage: React.FC = () => {
   const itemsList: MutableRefObject<HTMLDivElement | null | undefined> =
     useRef();
 
+  const addItems = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/problems?limit=${problemsCnt}&offset=${paginationState.offset}`,
+      );
+      const json = await res.json();
+      if (json && json.length > 0) {
+        result = json;
+        dispatch({
+          type: 'addItems',
+          items: json,
+          offset: problemsCnt,
+        });
+      }
+    } catch (err) {
+      setLoading(false);
+      modalDispatch({
+        type: 'open',
+        payload: { target: 'error' },
+      });
+    }
+    result = null;
+    window.clearTimeout(timeout);
+    setLoading(false);
+  }, [paginationState.offset]);
+
   useEffect(() => {
     if (!isLoading) {
       timeout = window.setTimeout(() => {
@@ -81,32 +108,7 @@ const ListPage: React.FC = () => {
           modalDispatch({ type: 'open', payload: { target: 'error' } });
         }
       }, 3000);
-      fetch(
-        `${process.env.REACT_APP_API_URL}/api/problems?limit=${problemsCnt}&offset=${paginationState.offset}`,
-      )
-        .then(res => res.json())
-        .then(json => {
-          if (json && json.length > 0) {
-            result = json;
-            dispatch({
-              type: 'addItems',
-              items: json,
-              offset: problemsCnt,
-            });
-          }
-        })
-        .catch((err: Error) => {
-          setLoading(false);
-          modalDispatch({
-            type: 'open',
-            payload: { target: 'error' },
-          });
-        })
-        .finally(() => {
-          result = null;
-          window.clearTimeout(timeout);
-          setLoading(false);
-        });
+      addItems();
     }
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [paginationState.offset]);
@@ -144,9 +146,9 @@ const ListPage: React.FC = () => {
       <ListWrapper ref={itemsList}>
         {paginationState.items.map(item => (
           <SignLink
-          to={`/debug/${item.codeId}?category=${item.category}`}
-          key={item.codeId}
-        >
+            to={`/debug/${item.codeId}?category=${item.category}`}
+            key={item.codeId}
+          >
             <Sign>{item.title}</Sign>
           </SignLink>
         ))}
