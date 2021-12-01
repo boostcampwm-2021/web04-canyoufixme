@@ -80,7 +80,7 @@ export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
       ${testCode};
     `);
 
-    const result = await new Promise<ITestResult>((resolve, reject) => {
+    result = await new Promise<ITestResult>((resolve, reject) => {
       worker.on('message', resolve);
       setTimeout(() => {
         reject(new TimeoutError(`timeout ${TIMEOUT}s`));
