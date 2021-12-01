@@ -7,7 +7,7 @@ import { commonCookieOptions } from '../util/common';
 export const logout = (req: Request, res: Response) => {
   req.session.destroy(err => {
     if (err) {
-      res.json({ message: ResultCode.fail, error: err });
+      res.status(500).json({ message: ResultCode.fail, error: err });
     }
     res.clearCookie('isLogin', commonCookieOptions);
     res.clearCookie('connect.sid', {

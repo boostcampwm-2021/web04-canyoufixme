@@ -95,7 +95,7 @@ const App: React.FC = () => {
     })
       .then(res => res.json())
       .then(res => {
-        if (res.message !== 'success') {
+        if (res.status !== 200) {
           dispatch({ type: 'open', payload: { target: 'message' } });
           return;
         }
