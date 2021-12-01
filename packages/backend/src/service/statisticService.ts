@@ -4,6 +4,18 @@ import { getRepository } from 'typeorm';
 import { Problem } from '../model/Problem';
 import { SubmitLog } from '../model/SubmitLog';
 import { User } from '../model/User';
+import {
+  WRONG_ANSWER_MESSAGE,
+  CORRECT_ANSWER_MESSAGE,
+  GET_ALL_DATA_ERROR,
+  CONDITION,
+  GET_MOST_SUBMIT_PROBLEM_ERROR,
+  GET_MOST_CORRECT_SUBMIT_PROBLEM_ERROR,
+  GET_MOST_WRONG_SUBMIT_PROBLEM_ERROR,
+  GET_PROBLEM_COUNT_ERROR,
+  GET_SUBMIT_COUNT_ERROR,
+  GET_USER_COUNT_ERROR,
+} from '../util/constant';
 
 const getAllSomethingNum = async (something, key) => {
   const [_, resultCount] = await something.findAndCount({});
@@ -17,14 +29,14 @@ const mostSomethingProblems = async (condition, key) => {
     .leftJoinAndSelect('submitlog.problem', 'problem');
 
   submitLogJoinData =
-    condition === 'ALL'
+    condition === CONDITION.ALL
       ? submitLogJoinData
-      : condition === 'CORRECT'
+      : condition === CONDITION.CORRECT
       ? submitLogJoinData.where('submitlog.status = :status', {
-          status: '맞았습니다!!!',
+          status: CORRECT_ANSWER_MESSAGE,
         })
       : submitLogJoinData.where('submitlog.status != :status', {
-          status: '맞았습니다!!!',
+          status: WRONG_ANSWER_MESSAGE,
         });
 
   const result = await submitLogJoinData
@@ -49,15 +61,15 @@ const getAllData = async (req: express.Request, res: express.Response) => {
       getAllSomethingNum(Problem, 'problemCount'),
       getAllSomethingNum(SubmitLog, 'submitCount'),
       getAllSomethingNum(User, 'userCount'),
-      mostSomethingProblems('ALL', 'mostSubmitProblems'),
-      mostSomethingProblems('CORRECT', 'mostCorrectProblems'),
-      mostSomethingProblems('WRONG', 'mostWrongProblems'),
+      mostSomethingProblems(CONDITION.ALL, 'mostSubmitProblems'),
+      mostSomethingProblems(CONDITION.CORRECT, 'mostCorrectProblems'),
+      mostSomethingProblems(CONDITION.WRONG, 'mostWrongProblems'),
     ]);
     const transferData = dataTransfer(result);
     res.status(200).json(transferData);
   } catch (err) {
     res.status(500).json({
-      message: 'can not get all data',
+      message: GET_ALL_DATA_ERROR,
       error: err.message,
     });
   }
@@ -72,7 +84,7 @@ const getAllProblemNum = async (
     res.status(200).json(problemLength);
   } catch (err) {
     res.status(500).json({
-      message: 'can not get problem num',
+      message: GET_PROBLEM_COUNT_ERROR,
       error: err.message,
     });
   }
@@ -84,7 +96,7 @@ const getAllSubmitNum = async (req: express.Request, res: express.Response) => {
     res.status(200).json(submitLogLength);
   } catch (err) {
     res.status(500).json({
-      message: 'can not get submit num',
+      message: GET_SUBMIT_COUNT_ERROR,
       error: err.message,
     });
   }
@@ -95,7 +107,7 @@ const getUserCount = async (req: express.Request, res: express.Response) => {
     res.status(200).json(userLength);
   } catch (err) {
     res.status(500).json({
-      message: 'can not get user num',
+      message: GET_USER_COUNT_ERROR,
       error: err.message,
     });
   }
@@ -107,13 +119,13 @@ const mostSubmitProblems = async (
 ) => {
   try {
     const submitProblems = await mostSomethingProblems(
-      'ALL',
+      CONDITION.ALL,
       'mostSubmitProblems',
     );
     res.status(200).json(submitProblems);
   } catch (err) {
     res.status(500).json({
-      message: 'can not get most submit problems',
+      message: GET_MOST_SUBMIT_PROBLEM_ERROR,
       error: err.message,
     });
   }
@@ -125,13 +137,13 @@ const mostCorrectProblems = async (
 ) => {
   try {
     const correctProblems = await mostSomethingProblems(
-      'CORRECT',
+      CONDITION.CORRECT,
       'mostCorrectProblems',
     );
     res.status(200).json(correctProblems);
   } catch (err) {
     res.status(500).json({
-      message: 'can not get most correct problems',
+      message: GET_MOST_CORRECT_SUBMIT_PROBLEM_ERROR,
       error: err.message,
     });
   }
@@ -143,13 +155,13 @@ const mostWrongProblems = async (
 ) => {
   try {
     const wrongProblems = await mostSomethingProblems(
-      'WRONG',
+      CONDITION.WRONG,
       'mostWrongProblems',
     );
     res.status(200).json(wrongProblems);
   } catch (err) {
     res.status(500).json({
-      message: 'can not get most submit problems',
+      message: GET_MOST_WRONG_SUBMIT_PROBLEM_ERROR,
       error: err.message,
     });
   }

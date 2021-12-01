@@ -3,8 +3,10 @@
 /* eslint-disable dot-notation */
 import express from 'express';
 import { Problem } from '../model/Problem';
-import { ProblemCodeModel } from '../settings/mongoConfig';
+import { ProblemCodeModel } from '../setting/mongoConfig';
 import { User } from '../model/User';
+import { LOAD_FAIL, WRITE_SUCCESS, WRITE_FAIL } from '../util/constant';
+import { getCodeId } from '../util/common';
 
 const isNumberAndNatural = num => {
   return !Number.isNaN(num) && num > 0;
@@ -26,7 +28,7 @@ const getList = async (req: express.Request, res: express.Response) => {
     res.status(200).json(problems);
   } catch (err) {
     res.status(500).json({
-      message: 'load fail',
+      message: LOAD_FAIL,
       error: err.message,
     });
   }
@@ -41,8 +43,6 @@ const saveCode = async (code, content, testCode) => {
   const codeData = await problemCode.save();
   return codeData;
 };
-
-const getCodeId = codeData => codeData['_id'].toString();
 
 const saveProblem = async ({ title, category, level, author, codeId }) => {
   const problem = new Problem();
@@ -64,9 +64,9 @@ const writeProblem = async (req: express.Request, res: express.Response) => {
 
     await saveProblem({ title, category, level, author, codeId });
 
-    res.status(201).json({ message: 'write success' });
+    res.status(201).json({ message: WRITE_SUCCESS });
   } catch (err) {
-    res.status(500).json({ message: 'write fail', error: err.message });
+    res.status(500).json({ message: WRITE_FAIL, error: err.message });
   }
 };
 

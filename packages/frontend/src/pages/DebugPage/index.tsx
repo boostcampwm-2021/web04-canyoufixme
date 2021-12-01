@@ -32,6 +32,7 @@ import LoadingModal from 'components/Modal/LoadingModal';
 import { useSandbox } from 'hooks/useSandbox';
 import { useBlockUnload } from 'hooks/useBlockUnload';
 import { debugReducer, modalReducer } from './reducer';
+import { VALID_LANGUAGES } from 'pages/WritePage/constant';
 
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-twilight';
@@ -65,11 +66,23 @@ const ButtonFooter = styled.div`
   background: #1c1d20;
 `;
 
+const getQuery = (qs: string) => {
+  let result: object = {};
+  qs.replace('?', '')
+    .split('&')
+    .forEach(pair => {
+      const [key, value] = pair.split('=');
+      result = Object.assign(result, { [key]: value });
+    });
+  return result;
+};
+
 const DebugPage: React.FC = () => {
   const [debugStates, dispatch] = useReducer(debugReducer, {
     initCode: '',
     content: '',
     code: '',
+    category: '',
     testCode: [],
   });
   const [modalStates, modalDispatch] = useReducer(modalReducer, {
@@ -96,7 +109,8 @@ const DebugPage: React.FC = () => {
   const id = match?.params.id;
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/debug/${id}`)
+    const query = getQuery(history.location.search);
+    fetch(`${process.env.REACT_APP_API_URL}/api/problem/${id}`)
       .then(res => res.json())
       .then(
         ({
@@ -123,6 +137,7 @@ const DebugPage: React.FC = () => {
             payload: {
               code: prettierCode,
               content,
+              category: query['category' as keyof typeof query],
               testCode,
             },
           });
@@ -255,7 +270,12 @@ const DebugPage: React.FC = () => {
             <AceEditor
               onLoad={onLoad}
               onChange={onChange}
-              mode="javascript"
+              mode={
+                debugStates.category &&
+                VALID_LANGUAGES.includes(debugStates.category)
+                  ? debugStates.category
+                  : 'javascript'
+              }
               width="100%"
               height="100%"
               theme="twilight"

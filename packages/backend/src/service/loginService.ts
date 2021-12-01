@@ -3,11 +3,8 @@
 import type { Request, Response } from 'express';
 import axios from 'axios';
 import { User } from '../model/User';
-
-const isProduction = process.env.NODE_ENV === 'production';
-const origin = new URL(process.env.ORIGIN_URL);
-const getDomainFromHostname = hostname =>
-  hostname.split('.').slice(-2).join('.');
+import { COOKIE_MAX_AGE } from '../util/constant';
+import { commonCookieOptions } from '../util/common';
 
 const getAccessToken = async authorizationToken => {
   const url = new URL('https://github.com/login/oauth/access_token');
@@ -33,6 +30,14 @@ const getUserInfo = async accessToken => {
   return userInfo;
 };
 
+const saveUser = async (name: string, accessToken: string) => {
+  const newUser = new User();
+  newUser.name = name;
+  newUser.oauthType = 'Github';
+  newUser.token = accessToken;
+  await newUser.save();
+};
+
 export const loginCallback = async (req: Request, res: Response) => {
   const authorizationToken = req.query.code;
   const accessToken = await getAccessToken(authorizationToken);
@@ -40,30 +45,14 @@ export const loginCallback = async (req: Request, res: Response) => {
   const user = await User.findOne({ name: userInfo.login });
 
   if (!user) {
-    const newUser = new User();
-    newUser.name = userInfo.login;
-    newUser.oauthType = 'Github';
-    newUser.token = accessToken;
-    await newUser.save();
+    saveUser(userInfo.login, accessToken);
   }
 
   req.session['name'] = userInfo.login;
   req.session.save();
   res.cookie('isLogin', true, {
-    maxAge: 1000 * 3600 * 12,
-    domain: getDomainFromHostname(origin.hostname),
-    secure: isProduction,
+    ...commonCookieOptions,
+    maxAge: COOKIE_MAX_AGE,
   });
   res.redirect(`${process.env.ORIGIN_URL}`);
-};
-
-export const isLogin = (req: Request, res: Response, next) => {
-  if (req.cookies['connect.sid']) {
-    next();
-  } else {
-    res.status(401).json({
-      status: 'Unauthorized',
-      message: '로그인 필요.',
-    });
-  }
 };

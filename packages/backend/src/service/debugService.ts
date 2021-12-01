@@ -1,19 +1,9 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import { randomBytes } from 'crypto';
 import { Worker } from 'worker_threads';
-
-// TODO: 공통파일로 분리
-// eslint-disable-next-line no-shadow
-enum ResultCode {
-  'success',
-  'fail',
-  'timeout',
-  'pending',
-}
-
-interface ITestFailed {
-  type: 'fail';
-  payload: { message: string };
-}
+import { ResultCode } from '@cyfm/types';
+import type { ITestFailed } from '@cyfm/types';
+import { SEC, TIMEOUT } from '../util/constant';
 
 class TimeoutError extends Error {
   constructor(message) {
@@ -21,8 +11,6 @@ class TimeoutError extends Error {
     this.name = 'TimeoutError';
   }
 }
-const SEC = 1000;
-const TIMEOUT = 5;
 
 const generateRandomKey = () => randomBytes(256).toString('hex');
 
