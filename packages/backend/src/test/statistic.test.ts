@@ -22,10 +22,10 @@ describe('전체 숫자 조회 테스트', () => {
   const params = ['problemCount', 'submitCount', 'userCount'];
 
   models.forEach((model, idx) => {
-    test(`전체 ${messages[idx]} 수 test`, () => {
+    test(`전체 ${messages[idx]} 수 test`, async () => {
       // eslint-disable-next-line no-param-reassign
       model.findAndCount = jest.fn();
-      getAllSomethingNum(model, `${params[idx]}`);
+      await getAllSomethingNum(model, `${params[idx]}`);
       expect(model.findAndCount).toBeCalled();
     });
   });
