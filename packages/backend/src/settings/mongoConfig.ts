@@ -4,6 +4,9 @@ import { ProblemCode } from '../model/ProblemCode';
 import { SubmitCode } from '../model/SubmitCode';
 
 async function mongoConnection(): Promise<void> {
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
   await connect(
     `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.DB_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DATABASE}${process.env.MONGO_OPTION}`,
   );
