@@ -52,10 +52,11 @@ export const socketConnection = (httpServer, sessionConfig) => {
       socket.emit('loadTestSuccess', results);
     });
 
-    if (!user) {
-      socket.disconnect();
-    }
     socket.on('submit', async ({ code, id, problemId }) => {
+      if (!user) {
+        socket.disconnect();
+      }
+
       const testCode = await getTestCode(problemId);
 
       const results = await parallelGrading({ socket, id, code, testCode });
