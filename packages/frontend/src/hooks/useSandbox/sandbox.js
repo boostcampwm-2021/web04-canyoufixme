@@ -1,4 +1,4 @@
-export function sandboxFunction(code, fork, origin, opts) {
+export function sandboxFunction(process, origin) {
   var postMessage;
   window.onmessage = function (message) {
     if (message.origin === origin && message.ports) {
@@ -8,7 +8,9 @@ export function sandboxFunction(code, fork, origin, opts) {
         port2.postMessage(data);
       };
 
-      const process = fork(code, opts);
+      process.addEventListener('init', function () {
+        postMessage({ type: 'init' });
+      });
       process.addEventListener('stdout', function (event) {
         postMessage({
           type: 'stdout',
@@ -21,13 +23,22 @@ export function sandboxFunction(code, fork, origin, opts) {
           payload: event.detail,
         });
       });
-      process.addEventListener('exit', function (event) {
-        postMessage({ type: 'exit', payload: event.details });
+      process.addEventListener('idle', function (event) {
+        postMessage({ type: 'idle', payload: event.detail });
       });
 
       port2.addEventListener('message', function (event) {
-        if (event.data && event.data.type === 'kill') {
-          process.kill();
+        if (event.data) {
+          switch (event.data.type) {
+            case 'kill':
+              process.kill();
+              break;
+            case 'exec':
+              process.exec(event.data.payload);
+              break;
+            default:
+              break;
+          }
         }
       });
       port2.start();

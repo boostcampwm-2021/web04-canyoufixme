@@ -1,3 +1,4 @@
+import type React from 'react';
 import { sandboxFunction } from './sandbox';
 import { execCodeWithWorker } from './worker';
 
@@ -27,22 +28,10 @@ function escaped(strings: TemplateStringsArray, ...args: unknown[]) {
   );
 }
 
-class Exit extends Error {
-  constructor(exitCode: number) {
-    super(`exitCode: ${exitCode}`);
-    this.name = 'Exit';
-  }
-}
-
 export interface ISandboxOptions {
   dependencies?: string[];
 }
-export function execCodeWithSandbox(
-  code: string,
-  options: ISandboxOptions = {
-    dependencies: [],
-  },
-) {
+export function execCodeWithSandbox(options: ISandboxOptions) {
   const sandbox = document.createElement('iframe');
   sandbox.style.display = 'none';
   sandbox.height = sandbox.width = '0';
@@ -53,17 +42,15 @@ export function execCodeWithSandbox(
         <meta charset="utf-8">
         <meta
           http-equiv="content-security-policy"
-          content="script-src ${options.dependencies?.join(
-            ' ',
-          )} blob: 'unsafe-inline' 'unsafe-eval';">
+          content="script-src blob: 'unsafe-inline' 'unsafe-eval'
+          ${options.dependencies?.join(' ')};">
       </head>
       <body>
         <script>
-          (${sandboxFunction})
-            (\`${code}\`,
-            (${execCodeWithWorker}),
-            \`${window.origin}\`,
-            ${JSON.stringify(options)});
+          (function () {
+            var process = (${execCodeWithWorker})(${JSON.stringify(options)});
+            (${sandboxFunction})(process, \`${window.origin}\`);
+          })();
         </script>
       </body>
     </html>
@@ -71,34 +58,48 @@ export function execCodeWithSandbox(
   const { port1, port2 } = new MessageChannel();
 
   const dispatcher = new EventTarget();
-  dispatcher.addEventListener('kill', event => {
-    port1.postMessage({ type: 'kill' });
-  });
 
   port1.onmessage = (e: MessageEvent) => {
     const { data } = e;
     try {
       switch (data.type) {
+        // @ts-expect-error
+        case 'init':
+          dispatcher.dispatchEvent(new CustomEvent('init'));
+        // eslint-disable-next-line no-fallthrough
+        case 'idle':
+          dispatcher.dispatchEvent(new CustomEvent('idle'));
+          break;
         case 'stdout':
           dispatcher.dispatchEvent(
             new CustomEvent('stdout', { detail: data.payload }),
           );
           break;
-        // @ts-ignore
         case 'error':
           dispatcher.dispatchEvent(
             new CustomEvent('stderr', { detail: data.payload }),
           );
-        // eslint-disable-next-line no-fallthrough
-        default:
+          break;
         case 'exit':
-          throw new Exit(0);
+        default:
+          dispatcher.dispatchEvent(
+            new CustomEvent('exit', { detail: data.payload }),
+          );
+          break;
       }
     } catch (e) {
-      sandbox.parentNode?.removeChild(sandbox);
+      // sandbox.parentNode?.removeChild(sandbox);
       dispatcher.dispatchEvent(new CustomEvent('exit', { detail: e }));
     }
   };
+
+  dispatcher.addEventListener('kill', () => {
+    port1.postMessage({ type: 'kill' });
+  });
+
+  dispatcher.addEventListener('exec', event => {
+    port1.postMessage({ type: 'exec', payload: (event as CustomEvent).detail });
+  });
 
   sandbox.onload = () => {
     sandbox.contentWindow?.postMessage({ type: 'init' }, '*', [port2]);

@@ -1,4 +1,4 @@
-export function execCodeWithWorker(code, opts) {
+export function execCodeWithWorker(opts) {
   function codeToUrl(code) {
     const blob = new Blob(['(' + String(code) + ')()'], {
       type: 'text/javascript',
@@ -7,16 +7,15 @@ export function execCodeWithWorker(code, opts) {
   }
 
   const random = Math.random().toString(32).substring(2);
+  const dependencies = opts.dependencies
+    ? 'importScripts(' +
+      opts.dependencies.map(d => '"' + d + '"').join(', ') +
+      ')'
+    : '';
   const worker = new Worker(
     codeToUrl(`
       function () {
-        ${
-          opts.dependencies
-            ? 'importScripts(' +
-              opts.dependencies.map(d => '"' + d + '"').join(', ') +
-              ')'
-            : ''
-        }
+        ${dependencies}
 
         // 특정 메소드를 사용자 접근 불가하도록 제거
         delete WorkerGlobalScope.prototype.importScripts;
@@ -27,6 +26,13 @@ export function execCodeWithWorker(code, opts) {
         Object.freeze(WorkerGlobalScope.prototype);
 
         onmessage = function (message) {
+          if (message.data === null) {
+            postMessage({
+              key: '${random}',
+              type: 'init',
+            });
+            return;
+          }
           try {
             // 문법검사
             new Function(message.data);
@@ -81,6 +87,9 @@ export function execCodeWithWorker(code, opts) {
         throw new SyntaxError(`Illegal return statement`);
       }
       switch (message.type) {
+        case 'init':
+          process.dispatchEvent(new CustomEvent('init'));
+          break;
         case 'stdout':
           process.dispatchEvent(
             new CustomEvent('stdout', { detail: message.payload }),
@@ -92,10 +101,8 @@ export function execCodeWithWorker(code, opts) {
           );
           break;
         case 'done':
-          process.dispatchEvent(new CustomEvent('exit', { detail: 0 }));
-        /* eslint-disable-next-line no-fallthrough */
         default:
-          worker.terminate();
+          process.dispatchEvent(new CustomEvent('idle'));
           break;
       }
     } catch (e) {
@@ -104,10 +111,16 @@ export function execCodeWithWorker(code, opts) {
       );
     }
   });
+
   process.kill = function (exitCode) {
     worker.terminate();
     process.dispatchEvent(new CustomEvent('exit', { detail: exitCode || -1 }));
   };
-  worker.postMessage(code);
+
+  process.exec = function (code) {
+    worker.postMessage(code);
+  };
+  worker.postMessage(null);
+
   return process;
 }
