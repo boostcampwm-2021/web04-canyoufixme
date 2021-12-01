@@ -1,4 +1,5 @@
 import type { IProblem } from '@cyfm/types';
+import { ModalReducerAction } from 'components/Modal/ModalType';
 
 type ProblemStatistics = {
   [k in keyof IProblem as `problem_${k}`]: IProblem[k];
@@ -34,8 +35,22 @@ type incValue = {
 
 type IntroReducerAction = setValue | incValue;
 
+const convertNum = (num: string) => {
+  let length = num.length;
+  const result: string[] = [];
+  while (length > 3) {
+    result.unshift(num.slice(length - 3, length));
+    length -= 3;
+  }
+  result.unshift(num.slice(0, length));
+
+  return result.join(',');
+};
+
 const incEventCalculation = (num1: string, num2: number): string => {
-  return Math.floor(parseInt(num1.replace(',', ''), 10) + num2).toString();
+  return convertNum(
+    Math.floor(parseInt(num1.replace(',', ''), 10) + num2).toString(),
+  );
 };
 
 const IntroReducer = (
@@ -115,4 +130,21 @@ const IntroReducer = (
   }
 };
 
-export { IntroReducer };
+type ModalState = {
+  openMessage: boolean;
+};
+
+const modalReducer = (
+  state: ModalState,
+  action: ModalReducerAction,
+): ModalState => {
+  const isOpen = action.type === 'open';
+  switch (action.payload.target) {
+    case 'message':
+      return { ...state, openMessage: isOpen };
+    default:
+      return state;
+  }
+};
+
+export { IntroReducer, modalReducer };
