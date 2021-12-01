@@ -44,14 +44,6 @@ export const socketConnection = (httpServer, sessionConfig) => {
       ?.session;
     const user = await getUserByName((session as { name: unknown })?.name);
 
-    socket.on('test', async ({ code, id, problemId }) => {
-      const testCode = await getTestCode(problemId);
-
-      const results = await parallelGrading({ socket, id, code, testCode });
-
-      socket.emit('loadTestSuccess', results);
-    });
-
     socket.on('submit', async ({ code, id, problemId }) => {
       if (!user) {
         socket.disconnect();
