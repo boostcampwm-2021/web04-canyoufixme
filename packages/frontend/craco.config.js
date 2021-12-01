@@ -1,5 +1,6 @@
 const TerserPlugin = require('terser-webpack-plugin');
 const WorkerPlugin = require('worker-plugin');
+const CracoEsbuildPlugin = require('craco-esbuild');
 
 const isTerserPlugin = plugin => {
   return (
@@ -10,6 +11,22 @@ const isTerserPlugin = plugin => {
 
 module.exports = {
   plugins: [
+    {
+      plugin: CracoEsbuildPlugin,
+      options: {
+        enableSvgr: true,
+        esbuildLoaderOptions: {
+          loader: 'tsx',
+          target: 'es2015',
+        },
+        esbuildJestOptions: {
+          loaders: {
+            '.ts': 'ts',
+            '.tsx': 'tsx',
+          },
+        },
+      },
+    },
     {
       plugin: {
         overrideWebpackConfig: ({

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import syncWorkerUrl from 'worker-plugin/loader?sharedWorker!./sync.worker';
 import styled from '@cyfm/styled';

@@ -4,8 +4,6 @@ import { nanoid } from 'nanoid';
 
 import styled from '@cyfm/styled';
 
-import Button from './ModalButton';
-
 import GUIDELINES from './GuidelineCase';
 
 import Button from './ModalButton';
