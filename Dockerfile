@@ -7,7 +7,7 @@ FROM node-base AS builder
 WORKDIR /app
 
 COPY ["package.json", "yarn.lock", "lerna.json", "./"]
-COPY packages/debounce/package.json packages/debounce/package.json
+COPY packages/throttle/package.json packages/throttle/package.json
 COPY packages/styled/package.json packages/styled/package.json
 COPY packages/types/package.json packages/types/package.json
 COPY packages/backend/package.json packages/backend/package.json
