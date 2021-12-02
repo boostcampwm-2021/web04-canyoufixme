@@ -2,6 +2,7 @@ import React, {
   useEffect,
   useState,
   useRef,
+  useReducer,
   useCallback,
   useContext,
 } from 'react';
@@ -17,11 +18,26 @@ import { Redirect, useHistory } from 'react-router-dom';
 import { LoginContext } from 'contexts/LoginContext';
 import { useSandbox } from 'hooks/useSandbox';
 import { useBlockUnload } from 'hooks/useBlockUnload';
+import { modalReducer } from './reducer';
+import {
+  LANGUAGE_SELECTIONS,
+  LEVEL_SELECTIONS,
+  VALID_LANGUAGES,
+  TIMEOUT_MS,
+} from './constant';
 import {
   VALIDATION_FAIL_MESSAGE,
-  LANGUAGE_SELECTIONS,
-  VALID_LANGUAGES,
-} from './constant';
+  CHECK_BEFORE_SUBMIT_MESSAGE,
+  CHECK_IS_VALID_LANGUAGE,
+  SUBMIT_SUCCESS_MESSAGE,
+  SUBMIT_FAIL_MESSAGE,
+  CODE_VALIDATION_TIMEOUT,
+  CODE_VALIDATION_FAIL,
+  CODE_VALIDATION_MESSAGE,
+} from './message';
+
+import chai from 'assets/images/chai.png';
+import sinon from 'assets/images/sinon.png';
 
 import 'ace-builds/src-noconflict/theme-twilight';
 import 'ace-builds/src-noconflict/mode-c_cpp';
@@ -33,6 +49,7 @@ import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
 
 import styled from '@cyfm/styled';
+import { throttlePromise } from '@cyfm/throttle';
 import Button from 'components/Button';
 import Console from 'components/Console';
 import WriteEditorPage from 'pages/WriteEditorPage';
@@ -43,27 +60,20 @@ import ConfirmModal from 'components/Modal/ConfirmModal';
 import LoadingModal from 'components/Modal/LoadingModal';
 import SelectModal from 'components/Modal/SelectModal';
 
-interface TestCase {
-  title: string;
-  code: string;
-  id: string;
-}
+import type { ITestCase, Category } from '@cyfm/types';
 
-enum Category {
-  'C++',
-  'Java',
-  'JavaScript',
-  'Python',
-}
+type Language = keyof typeof Category;
 
-const CATEGORY = {
+type CodeValidationResult = 'valid' | 'error' | 'timeout';
+
+const CATEGORY: Record<Language, string> = {
   'C++': 'c_cpp',
   Java: 'java',
   JavaScript: 'javascript',
   Python: 'python',
 };
 
-const TABSIZE = {
+const TABSIZE: Record<Language, number> = {
   'C++': 2,
   Java: 2,
   JavaScript: 2,
@@ -140,7 +150,15 @@ const TitleInput = styled(FullWidthInput)`
   background-color: inherit;
 `;
 
+const GuidelineWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
 const GuidelineButton = styled.button`
+  display: flex;
+  justify-content: center;
   font-size: 1em;
   width: 1.5em;
   height: 1.5em;
@@ -150,23 +168,33 @@ const GuidelineButton = styled.button`
   border-radius: 15px;
 `;
 
+const MessageWrapper = styled.div`
+  color: white;
+  font-size: 1em;
+`;
+
 const WritePage = () => {
+  let isValidCode: MutableRefObject<CodeValidationResult> = useRef('valid');
   const history = useHistory();
 
   const { isLogin } = useContext(LoginContext);
   const [code, setCode] = useState('');
   const [output, setOutput] = useState('');
-  const [category, setCategory] = useState('JavaScript');
+  const [category, setCategory] = useState<Language>('JavaScript');
   const [level, setLevel] = useState('1');
-  const [isOpenCategory, setOpenCategory] = useState(false);
-  const [isOpenLevel, setOpenLevel] = useState(false);
-  const [isLoading, setLoading] = useState(false);
-  const [isSubmit, setSubmit] = useState(false);
-  const [isSuccess, setSuccess] = useState(false);
-  const [isError, setError] = useState(false);
-  const [isValid, setValid] = useState(false);
-  const [isValidLang, setValidLang] = useState(false);
-  const [validationMessages, setValidationMessages] = useState<string[]>([]);
+  const [dummyOutput, setDummyOutput] = useState('');
+
+  const [modalStates, dispatch] = useReducer(modalReducer, {
+    openCategory: false,
+    openLevel: false,
+    openLoading: false,
+    openSubmit: false,
+    openSuccess: false,
+    openValidate: false,
+    openMessage: false,
+  });
+
+  const [message, setMessage] = useState('');
 
   const unblockRef = useRef(false);
   useBlockUnload(code, unblockRef);
@@ -191,9 +219,9 @@ const WritePage = () => {
     useRef();
 
   const [testCases, setTestCases]: [
-    TestCase[],
-    React.Dispatch<React.SetStateAction<TestCase[]>>,
-  ] = useState<TestCase[]>([]);
+    ITestCase[],
+    React.Dispatch<React.SetStateAction<ITestCase[]>>,
+  ] = useState<ITestCase[]>([]);
 
   const onChange = useCallback(setCode, [setCode]);
 
@@ -204,65 +232,101 @@ const WritePage = () => {
     [editorRef],
   );
 
-  const onExecute = useSandbox(
-    `
-    const { expect } = chai;
-    ${code}
-    ${testCases.map(t => t.code).join(';\n')}
-  `,
-    dispatcher => {
-      console.clear();
-      setOutput('');
-      const logConsole = (message: string) =>
-        setOutput(prev => `${prev}\n${message}`.trim());
+  const [sandboxRef, console] = useSandbox({
+    setter: setOutput,
+    dependencies: [
+      'https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js',
+      'https://cdn.jsdelivr.net/npm/sinon@12.0.1',
+    ],
+    timeout: 3000,
+    onLoadStart: () =>
+      dispatch({ type: 'open', payload: { target: 'loading' } }),
+    onLoadEnd: () =>
+      dispatch({ type: 'close', payload: { target: 'loading' } }),
+  });
 
-      logConsole('[실행 시작...]');
-      const startTime = Date.now();
+  const onExecute = useCallback(() => {
+    if (!sandboxRef.current) return;
+    console.clear();
 
-      const loadTimer = setTimeout(() => {
-        setLoading(true);
-      }, 500);
-
-      const timeout = 5 * 1000;
-      const killTimer = setTimeout(() => {
-        logConsole('TimeoutError: timeout 5s');
-        dispatcher.dispatchEvent(new CustomEvent('kill'));
-      }, timeout);
-
-      dispatcher.addEventListener('stdout', (event: CustomEventInit) => {
-        logConsole(event.detail);
-      });
-      dispatcher.addEventListener('stderr', (event: CustomEventInit) => {
-        logConsole(event.detail);
-      });
-      dispatcher.addEventListener(
-        'exit',
-        (event: CustomEventInit) => {
-          clearTimeout(killTimer);
-          clearTimeout(loadTimer);
-          setLoading(false);
-
-          const endTime = Date.now();
-          setOutput(prev =>
-            `${prev}\n\n[실행 완료: ${endTime - startTime}ms]`.trim(),
-          );
-        },
-        { once: true },
+    testCases.forEach(test => {
+      sandboxRef.current?.dispatchEvent(
+        new CustomEvent('exec', {
+          detail: `
+            const log = console.log;
+            console.log = new Function;
+            const clock = sinon.useFakeTimers({
+              shouldAdvanceTime: true,
+            });
+            ${code}
+            const { expect } = chai;
+            ${test.code}
+            clock.runAll();
+            clock.restore();
+          `,
+        }),
       );
-    },
-    {
-      dependencies: ['https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js'],
-    },
-  );
+    });
+    sandboxRef.current?.dispatchEvent(
+      new CustomEvent('exec', {
+        detail: code,
+      }),
+    );
+  }, [sandboxRef, console, code, testCases]);
 
   function onMarkdownEditorLoad(this: Editor) {
     markdownRef.current = this;
   }
 
+  const [codeValidator, _] = useSandbox({
+    setter: setDummyOutput,
+    dependencies: ['https://cdn.jsdelivr.net/npm/sinon@12.0.1'],
+    timeout: TIMEOUT_MS,
+    onLoadStart: () =>
+      dispatch({ type: 'open', payload: { target: 'loading' } }),
+    onLoadEnd: () =>
+      dispatch({ type: 'close', payload: { target: 'loading' } }),
+    onError: () => {
+      isValidCode.current = 'error';
+      setMessage(CODE_VALIDATION_FAIL);
+      dispatch({ type: 'open', payload: { target: 'message' } });
+    },
+    onTimeout: () => {
+      isValidCode.current = 'timeout';
+      setMessage(CODE_VALIDATION_TIMEOUT);
+      dispatch({ type: 'open', payload: { target: 'message' } });
+    },
+  });
+
+  const codeValidation = useCallback(() => {
+    if (!codeValidator.current) return;
+
+    codeValidator.current.addEventListener('idle', () => {
+      if (isValidCode.current === 'valid') {
+        dispatch({ type: 'open', payload: { target: 'submit' } });
+      }
+    });
+
+    codeValidator.current?.dispatchEvent(
+      new CustomEvent('exec', {
+        detail: `
+          const log = console.log;
+          console.log = new Function;
+          const clock = sinon.useFakeTimers({
+            shouldAdvanceTime: true,
+          });
+          ${code}
+          clock.runAll();
+          clock.restore();
+        `,
+      }),
+    );
+  }, [code, codeValidator, isValidCode]);
+
   const inputValidation = useCallback(() => {
     const titleContext = titleInputRef.current?.value;
     if ((titleContext as string).length === 0) {
-      setValidationMessages(VALIDATION_FAIL_MESSAGE['title']);
+      setMessage(VALIDATION_FAIL_MESSAGE['title']);
       return false;
     }
 
@@ -270,19 +334,19 @@ const WritePage = () => {
       .getInstance()
       .getMarkdown();
     if ((markdownContext as string).length === 0) {
-      setValidationMessages(VALIDATION_FAIL_MESSAGE['markdown']);
+      setMessage(VALIDATION_FAIL_MESSAGE['markdown']);
       return false;
     }
 
     const codeContext = code;
     if ((codeContext as string).length === 0) {
-      setValidationMessages(VALIDATION_FAIL_MESSAGE['code']);
+      setMessage(VALIDATION_FAIL_MESSAGE['code']);
       return false;
     }
 
     const testcaseContext = testCases;
     if (testcaseContext.length === 0) {
-      setValidationMessages(VALIDATION_FAIL_MESSAGE['testcase']);
+      setMessage(VALIDATION_FAIL_MESSAGE['testcase']);
       return false;
     }
 
@@ -293,19 +357,24 @@ const WritePage = () => {
     if (VALID_LANGUAGES.includes(category)) {
       return true;
     } else {
+      setMessage(CHECK_IS_VALID_LANGUAGE);
       return false;
     }
   }, [category]);
 
   const submitValidation = () => {
-    if (isValidLanguage()) {
-      if (inputValidation()) {
-        setSubmit(true);
-      } else {
-        setValid(true);
-      }
+    if (isValidLanguage() && inputValidation()) {
+      dispatch({ type: 'open', payload: { target: 'validate' } });
+      setTimeout(() => {
+        dispatch({
+          type: 'close',
+          payload: { target: 'validate' },
+        });
+        codeValidation();
+      }, 1000);
+      isValidCode.current = 'valid';
     } else {
-      setValidLang(true);
+      dispatch({ type: 'open', payload: { target: 'message' } });
     }
   };
 
@@ -320,7 +389,7 @@ const WritePage = () => {
     };
 
     try {
-      setLoading(true);
+      dispatch({ type: 'open', payload: { target: 'loading' } });
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/problem`, {
         method: 'POST',
         credentials: 'include',
@@ -329,20 +398,26 @@ const WritePage = () => {
           'Content-Type': 'application/json',
         },
       });
-      setLoading(false);
+      dispatch({ type: 'close', payload: { target: 'loading' } });
       if (res.status === 201) {
-        setSuccess(true);
+        dispatch({ type: 'open', payload: { target: 'success' } });
         unblockRef.current = true;
         setTimeout(() => {
           history.push('/');
         }, 2000);
       } else {
-        setError(true);
+        setMessage(SUBMIT_FAIL_MESSAGE);
+        dispatch({ type: 'open', payload: { target: 'message' } });
       }
     } catch (err) {
-      setError(true);
+      setMessage(SUBMIT_FAIL_MESSAGE);
+      dispatch({ type: 'open', payload: { target: 'message' } });
     }
   };
+
+  const submitPromise = throttlePromise(submit, 3000);
+
+  const onSubmit = useCallback(submitPromise, [submitPromise]);
 
   return (
     <>
@@ -375,30 +450,43 @@ const WritePage = () => {
               <CodeEditorWrapper>
                 <CategoryLevelWrapper>
                   <SelectModal
-                    isOpen={isOpenCategory}
-                    setter={setOpenCategory}
+                    isOpen={modalStates.openCategory}
+                    setter={dispatch}
+                    target={'category'}
                     value={category}
-                    changeValue={setCategory}
+                    changeValue={setCategory as (value: string) => void}
                     selections={LANGUAGE_SELECTIONS}
                     close={true}
                   />
                   <SelectModal
-                    isOpen={isOpenLevel}
-                    setter={setOpenLevel}
+                    isOpen={modalStates.openLevel}
+                    setter={dispatch}
+                    target={'level'}
                     value={level}
                     changeValue={setLevel}
-                    selections={['1', '2', '3']}
+                    selections={LEVEL_SELECTIONS}
                     close={true}
                   />
                   <CategoryWrapper>
                     <TagLabel>카테고리</TagLabel>
-                    <TagButton onClick={() => setOpenCategory(true)}>
+                    <TagButton
+                      onClick={() =>
+                        dispatch({
+                          type: 'open',
+                          payload: { target: 'category' },
+                        })
+                      }
+                    >
                       {category}
                     </TagButton>
                   </CategoryWrapper>
                   <LevelWrapper>
                     <TagLabel>난이도</TagLabel>
-                    <TagButton onClick={() => setOpenLevel(true)}>
+                    <TagButton
+                      onClick={() =>
+                        dispatch({ type: 'open', payload: { target: 'level' } })
+                      }
+                    >
                       {level}
                     </TagButton>
                   </LevelWrapper>
@@ -422,17 +510,41 @@ const WritePage = () => {
           rightPane={
             <>
               <TestCodeWrapper>
-                <GuidelineButton
-                  onClick={() => {
-                    window.open(
-                      '/guide',
-                      '테스트케이스 가이드라인',
-                      'width=1000px, height=500px',
-                    );
-                  }}
-                >
-                  ?
-                </GuidelineButton>
+                <GuidelineWrapper>
+                  <MessageWrapper>테스트 코드 가이드라인 -</MessageWrapper>
+                  <GuidelineButton
+                    onClick={() => {
+                      window.open(
+                        '/guide/chai',
+                        'Chai 가이드라인',
+                        'width=1000px, height=500px',
+                      );
+                    }}
+                  >
+                    <img
+                      src={chai}
+                      alt="chai"
+                      title="chai"
+                      style={{ width: '1.3em', height: '1.3em' }}
+                    />
+                  </GuidelineButton>
+                  <GuidelineButton
+                    onClick={() => {
+                      window.open(
+                        '/guide/sinon',
+                        'Sinon 가이드라인',
+                        'width=1000px, height=500px',
+                      );
+                    }}
+                  >
+                    <img
+                      src={sinon}
+                      alt="sinon"
+                      title="sinon"
+                      style={{ width: '1.2em', height: '1.2em' }}
+                    />
+                  </GuidelineButton>
+                </GuidelineWrapper>
                 <TestCodeEditor
                   testCases={testCases}
                   setTestCases={setTestCases}
@@ -442,50 +554,37 @@ const WritePage = () => {
                 <Button onClick={onExecute}>실행</Button>
                 <Button onClick={submitValidation}>제출</Button>
               </ButtonFooter>
-              <LoadingModal isOpen={isLoading} />
+              <LoadingModal isOpen={modalStates.openLoading} />
               <ConfirmModal
-                isOpen={isSubmit}
-                setter={setSubmit}
-                messages={[
-                  '제출 후에는 내용을',
-                  '변경할 수 없습니다.',
-                  '정말로 제출하시겠습니까?',
-                ]}
+                isOpen={modalStates.openSubmit}
+                setter={dispatch}
+                target={'submit'}
+                message={CHECK_BEFORE_SUBMIT_MESSAGE}
                 callback={() => {
-                  setSubmit(false);
-                  submit();
+                  dispatch({ type: 'close', payload: { target: 'submit' } });
+                  onSubmit();
                 }}
               />
               <MessageModal
-                isOpen={isValid}
-                setter={setValid}
-                messages={validationMessages}
+                isOpen={modalStates.openMessage}
+                setter={dispatch}
+                target={'message'}
+                message={message}
                 close={true}
               />
               <MessageModal
-                isOpen={isValidLang}
-                setter={setValidLang}
-                messages={[
-                  '현재는 지원하지 않는 언어입니다.',
-                  '빠른 시일 내에 지원하겠습니다.',
-                  '현재 사용 가능 언어 : JavaScript',
-                ]}
-                close={true}
-              />
-              <MessageModal
-                isOpen={isSuccess}
-                setter={setSuccess}
-                messages={[
-                  '문제 제출에 성공했습니다.',
-                  '잠시 후 문제 리스트로 이동합니다.',
-                ]}
+                isOpen={modalStates.openValidate}
+                setter={dispatch}
+                target={'validate'}
+                message={CODE_VALIDATION_MESSAGE}
                 close={false}
               />
               <MessageModal
-                isOpen={isError}
-                setter={setError}
-                messages={['출제에 실패했습니다.', '담당자에게 문의 바랍니다.']}
-                close={true}
+                isOpen={modalStates.openSuccess}
+                setter={dispatch}
+                target={'success'}
+                message={SUBMIT_SUCCESS_MESSAGE}
+                close={false}
               />
             </>
           }

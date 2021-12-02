@@ -1,5 +1,6 @@
 import React, {
   useState,
+  useCallback,
   useReducer,
   useEffect,
   useRef,
@@ -8,11 +9,19 @@ import React, {
 import { Link } from 'react-router-dom';
 import styled from '@cyfm/styled';
 
-import { paginationReducer } from './reducer';
+import { paginationReducer, modalReducer } from './reducer';
 import LoadingModal from 'components/Modal/LoadingModal';
+import MessageModal from 'components/Modal/MessageModal';
+import { LOAD_FAIL_MESSAGE } from './message';
+
+import type { IProblem } from '@cyfm/types';
 
 const Background = styled.div`
   width: 100%;
+`;
+
+const ListInit = styled.div`
+  visibility: hidden;
 `;
 
 const ListWrapper = styled.div`
@@ -44,23 +53,7 @@ const Sign = styled.div`
   font-size: 1.5em;
 `;
 
-interface User {
-  id: number;
-  name: string;
-  oauthType: string;
-  token: string;
-}
-
-interface Item {
-  id: number;
-  title: string;
-  author: User;
-  category: string;
-  codeId: string;
-  level: number;
-}
-
-let result: Item[] | null;
+let result: IProblem[] | null;
 let timeout: number;
 
 const ListPage: React.FC = () => {
@@ -70,38 +63,53 @@ const ListPage: React.FC = () => {
     items: [],
     offset: 0,
   });
+  const [modalState, modalDispatch] = useReducer(modalReducer, {
+    openError: false,
+  });
 
+  const listInit: MutableRefObject<HTMLDivElement | null | undefined> =
+    useRef();
   const itemsList: MutableRefObject<HTMLDivElement | null | undefined> =
     useRef();
+
+  const addItems = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/problems?limit=${problemsCnt}&offset=${paginationState.offset}`,
+      );
+      const json = await res.json();
+      if (json && json.length > 0) {
+        result = json;
+        dispatch({
+          type: 'addItems',
+          items: json,
+          offset: problemsCnt,
+        });
+      }
+    } catch (err) {
+      setLoading(false);
+      modalDispatch({
+        type: 'open',
+        payload: { target: 'error' },
+      });
+    }
+    result = null;
+    window.clearTimeout(timeout);
+    setLoading(false);
+  }, [paginationState.offset]);
 
   useEffect(() => {
     if (!isLoading) {
       timeout = window.setTimeout(() => {
         if (!result) {
           setLoading(true);
+        } else {
+          setLoading(false);
+          modalDispatch({ type: 'open', payload: { target: 'error' } });
         }
-        return () => setLoading(false);
-      }, 1000);
-      fetch(
-        `${process.env.REACT_APP_API_URL}/api/problems?limit=${problemsCnt}&offset=${paginationState.offset}`,
-      )
-        .then(res => res.json())
-        .then(json => {
-          if (json && json.length > 0) {
-            result = json;
-            dispatch({
-              type: 'addItems',
-              items: json,
-              offset: problemsCnt,
-            });
-          }
-        })
-        .finally(() => {
-          result = null;
-          window.clearTimeout(timeout);
-        });
+      }, 3000);
+      addItems();
     }
-    return () => {};
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [paginationState.offset]);
 
@@ -110,7 +118,7 @@ const ListPage: React.FC = () => {
     const ioOptions = {
       root: null,
       rootMargin: '0px',
-      threshold: 1.0,
+      threshold: 1,
     };
     ioRef.current = new IntersectionObserver((entries, observer) => {
       entries.forEach(entry => {
@@ -123,24 +131,36 @@ const ListPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const initElement = listInit.current as HTMLDivElement;
     const itemsElement = itemsList.current as HTMLDivElement;
     const lastChild = itemsElement?.lastChild as Element;
     return () => {
       if (lastChild) ioRef.current?.observe(lastChild);
-      else ioRef.current?.observe(itemsElement);
+      else ioRef.current?.observe(initElement);
     };
   }, [paginationState.items]);
 
   return (
     <Background>
+      <ListInit ref={listInit} />
       <ListWrapper ref={itemsList}>
-        {paginationState.items.map((item: Item) => (
-          <SignLink to={`/debug/${item.codeId}`} key={item.codeId}>
+        {paginationState.items.map(item => (
+          <SignLink
+            to={`/debug/${item.codeId}?category=${item.category}`}
+            key={item.codeId}
+          >
             <Sign>{item.title}</Sign>
           </SignLink>
         ))}
       </ListWrapper>
       <LoadingModal isOpen={isLoading} />
+      <MessageModal
+        message={LOAD_FAIL_MESSAGE}
+        isOpen={modalState.openError}
+        setter={modalDispatch}
+        target={'error'}
+        close={true}
+      />
     </Background>
   );
 };

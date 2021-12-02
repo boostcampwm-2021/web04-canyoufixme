@@ -6,5 +6,5 @@
     "outDir": "dist"
   },
   "extends": "../../tsconfig.json",
-  "include": ["src/**/*", "src/settings/ormConfig.ts"]
+  "include": ["src/**/*", "src/setting/ormConfig.ts"]
 }

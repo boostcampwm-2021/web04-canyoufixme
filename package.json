@@ -7,10 +7,13 @@
   "scripts": {
     "prepare": "husky install",
     "bootstrap": "lerna bootstrap",
+    "build:types": "yarn workspace @cyfm/types build",
     "build:frontend": "yarn workspace @cyfm/frontend build",
     "build:backend": "yarn workspace @cyfm/backend build",
     "start:frontend": "yarn workspace @cyfm/frontend start",
-    "start:backend": "yarn workspace @cyfm/backend start"
+    "start:backend": "yarn workspace @cyfm/backend start",
+    "start:prod": "yarn workspace @cyfm/backend start:prod",
+    "test:backend": "yarn workspace @cyfm/backend test"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",

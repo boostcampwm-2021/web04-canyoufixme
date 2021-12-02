@@ -1,19 +1,7 @@
-import { randomBytes } from 'crypto';
 import { Worker } from 'worker_threads';
-
-// TODO: 공통파일로 분리
-// eslint-disable-next-line no-shadow
-enum ResultCode {
-  'success',
-  'fail',
-  'timeout',
-  'pending',
-}
-
-interface ITestFailed {
-  type: 'fail';
-  payload: { message: string };
-}
+import { ResultCode } from '@cyfm/types';
+import type { ITestResult } from '@cyfm/types';
+import { SEC, TIMEOUT } from '../util/constant';
 
 class TimeoutError extends Error {
   constructor(message) {
@@ -21,51 +9,41 @@ class TimeoutError extends Error {
     this.name = 'TimeoutError';
   }
 }
-const SEC = 1000;
-const TIMEOUT = 5;
-
-const generateRandomKey = () => randomBytes(256).toString('hex');
 
 export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
   let worker;
+  let result: ITestResult;
   try {
-    const returnVerifyKey = generateRandomKey();
     const workerCode = `
       const { parentPort } = require('worker_threads');
-      parentPort.on('message', input => {
-        const { NodeVM, VMScript } = require('vm2');
+      parentPort.on('message', ({ code, testCode }) => {
+        const { VM } = require('vm2');
 
         const { expect } = require('chai');
-
-        const vm = new NodeVM({
-          console: 'inherit',
-          sandbox: {},
-          require: {
-            context: 'sandbox',
-            mock: {
-              module: {
-                require: undefined,
-              }
-            }
-          },
-          wrapper: 'none',
+        const sinon = require('sinon');
+        const sandbox = sinon.createSandbox({
+          useFakeTimers: true,
         });
-        vm.freeze(expect, 'expect');
+        const clock = sandbox.clock;
 
-        const script = new VMScript(
-          "require = undefined;" +
-          "module = undefined;" +
-          "delete global.Buffer;" +
-          "delete global.process;" +
-          input +
-          "\\n return '${returnVerifyKey}';",
-          { filename: 'vm.js' }
-        );
+        const vm = new VM({
+          timeout: 1000,
+          sandbox: {
+            setTimeout: clock.setTimeout,
+            clearTimeout: clock.clearTimeout,
+            setInterval: clock.setInterval,
+            clearInterval: clock.clearInterval,
+          },
+        })
+
         try {
-          const key = vm.run(script);
-          if ('${returnVerifyKey}' !== key) {
-            throw new SyntaxError('Illegal return statement');
-          }
+          vm.run(code);
+
+          vm.freeze(expect, 'expect');
+          vm.freeze(clock, 'clock');
+          vm.run(testCode);
+          clock.runAll();
+
           parentPort.postMessage({
             type: 'success'
           });
@@ -86,12 +64,12 @@ export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
       env: {},
     });
 
-    worker.postMessage(`
-      ${code};
-      ${testCode};
-    `);
+    worker.postMessage({
+      code,
+      testCode,
+    });
 
-    const result = await new Promise<ITestFailed>((resolve, reject) => {
+    result = await new Promise<ITestResult>((resolve, reject) => {
       worker.on('message', resolve);
       setTimeout(() => {
         reject(new TimeoutError(`timeout ${TIMEOUT}s`));
@@ -124,5 +102,6 @@ export const gradingWithWorker = async ({ id, socket, code, testCode }) => {
     }
   } finally {
     worker.terminate();
+    return result.type
   }
 };

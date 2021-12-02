@@ -7,11 +7,12 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import type { IProblem } from '@cyfm/types';
 
 import { User } from './User';
 
 @Entity()
-export class Problem extends BaseEntity {
+export class Problem extends BaseEntity implements IProblem {
   @PrimaryGeneratedColumn()
   id: number;
 

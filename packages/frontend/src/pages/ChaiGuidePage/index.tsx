@@ -1,12 +1,18 @@
+import React from 'react';
 import { nanoid } from 'nanoid';
 
 import styled from '@cyfm/styled';
 
-import TESTCASES from './GuidelineCase';
+import GUIDELINES from './GuidelineCase';
+
+import logo from 'assets/images/chai.png';
+import { CHAI_API_LINK } from './constant';
+import { LINK_MESSAGE } from './message';
 
 const GuideWrapper = styled.div`
   display: flex;
   margin: 3rem auto;
+  padding: 1rem;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -61,21 +67,55 @@ const TestCaseCode = styled.div`
   border-radius: 5px;
 `;
 
+const LinkWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const TextWrapper = styled.div`
+  font-size: 1.5rem;
+  margin: 10px 0;
+`;
+
+const ImageWrapper = styled.div`
+  display: flex;
+`;
+
 const GuidePage = () => {
+  const linkToChai = () => {
+    window.open(CHAI_API_LINK);
+  };
+
   return (
     <GuideWrapper>
-      <TitleWrapper>테스트케이스 가이드라인</TitleWrapper>
+      <TitleWrapper>Chai 가이드라인</TitleWrapper>
       <ContentWrapper>
-        {TESTCASES.map(testcase => (
+        {GUIDELINES.map(guideline => (
           <TestCaseWrapper key={nanoid()}>
-            <TestCaseTitle>{testcase.title}</TestCaseTitle>
-            <TestCaseContent>{testcase.content}</TestCaseContent>
-            {testcase.codes.map(code => (
-              <TestCaseCode>{code}</TestCaseCode>
+            <TestCaseTitle>{guideline.title}</TestCaseTitle>
+            {guideline.content.split('\n').map(content => (
+              <TestCaseContent>{content}</TestCaseContent>
             ))}
+            {guideline.type === 'testcase' ? (
+              guideline.codes.map(code => <TestCaseCode>{code}</TestCaseCode>)
+            ) : (
+              <TestCaseCode>{guideline.codes.join('\n')}</TestCaseCode>
+            )}
           </TestCaseWrapper>
         ))}
       </ContentWrapper>
+      <LinkWrapper>
+        <TextWrapper>{LINK_MESSAGE}</TextWrapper>
+        <ImageWrapper>
+          <img
+            src={logo}
+            alt="chai"
+            style={{ width: '5em', height: '5em', cursor: 'pointer' }}
+            onClick={linkToChai}
+          />
+        </ImageWrapper>
+      </LinkWrapper>
     </GuideWrapper>
   );
 };

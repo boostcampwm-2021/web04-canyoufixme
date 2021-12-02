@@ -1,10 +1,22 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useReducer,
+  MutableRefObject,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 
 import styled from '@cyfm/styled';
+import type { IProblem } from '@cyfm/types';
 
+import MessageModal from 'components/Modal/MessageModal';
+
+import { IntroReducer, modalReducer } from './reducer';
 import logo from 'assets/images/logo.svg';
+import { DATA_LOAD_FAIL_MESSAGE, EMPTY_DATA_TITLE, INTRO_MESSAGE } from './message';
 
 const IntroWrapper = styled.div`
   display: flex;
@@ -20,6 +32,7 @@ const IntroWrapper = styled.div`
   box-shadow: 0 0 0 6px black, 0 0 0 12px #f6cb01;
   box-sizing: border-box;
   font-size: 1.5em;
+  cursor:default;
 `;
 
 const ImageWrapper = styled.div`
@@ -107,6 +120,15 @@ const DebugRank = styled.div`
   font-weight: bold;
 `;
 
+const DebugEmpty = styled.div`
+  display: inline-block;
+  margin: 0.2em 0;
+  font-size: 0.5em;
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+`;
+
 const DebugLink = styled(Link)`
   display: inline-block;
   margin: 0.2em 0;
@@ -116,97 +138,172 @@ const DebugLink = styled(Link)`
   font-weight: bold;
 `;
 
-interface Problem {
-  problem_id: number;
-  problem_title: string;
-  problem_category: string;
-  problem_level: number;
-  problem_codeId: string;
-  problem_authorId: number;
-  count: string;
-}
+type ProblemStatistics = {
+  [k in keyof IProblem as `problem_${k}`]: IProblem[k];
+};
 
 interface Statistics {
   problemCount: number;
   submitCount: number;
   userCount: number;
-  mostSubmitProblems: Problem[];
-  mostCorrectProblems: Problem[];
-  mostWrongProblems: Problem[];
+  mostSubmitProblems: ProblemStatistics[];
+  mostCorrectProblems: ProblemStatistics[];
+  mostWrongProblems: ProblemStatistics[];
 }
 
-const convertNum = (num: string) => {
-  let length = num.length;
-  const result: string[] = [];
-  while (length > 3) {
-    result.unshift(num.slice(length - 3, length));
-    length -= 3;
-  }
-  result.unshift(num.slice(0, length));
-
-  return result.join(',');
-};
-
 const IntroPage = () => {
-  const [problemCount, setProblemCount] = useState('0');
-  const [submitCount, setSubmitCount] = useState('0');
-  const [userCount, setUserCount] = useState('0');
-  const [mostSubmitProblems, setSubmitProblems] = useState<Problem[]>([]);
-  const [mostCorrectProblems, setCorrectProblems] = useState<Problem[]>([]);
-  const [mostWrongProblems, setWrongProblems] = useState<Problem[]>([]);
+  const [isLoad, setLoad] = useState(false);
+  const [message, setMessage] = useState('');
+  const [introState, dispatch] = useReducer(IntroReducer, {
+    problemCount: '0',
+    targetProblemCount: 0,
+    submitCount: '0',
+    targetSubmitCount: 0,
+    userCount: '0',
+    targetUserCount: 0,
+    mostSubmitProblems: [],
+    mostCorrectProblems: [],
+    mostWrongProblems: [],
+  });
+  const [modalStates, modalDispatch] = useReducer(modalReducer, {
+    openMessage: false,
+  });
 
-  const incEvent = useCallback(
-    (
-      target: number,
-      time: number,
-      setter: React.Dispatch<React.SetStateAction<string>>,
-    ) => {
-      const limit =
-        Math.round(target / 100) >= Math.floor(target / 100)
-          ? Math.round(target / 100)
-          : Math.floor(target / 100);
-      const incNum =
-        target / (time / 100) > limit ? target / (time / 100) : limit;
-      const interval = window.setInterval(() => {
-        setter(prevState =>
-          convertNum(
-            Math.floor(
-              parseInt(prevState.replace(',', ''), 10) + incNum,
-            ).toString(),
-          ),
-        );
-      }, time / 10);
+  const incRef: MutableRefObject<HTMLDivElement | undefined> = useRef();
+  const ioRef: MutableRefObject<IntersectionObserver | undefined> = useRef();
 
-      setTimeout(() => {
-        setter(convertNum(target.toString()));
-        window.clearInterval(interval);
-      }, time);
-    },
-    [],
-  );
+  const incEvent = useCallback((target: number, time: number, key: string) => {
+    const limit =
+      Math.round(target / 100) >= Math.floor(target / 100)
+        ? Math.round(target / 100)
+        : Math.floor(target / 100);
+    const incNum =
+      target / (time / 100) > limit ? target / (time / 100) : limit;
 
-  useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/statistics`)
-      .then(res => res.json())
-      .then(
-        ({
+    const interval = window.setInterval(() => {
+      dispatch({
+        type: 'incValue',
+        payload: {
+          key: key,
+          value: incNum,
+        },
+      });
+    }, time / 10);
+
+    setTimeout(() => {
+      dispatch({
+        type: 'setValue',
+        payload: {
+          key: key,
+          value: target.toString(),
+        },
+      });
+      window.clearInterval(interval);
+    }, time);
+  }, []);
+
+  const ioOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.7,
+  };
+
+  ioRef.current = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        incEvent(introState.targetProblemCount, 1000, 'problemCount');
+        incEvent(introState.targetSubmitCount, 1000, 'submitCount');
+        incEvent(introState.targetUserCount, 1000, 'userCount');
+
+        observer.unobserve(entry.target);
+      }
+    });
+  }, ioOptions);
+
+  const getStatistics = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/statistics`,
+      );
+
+      if (res.status !== 200) {
+        setMessage(DATA_LOAD_FAIL_MESSAGE);
+        modalDispatch({
+          type: 'open',
+          payload: { target: 'message' },
+        });
+      } else {
+        const json = await res.json();
+        const {
           problemCount,
           submitCount,
           userCount,
           mostSubmitProblems,
           mostCorrectProblems,
           mostWrongProblems,
-        }: Statistics) => {
-          incEvent(problemCount, 1000, setProblemCount);
-          incEvent(submitCount, 1000, setSubmitCount);
-          incEvent(userCount, 1000, setUserCount);
+        } = json as Statistics;
 
-          setSubmitProblems(mostSubmitProblems);
-          setCorrectProblems(mostCorrectProblems);
-          setWrongProblems(mostWrongProblems);
-        },
-      );
-  }, [incEvent]);
+        dispatch({
+          type: 'setValue',
+          payload: {
+            key: 'targetProblemCount',
+            value: problemCount,
+          },
+        });
+        dispatch({
+          type: 'setValue',
+          payload: {
+            key: 'targetSubmitCount',
+            value: submitCount,
+          },
+        });
+        dispatch({
+          type: 'setValue',
+          payload: {
+            key: 'targetUserCount',
+            value: userCount,
+          },
+        });
+
+        dispatch({
+          type: 'setValue',
+          payload: {
+            key: 'mostSubmitProblems',
+            value: mostSubmitProblems,
+          },
+        });
+        dispatch({
+          type: 'setValue',
+          payload: {
+            key: 'mostCorrectProblems',
+            value: mostCorrectProblems,
+          },
+        });
+        dispatch({
+          type: 'setValue',
+          payload: {
+            key: 'mostWrongProblems',
+            value: mostWrongProblems,
+          },
+        });
+        setLoad(true);
+      }
+    } catch (err) {
+      setMessage(DATA_LOAD_FAIL_MESSAGE);
+      modalDispatch({
+        type: 'open',
+        payload: { target: 'message' },
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    getStatistics();
+  }, [getStatistics]);
+
+  useEffect(() => {
+    if (isLoad) ioRef.current?.observe(incRef.current as HTMLDivElement);
+  }, [isLoad]);
 
   return (
     <IntroWrapper>
@@ -220,34 +317,21 @@ const IntroPage = () => {
         </TitleWrapper>
       </MainTitleWrapper>
       <MainTextWrapper>
-        <MessageWrapper>
-          개발을 하면서 버그를 잡느라 시간을 낭비한 경험이 있으신가요?
-        </MessageWrapper>
-        <MessageWrapper>
-          누구나 개발을 하면서 다양한 버그를 맞닥뜨리게 되는데요,
-        </MessageWrapper>
-        <MessageWrapper>
-          혼자 디버깅을 하면서 버그를 고치는 것도 좋지만
-        </MessageWrapper>
-        <MessageWrapper>
-          버그를 찾아내고 해결하는 과정을 서로 공유할 수 있다면,
-        </MessageWrapper>
-        <MessageWrapper>
-          혹은 다른 사람이 마주친 버그를 내가 해결해볼 수 있다면,
-        </MessageWrapper>
-        <MessageWrapper>더욱 값진 경험이 되지 않을까요?</MessageWrapper>
+        {INTRO_MESSAGE.split('\n').map(message => (
+          <MessageWrapper>{message}</MessageWrapper>
+        ))}
         <TitleWrapper>
           코딩은 직접 부딪히고 경험해야 실력이 향상 된다고 합니다!
         </TitleWrapper>
       </MainTextWrapper>
-      <ContextWrapper>
+      <ContextWrapper ref={incRef}>
         <CardWrapper>
           <TitleWrapper>
             <MessageWrapper>지금까지</MessageWrapper>
             <MessageWrapper>가입한 회원 수</MessageWrapper>
           </TitleWrapper>
           <TextWrapper>
-            <MessageWrapper>{userCount} 명</MessageWrapper>
+            <MessageWrapper>{introState.userCount} 명</MessageWrapper>
           </TextWrapper>
         </CardWrapper>
         <CardWrapper>
@@ -256,7 +340,7 @@ const IntroPage = () => {
             <MessageWrapper>제출된 문제 수</MessageWrapper>
           </TitleWrapper>
           <TextWrapper>
-            <MessageWrapper>{problemCount} 개</MessageWrapper>
+            <MessageWrapper>{introState.problemCount} 개</MessageWrapper>
           </TextWrapper>
         </CardWrapper>
         <CardWrapper>
@@ -265,7 +349,7 @@ const IntroPage = () => {
             <MessageWrapper>제출된 코드 수</MessageWrapper>
           </TitleWrapper>
           <TextWrapper>
-            <MessageWrapper>{submitCount} 회</MessageWrapper>
+            <MessageWrapper>{introState.submitCount} 회</MessageWrapper>
           </TextWrapper>
         </CardWrapper>
       </ContextWrapper>
@@ -277,7 +361,7 @@ const IntroPage = () => {
           </TitleWrapper>
           <TextWrapper>
             <RankWrapper>
-              {mostCorrectProblems.map((value, index) => {
+              {introState.mostCorrectProblems.map((value, index) => {
                 const { problem_codeId, problem_title } = value;
                 return (
                   <RankItemWrapper key={nanoid()}>
@@ -288,6 +372,12 @@ const IntroPage = () => {
                   </RankItemWrapper>
                 );
               })}
+              {Array(5-introState.mostCorrectProblems.length).fill(EMPTY_DATA_TITLE).map((value, index) => (
+                <RankItemWrapper key={nanoid()}>
+                  <DebugRank>{introState.mostCorrectProblems.length + index + 1}.</DebugRank>
+                  <DebugEmpty>{EMPTY_DATA_TITLE}</DebugEmpty>
+                </RankItemWrapper>)
+              )}
             </RankWrapper>
           </TextWrapper>
         </CardWrapper>
@@ -298,7 +388,7 @@ const IntroPage = () => {
           </TitleWrapper>
           <TextWrapper>
             <RankWrapper>
-              {mostWrongProblems.map((value, index) => {
+              {introState.mostWrongProblems.map((value, index) => {
                 const { problem_codeId, problem_title } = value;
                 return (
                   <RankItemWrapper key={nanoid()}>
@@ -309,6 +399,12 @@ const IntroPage = () => {
                   </RankItemWrapper>
                 );
               })}
+              {Array(5-introState.mostWrongProblems.length).fill(EMPTY_DATA_TITLE).map((value, index) => (
+                <RankItemWrapper key={nanoid()}>
+                  <DebugRank>{introState.mostWrongProblems.length + index + 1}.</DebugRank>
+                  <DebugEmpty>{EMPTY_DATA_TITLE}</DebugEmpty>
+                </RankItemWrapper>)
+              )}
             </RankWrapper>
           </TextWrapper>
         </CardWrapper>
@@ -319,7 +415,7 @@ const IntroPage = () => {
           </TitleWrapper>
           <TextWrapper>
             <RankWrapper>
-              {mostSubmitProblems.map((value, index) => {
+              {introState.mostSubmitProblems.map((value, index) => {
                 const { problem_codeId, problem_title } = value;
                 return (
                   <RankItemWrapper key={nanoid()}>
@@ -330,10 +426,23 @@ const IntroPage = () => {
                   </RankItemWrapper>
                 );
               })}
+              {Array(5-introState.mostSubmitProblems.length).fill(EMPTY_DATA_TITLE).map((value, index) => (
+                <RankItemWrapper key={nanoid()}>
+                  <DebugRank>{introState.mostSubmitProblems.length + index + 1}.</DebugRank>
+                  <DebugEmpty>{EMPTY_DATA_TITLE}</DebugEmpty>
+                </RankItemWrapper>)
+              )}
             </RankWrapper>
           </TextWrapper>
         </CardWrapper>
       </ContextWrapper>
+      <MessageModal
+        isOpen={modalStates.openMessage}
+        setter={modalDispatch}
+        target={'message'}
+        message={message}
+        close={true}
+      />
     </IntroWrapper>
   );
 };

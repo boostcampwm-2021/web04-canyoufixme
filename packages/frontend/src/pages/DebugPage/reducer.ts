@@ -1,8 +1,9 @@
-type DebugStates = {
-  content: string;
-  testCode: string[];
+import type { IProblemCode } from '@cyfm/types';
+import { ModalReducerAction } from 'components/Modal/ModalType';
+
+type DebugStates = IProblemCode & {
   initCode: string;
-  code: string;
+  category: string;
 };
 
 type InitAction = {
@@ -25,6 +26,7 @@ const debugReducer = (
         initCode: action.payload.code,
         content: state.content || action.payload.content,
         code: state.code || action.payload.code,
+        category: state.category || action.payload.category,
         testCode: [...action.payload.testCode],
       };
     case 'setCode':
@@ -37,4 +39,24 @@ const debugReducer = (
   }
 };
 
-export { debugReducer };
+type ModalState = {
+  openLoading: boolean;
+  openMessage: boolean;
+};
+
+const modalReducer = (
+  state: ModalState,
+  action: ModalReducerAction,
+): ModalState => {
+  const isOpen = action.type === 'open';
+  switch (action.payload.target) {
+    case 'loading':
+      return { ...state, openLoading: isOpen };
+    case 'message':
+      return { ...state, openMessage: isOpen };
+    default:
+      return state;
+  }
+};
+
+export { debugReducer, modalReducer };
