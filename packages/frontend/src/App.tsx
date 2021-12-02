@@ -23,7 +23,8 @@ import DebugPage from 'pages/DebugPage';
 import ResultPage from 'pages/ResultPage';
 import WritePage from 'pages/WritePage';
 import EditorPage from 'pages/EditorPage';
-import GuidePage from 'pages/GuidePage';
+import ChaiGuidePage from 'pages/ChaiGuidePage';
+import SinonGuidePage from 'pages/SinonGuidePage';
 import NotFoundPage from 'pages/NotFoundPage';
 import TopNavLink from 'components/TopNavLink';
 import MessageModal from 'components/Modal/MessageModal';
@@ -116,7 +117,7 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <BrowserRouter>
-        {window.location.pathname !== '/guide' ? (
+        {!window.location.pathname.replace('/', '').startsWith('guide') ? (
           <Header>
             <Link to="/">
               <Logo src={logo} alt="canyoufixme logo" />
@@ -161,7 +162,8 @@ const App: React.FC = () => {
               <Route path="/result" component={ResultPage} />
               <Route path="/write" exact component={WritePage} />
               <Route path="/editor" exact component={EditorPage} />
-              <Route path="/guide" exact component={GuidePage} />
+              <Route path="/guide/chai" exact component={ChaiGuidePage} />
+              <Route path="/guide/sinon" exact component={SinonGuidePage} />
               <Route path="/404" component={NotFoundPage} />
               <Redirect path="*" to="/404" />
             </Switch>
