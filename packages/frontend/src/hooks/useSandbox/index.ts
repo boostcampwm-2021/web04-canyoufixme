@@ -5,6 +5,7 @@ import { execCodeWithSandbox } from './debug';
 import type { ISandboxOptions } from './debug';
 
 // TODO: 공통 상수 분리
+const INIT_TIMER_ID = -1;
 const SIGKILL = 137;
 
 interface ISandboxHookOptions extends ISandboxOptions {
@@ -99,12 +100,12 @@ export function useSandbox(
     sandboxRef.current.addEventListener('stdout', onOutput);
     sandboxRef.current.addEventListener('stderr', onOutputError);
 
-    let timeoutTimer: NodeJS.Timer | number = -1;
-    let delayTimer: NodeJS.Timer | number = -1;
+    let timeoutTimer: NodeJS.Timer | number = INIT_TIMER_ID;
+    let delayTimer: NodeJS.Timer | number = INIT_TIMER_ID;
     const onExec = (event => {
       if (options.timeout) {
         clearTimeout(timeoutTimer as number);
-        timeoutTimer = -1;
+        timeoutTimer = INIT_TIMER_ID;
         timeoutTimer = setTimeout(() => {
           sandboxRef.current?.dispatchEvent(
             new CustomEvent('kill', { detail: SIGKILL }),
@@ -112,9 +113,9 @@ export function useSandbox(
         }, options.timeout);
       }
       clearTimeout(delayTimer as number);
-      delayTimer = -1;
+      delayTimer = INIT_TIMER_ID;
       delayTimer = setTimeout(() => {
-        if (timeoutTimer !== -1) {
+        if (timeoutTimer !== INIT_TIMER_ID) {
           options.onLoadStart?.(event as CustomEvent);
         }
       }, 1000);
@@ -123,9 +124,9 @@ export function useSandbox(
 
     const onTerminate = (event => {
       clearTimeout(delayTimer as number);
-      delayTimer = -1;
+      delayTimer = INIT_TIMER_ID;
       clearTimeout(timeoutTimer as number);
-      timeoutTimer = -1;
+      timeoutTimer = INIT_TIMER_ID;
       options.onLoadEnd?.(event as CustomEvent);
     }) as EventListener;
     sandboxRef.current.addEventListener('idle', onTerminate);
