@@ -89,15 +89,19 @@ const GuidePage = () => {
 
   return (
     <GuideWrapper>
-      <TitleWrapper>테스트케이스 가이드라인</TitleWrapper>
+      <TitleWrapper>Chai 가이드라인</TitleWrapper>
       <ContentWrapper>
         {GUIDELINES.map(guideline => (
           <TestCaseWrapper key={nanoid()}>
             <TestCaseTitle>{guideline.title}</TestCaseTitle>
-            <TestCaseContent>{guideline.content}</TestCaseContent>
-            {guideline.codes.map(code => (
-              <TestCaseCode>{code}</TestCaseCode>
+            {guideline.content.split('\n').map(content => (
+              <TestCaseContent>{content}</TestCaseContent>
             ))}
+            {guideline.type === 'testcase' ? (
+              guideline.codes.map(code => <TestCaseCode>{code}</TestCaseCode>)
+            ) : (
+              <TestCaseCode>{guideline.codes.join('\n')}</TestCaseCode>
+            )}
           </TestCaseWrapper>
         ))}
       </ContentWrapper>
