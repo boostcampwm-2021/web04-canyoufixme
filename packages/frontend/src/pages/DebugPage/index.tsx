@@ -206,46 +206,22 @@ const DebugPage: React.FC = () => {
     id,
   ]);
 
-  const onExecute = useSandbox(debugStates.code, dispatcher => {
-    console.clear();
-    setOutput('');
-    const logConsole = (message: string) =>
-      setOutput(prev => `${prev}\n${message}`.trim());
-
-    logConsole('[실행 시작...]');
-    const startTime = Date.now();
-
-    const loadTimer = setTimeout(() => {
-      modalDispatch({ type: 'open', payload: { target: 'loading' } });
-    }, 500);
-
-    const timeout = 5 * 1000;
-    const killTimer = setTimeout(() => {
-      logConsole('TimeoutError: timeout 5s');
-      dispatcher.dispatchEvent(new CustomEvent('kill'));
-    }, timeout);
-
-    dispatcher.addEventListener('stdout', (event: CustomEventInit) => {
-      logConsole(event.detail);
-    });
-    dispatcher.addEventListener('stderr', (event: CustomEventInit) => {
-      logConsole(event.detail);
-    });
-    dispatcher.addEventListener(
-      'exit',
-      (event: CustomEventInit) => {
-        clearTimeout(killTimer);
-        clearTimeout(loadTimer);
-        modalDispatch({ type: 'close', payload: { target: 'loading' } });
-
-        const endTime = Date.now();
-        setOutput(prev =>
-          `${prev}\n\n[실행 완료: ${endTime - startTime}ms]`.trim(),
-        );
-      },
-      { once: true },
-    );
+  const [sandboxRef, console] = useSandbox({
+    setter: setOutput,
+    timeout: 3000,
+    onLoadStart: () =>
+      modalDispatch({ type: 'open', payload: { target: 'loading' } }),
+    onLoadEnd: () =>
+      modalDispatch({ type: 'close', payload: { target: 'loading' } }),
   });
+
+  const onExecute = useCallback(() => {
+    if (!sandboxRef.current) return;
+    console.clear();
+
+    const signal = new CustomEvent('exec', { detail: debugStates.code });
+    sandboxRef.current.dispatchEvent(signal);
+  }, [sandboxRef, console, debugStates.code]);
 
   const initializeCode = useCallback(() => {
     const editor = editorRef.current as Ace.Editor;

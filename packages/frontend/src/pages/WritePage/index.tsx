@@ -206,56 +206,47 @@ const WritePage = () => {
     [editorRef],
   );
 
-  const onExecute = useSandbox(
-    `
-    const { expect } = chai;
-    ${code}
-    ${testCases.map(t => t.code).join(';\n')}
-  `,
-    dispatcher => {
-      console.clear();
-      setOutput('');
-      const logConsole = (message: string) =>
-        setOutput(prev => `${prev}\n${message}`.trim());
+  const [sandboxRef, console] = useSandbox({
+    setter: setOutput,
+    dependencies: [
+      'https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js',
+      'https://cdn.jsdelivr.net/npm/sinon@12.0.1',
+    ],
+    timeout: 3000,
+    onLoadStart: () =>
+      dispatch({ type: 'open', payload: { target: 'loading' } }),
+    onLoadEnd: () =>
+      dispatch({ type: 'close', payload: { target: 'loading' } }),
+  });
 
-      logConsole('[실행 시작...]');
-      const startTime = Date.now();
+  const onExecute = useCallback(() => {
+    if (!sandboxRef.current) return;
+    console.clear();
 
-      const loadTimer = setTimeout(() => {
-        dispatch({ type: 'open', payload: { target: 'loading' } });
-      }, 500);
-
-      const timeout = 5 * 1000;
-      const killTimer = setTimeout(() => {
-        logConsole('TimeoutError: timeout 5s');
-        dispatcher.dispatchEvent(new CustomEvent('kill'));
-      }, timeout);
-
-      dispatcher.addEventListener('stdout', (event: CustomEventInit) => {
-        logConsole(event.detail);
-      });
-      dispatcher.addEventListener('stderr', (event: CustomEventInit) => {
-        logConsole(event.detail);
-      });
-      dispatcher.addEventListener(
-        'exit',
-        (event: CustomEventInit) => {
-          clearTimeout(killTimer);
-          clearTimeout(loadTimer);
-          dispatch({ type: 'close', payload: { target: 'loading' } });
-
-          const endTime = Date.now();
-          setOutput(prev =>
-            `${prev}\n\n[실행 완료: ${endTime - startTime}ms]`.trim(),
-          );
-        },
-        { once: true },
+    testCases.forEach(test => {
+      sandboxRef.current?.dispatchEvent(
+        new CustomEvent('exec', {
+          detail: `
+            const log = console.log;
+            console.log = new Function;
+            const clock = sinon.useFakeTimers({
+              shouldAdvanceTime: true,
+            });
+            ${code}
+            const { expect } = chai;
+            ${test.code}
+            clock.runAll();
+            clock.restore();
+          `,
+        }),
       );
-    },
-    {
-      dependencies: ['https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js'],
-    },
-  );
+    });
+    sandboxRef.current?.dispatchEvent(
+      new CustomEvent('exec', {
+        detail: code,
+      }),
+    );
+  }, [sandboxRef, console, code, testCases]);
 
   function onMarkdownEditorLoad(this: Editor) {
     markdownRef.current = this;
