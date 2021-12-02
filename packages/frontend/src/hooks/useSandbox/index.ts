@@ -12,6 +12,7 @@ interface ISandboxHookOptions extends ISandboxOptions {
   setter: React.Dispatch<React.SetStateAction<string>>;
   onInit?: (event: CustomEvent) => void;
   onExit?: (event: CustomEvent) => void;
+  onError?: (event: CustomEvent) => void;
   onLoadStart?: (event: CustomEvent) => void;
   onLoadEnd?: (event: CustomEvent) => void;
   timeout?: number;
@@ -32,6 +33,7 @@ export function useSandbox(
     setter: () => {},
     onInit: () => {},
     onExit: () => {},
+    onError: () => {},
     onLoadStart: () => {},
     onLoadEnd: () => {},
     timeout: 0,
@@ -94,11 +96,14 @@ export function useSandbox(
     }) as EventListener;
 
     const onOutputError = (event => {
-      console.log((event as CustomEvent).detail);
+      console.error((event as CustomEvent).detail);
     }) as EventListener;
 
     sandboxRef.current.addEventListener('stdout', onOutput);
     sandboxRef.current.addEventListener('stderr', onOutputError);
+
+    const onError = (options.onError ?? (() => {})) as EventListener;
+    sandboxRef.current.addEventListener('error', onError);
 
     let timeoutTimer: NodeJS.Timer | number = INIT_TIMER_ID;
     let delayTimer: NodeJS.Timer | number = INIT_TIMER_ID;
@@ -135,6 +140,7 @@ export function useSandbox(
     return () => {
       sandboxRef.current?.removeEventListener('init', onInit);
       sandboxRef.current?.removeEventListener('exit', onExit);
+      sandboxRef.current?.removeEventListener('error', onError);
       sandboxRef.current?.removeEventListener('stdout', onOutput);
       sandboxRef.current?.removeEventListener('stderr', onOutputError);
       sandboxRef.current?.removeEventListener('exec', onExec);

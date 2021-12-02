@@ -85,6 +85,9 @@ export function execCodeWithSandbox(options: ISandboxOptions) {
           break;
         case 'error':
           dispatcher.dispatchEvent(
+            new CustomEvent('error', { detail: data.payload }),
+          );
+          dispatcher.dispatchEvent(
             new CustomEvent('stderr', { detail: data.payload }),
           );
           break;
