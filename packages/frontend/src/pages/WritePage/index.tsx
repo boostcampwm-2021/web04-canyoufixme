@@ -23,6 +23,7 @@ import {
   LANGUAGE_SELECTIONS,
   LEVEL_SELECTIONS,
   VALID_LANGUAGES,
+  TIMEOUT_MS
 } from './constant';
 import {
   VALIDATION_FAIL_MESSAGE,
@@ -30,6 +31,9 @@ import {
   CHECK_IS_VALID_LANGUAGE,
   SUBMIT_SUCCESS_MESSAGE,
   SUBMIT_FAIL_MESSAGE,
+  CODE_VALIDATION_TIMEOUT,
+  CODE_VALIDATION_FAIL,
+  CODE_VALIDATION_MESSAGE,
 } from './message';
 
 import chai from 'assets/images/chai.png';
@@ -59,6 +63,9 @@ import SelectModal from 'components/Modal/SelectModal';
 import type { ITestCase, Category } from '@cyfm/types';
 
 type Language = keyof typeof Category;
+
+type CodeValidationResult = 'valid' | 'error' | 'timeout';
+
 const CATEGORY: Record<Language, string> = {
   'C++': 'c_cpp',
   Java: 'java',
@@ -167,6 +174,7 @@ const MessageWrapper = styled.div`
 `;
 
 const WritePage = () => {
+  let isValidCode: MutableRefObject<CodeValidationResult> = useRef('valid');
   const history = useHistory();
 
   const { isLogin } = useContext(LoginContext);
@@ -174,6 +182,7 @@ const WritePage = () => {
   const [output, setOutput] = useState('');
   const [category, setCategory] = useState<Language>('JavaScript');
   const [level, setLevel] = useState('1');
+  const [dummyOutput, setDummyOutput] = useState('');
 
   const [modalStates, dispatch] = useReducer(modalReducer, {
     openCategory: false,
@@ -181,6 +190,7 @@ const WritePage = () => {
     openLoading: false,
     openSubmit: false,
     openSuccess: false,
+    openValidate: false,
     openMessage: false,
   });
 
@@ -268,6 +278,51 @@ const WritePage = () => {
     markdownRef.current = this;
   }
 
+  const [codeValidator, _] = useSandbox({
+    setter: setDummyOutput,
+    dependencies: ['https://cdn.jsdelivr.net/npm/sinon@12.0.1'],
+    timeout: TIMEOUT_MS,
+    onLoadStart: () =>
+      dispatch({ type: 'open', payload: { target: 'loading' } }),
+    onLoadEnd: () =>
+      dispatch({ type: 'close', payload: { target: 'loading' } }),
+    onError: () => {
+      isValidCode.current = 'error';
+      setMessage(CODE_VALIDATION_FAIL);
+      dispatch({ type: 'open', payload: { target: 'message' } });
+    },
+    onTimeout: () => {
+      isValidCode.current = 'timeout';
+      setMessage(CODE_VALIDATION_TIMEOUT);
+      dispatch({ type: 'open', payload: { target: 'message' } });
+    },
+  });
+
+  const codeValidation = useCallback(() => {
+    if (!codeValidator.current) return;
+
+    codeValidator.current.addEventListener('idle', () => {
+      if (isValidCode.current === 'valid') {
+        dispatch({ type: 'open', payload: { target: 'submit' } });
+      }
+    });
+
+    codeValidator.current?.dispatchEvent(
+      new CustomEvent('exec', {
+        detail: `
+          const log = console.log;
+          console.log = new Function;
+          const clock = sinon.useFakeTimers({
+            shouldAdvanceTime: true,
+          });
+          ${code}
+          clock.runAll();
+          clock.restore();
+        `,
+      }),
+    );
+  }, [code, codeValidator, isValidCode]);
+
   const inputValidation = useCallback(() => {
     const titleContext = titleInputRef.current?.value;
     if ((titleContext as string).length === 0) {
@@ -309,7 +364,8 @@ const WritePage = () => {
 
   const submitValidation = () => {
     if (isValidLanguage() && inputValidation()) {
-      dispatch({ type: 'open', payload: { target: 'submit' } });
+      codeValidation();
+      isValidCode.current = 'valid';
     } else {
       dispatch({ type: 'open', payload: { target: 'message' } });
     }
@@ -489,7 +545,16 @@ const WritePage = () => {
               </TestCodeWrapper>
               <ButtonFooter>
                 <Button onClick={onExecute}>실행</Button>
-                <Button onClick={submitValidation}>제출</Button>
+                <Button onClick={() => {
+                    dispatch({ type: 'open', payload: { target: 'validate' } });
+                    setTimeout(() => {
+                      dispatch({
+                        type: 'close',
+                        payload: { target: 'validate' },
+                      });
+                      submitValidation();
+                    }, 1000);
+                  }}>제출</Button>
               </ButtonFooter>
               <LoadingModal isOpen={modalStates.openLoading} />
               <ConfirmModal
@@ -508,6 +573,13 @@ const WritePage = () => {
                 target={'message'}
                 message={message}
                 close={true}
+              />
+              <MessageModal
+                isOpen={modalStates.openValidate}
+                setter={dispatch}
+                target={'validate'}
+                message={CODE_VALIDATION_MESSAGE}
+                close={false}
               />
               <MessageModal
                 isOpen={modalStates.openSuccess}

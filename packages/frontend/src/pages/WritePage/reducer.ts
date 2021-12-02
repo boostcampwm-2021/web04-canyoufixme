@@ -4,6 +4,7 @@ type ModalState = {
   openLoading: boolean;
   openSubmit: boolean;
   openSuccess: boolean;
+  openValidate: boolean;
   openMessage: boolean;
 };
 
@@ -39,6 +40,8 @@ const modalReducer = (
       return { ...state, openSubmit: isOpen };
     case 'success':
       return { ...state, openSuccess: isOpen };
+    case 'validate':
+      return { ...state, openValidate: isOpen };
     case 'message':
       return { ...state, openMessage: isOpen };
     default:
