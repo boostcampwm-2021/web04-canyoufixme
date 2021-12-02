@@ -1,11 +1,48 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  useReducer,
+} from 'react';
 import { Redirect, useHistory } from 'react-router';
 import { nanoid } from 'nanoid';
+import styled from '@cyfm/styled';
 import { ResultCode } from '@cyfm/types';
 import type { ITestCase } from '@cyfm/types';
 
+import Button from 'components/Button';
+import { LoginContext } from 'contexts/LoginContext';
 import SocketContext from 'contexts/SocketContext';
+import { modalReducer } from 'pages/ResultPage/reducer';
 import ResultViewer from 'components/ResultViewer';
+import MessageModal from 'components/Modal/MessageModal';
+import { TEST_FAIL_MESSAGE } from './message';
+
+const PageWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const ResultWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  width: 80%;
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+`;
+
+const CustomButton = styled(Button)`
+  margin: 0 1em;
+  font-weight: bold;
+  box-shadow: 0 0 0 3px black;
+  border-radius: 15px;
+`;
 
 interface State {
   code?: string;
@@ -14,6 +51,11 @@ interface State {
 }
 
 const ResultPage = () => {
+  const { isLogin } = useContext(LoginContext);
+  const [modalState, dispatch] = useReducer(modalReducer, {
+    message: TEST_FAIL_MESSAGE,
+    openMessage: false,
+  });
   const history = useHistory();
   const state = history.location.state as State | undefined;
   const { code, testCode, problemId } = state
@@ -51,7 +93,9 @@ const ResultPage = () => {
       updateResultViewer({ id, result: resultCode });
     });
 
-    socket.on('error', error => {});
+    socket.on('error', error => {
+      dispatch({ type: 'open', payload: { target: 'message' } });
+    });
 
     if (state) {
       const payload = {
@@ -66,12 +110,47 @@ const ResultPage = () => {
 
   return (
     <>
-      {code && testCode ? (
-        <>
-          <ResultViewer TestCases={result}></ResultViewer>
-        </>
+      {isLogin ? (
+        code && testCode ? (
+          <>
+            <PageWrapper>
+              <ResultWrapper>
+                <ResultViewer TestCases={result}></ResultViewer>
+                <ButtonWrapper>
+                  {result.some(testcase => testcase.result === 3) ||
+                  result.every(testcase => testcase.result === 0) ? (
+                    ''
+                  ) : (
+                    <CustomButton
+                      onClick={() => {
+                        history.push(`/debug/${problemId}`);
+                      }}
+                    >
+                      다시 풀어보기
+                    </CustomButton>
+                  )}
+                  <CustomButton
+                    onClick={() => {
+                      history.push('/list');
+                    }}
+                  >
+                    다른 문제 풀러가기
+                  </CustomButton>
+                </ButtonWrapper>
+                <MessageModal
+                  isOpen={modalState.openMessage}
+                  setter={dispatch}
+                  message={modalState.message}
+                  target={'message'}
+                />
+              </ResultWrapper>
+            </PageWrapper>
+          </>
+        ) : (
+          <Redirect to="/" />
+        )
       ) : (
-        <Redirect to="/" />
+        <Redirect to="/login" />
       )}
     </>
   );
