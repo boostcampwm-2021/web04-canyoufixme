@@ -32,6 +32,9 @@ import {
   SUBMIT_FAIL_MESSAGE,
 } from './message';
 
+import chai from 'assets/images/chai.png';
+import sinon from 'assets/images/sinon.png';
+
 import 'ace-builds/src-noconflict/theme-twilight';
 import 'ace-builds/src-noconflict/mode-c_cpp';
 import 'ace-builds/src-noconflict/mode-java';
@@ -140,7 +143,15 @@ const TitleInput = styled(FullWidthInput)`
   background-color: inherit;
 `;
 
+const GuidelineWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
 const GuidelineButton = styled.button`
+  display: flex;
+  justify-content: center;
   font-size: 1em;
   width: 1.5em;
   height: 1.5em;
@@ -148,6 +159,11 @@ const GuidelineButton = styled.button`
   background-color: #f6cc00;
   border: 1px solid black;
   border-radius: 15px;
+`;
+
+const MessageWrapper = styled.div`
+  color: white;
+  font-size: 1em;
 `;
 
 const WritePage = () => {
@@ -440,17 +456,41 @@ const WritePage = () => {
           rightPane={
             <>
               <TestCodeWrapper>
-                <GuidelineButton
-                  onClick={() => {
-                    window.open(
-                      '/guide',
-                      '테스트케이스 가이드라인',
-                      'width=1000px, height=500px',
-                    );
-                  }}
-                >
-                  ?
-                </GuidelineButton>
+                <GuidelineWrapper>
+                  <MessageWrapper>테스트 코드 가이드라인 -</MessageWrapper>
+                  <GuidelineButton
+                    onClick={() => {
+                      window.open(
+                        '/guide/chai',
+                        'Chai 가이드라인',
+                        'width=1000px, height=500px',
+                      );
+                    }}
+                  >
+                    <img
+                      src={chai}
+                      alt="chai"
+                      title="chai"
+                      style={{ width: '1.3em', height: '1.3em' }}
+                    />
+                  </GuidelineButton>
+                  <GuidelineButton
+                    onClick={() => {
+                      window.open(
+                        '/guide/sinon',
+                        'Sinon 가이드라인',
+                        'width=1000px, height=500px',
+                      );
+                    }}
+                  >
+                    <img
+                      src={sinon}
+                      alt="sinon"
+                      title="sinon"
+                      style={{ width: '1.2em', height: '1.2em' }}
+                    />
+                  </GuidelineButton>
+                </GuidelineWrapper>
                 <TestCodeEditor
                   testCases={testCases}
                   setTestCases={setTestCases}
