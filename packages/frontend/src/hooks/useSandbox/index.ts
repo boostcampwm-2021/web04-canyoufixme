@@ -12,6 +12,8 @@ interface ISandboxHookOptions extends ISandboxOptions {
   setter: React.Dispatch<React.SetStateAction<string>>;
   onInit?: (event: CustomEvent) => void;
   onExit?: (event: CustomEvent) => void;
+  onError?: (event: CustomEvent) => void;
+  onTimeout?: (event: CustomEvent) => void;
   onLoadStart?: (event: CustomEvent) => void;
   onLoadEnd?: (event: CustomEvent) => void;
   timeout?: number;
@@ -32,6 +34,8 @@ export function useSandbox(
     setter: () => {},
     onInit: () => {},
     onExit: () => {},
+    onError: () => {},
+    onTimeout: () => {},
     onLoadStart: () => {},
     onLoadEnd: () => {},
     timeout: 0,
@@ -77,9 +81,6 @@ export function useSandbox(
     const onExit = (options.onExit ??
       (event => {
         const customEvent = event as CustomEvent;
-        if (parseInt(customEvent.detail, 10) === SIGKILL) {
-          console.log(`TimeoutError: timeout`);
-        }
         console.log(`[EXIT CODE: ${customEvent.detail || -1}]`);
 
         // 재시작
@@ -94,11 +95,20 @@ export function useSandbox(
     }) as EventListener;
 
     const onOutputError = (event => {
-      console.log((event as CustomEvent).detail);
+      console.error((event as CustomEvent).detail);
     }) as EventListener;
 
     sandboxRef.current.addEventListener('stdout', onOutput);
     sandboxRef.current.addEventListener('stderr', onOutputError);
+
+    const onError = (options.onError ?? (() => {})) as EventListener;
+    sandboxRef.current.addEventListener('error', onError);
+
+    const onTimeout = (options.onTimeout ??
+      (() => {
+        console.error(`TimeoutError: timeout`);
+      })) as EventListener;
+    sandboxRef.current.addEventListener('timeout', onTimeout);
 
     let timeoutTimer: NodeJS.Timer | number = INIT_TIMER_ID;
     let delayTimer: NodeJS.Timer | number = INIT_TIMER_ID;
@@ -107,6 +117,7 @@ export function useSandbox(
         clearTimeout(timeoutTimer as number);
         timeoutTimer = INIT_TIMER_ID;
         timeoutTimer = setTimeout(() => {
+          sandboxRef.current?.dispatchEvent(new CustomEvent('timeout'));
           sandboxRef.current?.dispatchEvent(
             new CustomEvent('kill', { detail: SIGKILL }),
           );
@@ -135,6 +146,8 @@ export function useSandbox(
     return () => {
       sandboxRef.current?.removeEventListener('init', onInit);
       sandboxRef.current?.removeEventListener('exit', onExit);
+      sandboxRef.current?.removeEventListener('error', onError);
+      sandboxRef.current?.removeEventListener('timeout', onTimeout);
       sandboxRef.current?.removeEventListener('stdout', onOutput);
       sandboxRef.current?.removeEventListener('stderr', onOutputError);
       sandboxRef.current?.removeEventListener('exec', onExec);
