@@ -45,7 +45,14 @@ export type ITestCaseResult = Pick<ITestCase, 'id'> & {
 export interface IGuideline {
   title: string;
   content: string;
+  type: 'testcase' | 'code';
   codes: string[];
+}
+
+export interface IGuidelineWithCode {
+  title: string;
+  content: string;
+  codes: string;
 }
 
 export interface ITestResult {
