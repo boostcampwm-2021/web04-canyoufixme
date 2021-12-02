@@ -23,7 +23,7 @@ import {
   LANGUAGE_SELECTIONS,
   LEVEL_SELECTIONS,
   VALID_LANGUAGES,
-  TIMEOUT_MS
+  TIMEOUT_MS,
 } from './constant';
 import {
   VALIDATION_FAIL_MESSAGE,
@@ -364,7 +364,14 @@ const WritePage = () => {
 
   const submitValidation = () => {
     if (isValidLanguage() && inputValidation()) {
-      codeValidation();
+      dispatch({ type: 'open', payload: { target: 'validate' } });
+      setTimeout(() => {
+        dispatch({
+          type: 'close',
+          payload: { target: 'validate' },
+        });
+        codeValidation();
+      }, 1000);
       isValidCode.current = 'valid';
     } else {
       dispatch({ type: 'open', payload: { target: 'message' } });
@@ -545,16 +552,7 @@ const WritePage = () => {
               </TestCodeWrapper>
               <ButtonFooter>
                 <Button onClick={onExecute}>실행</Button>
-                <Button onClick={() => {
-                    dispatch({ type: 'open', payload: { target: 'validate' } });
-                    setTimeout(() => {
-                      dispatch({
-                        type: 'close',
-                        payload: { target: 'validate' },
-                      });
-                      submitValidation();
-                    }, 1000);
-                  }}>제출</Button>
+                <Button onClick={submitValidation}>제출</Button>
               </ButtonFooter>
               <LoadingModal isOpen={modalStates.openLoading} />
               <ConfirmModal
@@ -563,7 +561,7 @@ const WritePage = () => {
                 target={'submit'}
                 message={CHECK_BEFORE_SUBMIT_MESSAGE}
                 callback={() => {
-                  dispatch({ type: 'close', payload: { target: 'false' } });
+                  dispatch({ type: 'close', payload: { target: 'submit' } });
                   onSubmit();
                 }}
               />
