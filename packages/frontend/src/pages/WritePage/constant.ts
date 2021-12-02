@@ -1,3 +1,5 @@
+export const TIMEOUT_MS = 3000;
+
 export const LANGUAGE_SELECTIONS = ['C++', 'Java', 'JavaScript', 'Python'];
 
 export const VALID_LANGUAGES = ['JavaScript'];
