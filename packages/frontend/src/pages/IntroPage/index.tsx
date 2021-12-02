@@ -318,7 +318,7 @@ const IntroPage = () => {
       </MainTitleWrapper>
       <MainTextWrapper>
         {INTRO_MESSAGE.split('\n').map(message => (
-          <MessageWrapper>{message}</MessageWrapper>
+          <MessageWrapper key={nanoid()}>{message}</MessageWrapper>
         ))}
         <TitleWrapper>
           코딩은 직접 부딪히고 경험해야 실력이 향상 된다고 합니다!
