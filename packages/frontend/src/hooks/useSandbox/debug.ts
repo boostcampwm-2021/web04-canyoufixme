@@ -31,6 +31,14 @@ function escaped(strings: TemplateStringsArray, ...args: unknown[]) {
 export interface ISandboxOptions {
   dependencies?: string[];
 }
+
+class Exit extends Error {
+  constructor(exitCode: number) {
+    super(String(exitCode));
+    this.name = 'Exit';
+  }
+}
+
 export function execCodeWithSandbox(options: ISandboxOptions) {
   const sandbox = document.createElement('iframe');
   sandbox.style.display = 'none';
@@ -82,13 +90,13 @@ export function execCodeWithSandbox(options: ISandboxOptions) {
           break;
         case 'exit':
         default:
-          dispatcher.dispatchEvent(
-            new CustomEvent('exit', { detail: data.payload }),
-          );
-          break;
+          throw new Exit(data.payload);
       }
     } catch (e) {
-      dispatcher.dispatchEvent(new CustomEvent('exit', { detail: e }));
+      sandbox.parentNode?.removeChild(sandbox);
+      dispatcher.dispatchEvent(
+        new CustomEvent('exit', { detail: (e as Error).message }),
+      );
     }
   };
 

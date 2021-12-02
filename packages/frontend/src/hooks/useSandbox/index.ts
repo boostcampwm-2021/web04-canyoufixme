@@ -77,7 +77,7 @@ export function useSandbox(
     const onExit = (options.onExit ??
       (event => {
         const customEvent = event as CustomEvent;
-        if (customEvent.detail === SIGKILL) {
+        if (parseInt(customEvent.detail, 10) === SIGKILL) {
           console.log(`TimeoutError: timeout`);
         }
         console.log(`[EXIT CODE: ${customEvent.detail || -1}]`);
