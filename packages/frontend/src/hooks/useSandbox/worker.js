@@ -22,9 +22,6 @@ export function execCodeWithWorker(opts) {
         delete WorkerGlobalScope.prototype.fetch;
         delete self.close;
 
-        // 제거한 prototype을 수정 불가하도록 변경
-        Object.freeze(WorkerGlobalScope.prototype);
-
         onmessage = function (message) {
           if (message.data === null) {
             postMessage({
@@ -33,6 +30,7 @@ export function execCodeWithWorker(opts) {
             });
             return;
           }
+
           try {
             // 문법검사
             new Function(message.data);
@@ -49,7 +47,7 @@ export function execCodeWithWorker(opts) {
             const key = func.call(
               {},  /* Context */
               '${random}',  /* Key */
-              Object.freeze({  /* Console mock */
+              {  /* Console mock */
                 log: function () {
                   postMessage({
                     key: '${random}',
@@ -58,10 +56,10 @@ export function execCodeWithWorker(opts) {
                   });
                   console.log.apply(null, arguments);
                 },
-              }),
+              },
               undefined,  /* postMessage */
               {},  /* self */
-              {}  /* globalThis */
+              {},  /* globalThis */
             );
 
             postMessage({
@@ -99,7 +97,7 @@ export function execCodeWithWorker(opts) {
           process.dispatchEvent(
             new CustomEvent('error', { detail: message.payload }),
           );
-          break;
+        // eslint-disable-next-line no-fallthrough
         case 'done':
         default:
           process.dispatchEvent(new CustomEvent('idle'));

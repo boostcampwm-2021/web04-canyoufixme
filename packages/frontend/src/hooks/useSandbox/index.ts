@@ -104,6 +104,7 @@ export function useSandbox(
     const onExec = (event => {
       if (options.timeout) {
         clearTimeout(timeoutTimer as number);
+        timeoutTimer = -1;
         timeoutTimer = setTimeout(() => {
           sandboxRef.current?.dispatchEvent(
             new CustomEvent('kill', { detail: SIGKILL }),
@@ -111,15 +112,20 @@ export function useSandbox(
         }, options.timeout);
       }
       clearTimeout(delayTimer as number);
+      delayTimer = -1;
       delayTimer = setTimeout(() => {
-        options.onLoadStart?.(event as CustomEvent);
+        if (timeoutTimer !== -1) {
+          options.onLoadStart?.(event as CustomEvent);
+        }
       }, 1000);
     }) as EventListener;
     sandboxRef.current.addEventListener('exec', onExec);
 
     const onTerminate = (event => {
       clearTimeout(delayTimer as number);
+      delayTimer = -1;
       clearTimeout(timeoutTimer as number);
+      timeoutTimer = -1;
       options.onLoadEnd?.(event as CustomEvent);
     }) as EventListener;
     sandboxRef.current.addEventListener('idle', onTerminate);

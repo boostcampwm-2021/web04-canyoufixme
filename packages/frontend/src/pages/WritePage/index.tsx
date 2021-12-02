@@ -208,7 +208,10 @@ const WritePage = () => {
 
   const [sandboxRef, console] = useSandbox({
     setter: setOutput,
-    dependencies: ['https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js'],
+    dependencies: [
+      'https://cdn.jsdelivr.net/npm/chai@4.3.4/chai.js',
+      'https://cdn.jsdelivr.net/npm/sinon@12.0.1',
+    ],
     timeout: 3000,
     onLoadStart: () =>
       dispatch({ type: 'open', payload: { target: 'loading' } }),
@@ -224,13 +227,25 @@ const WritePage = () => {
       sandboxRef.current?.dispatchEvent(
         new CustomEvent('exec', {
           detail: `
+            const log = console.log;
+            console.log = new Function;
+            const clock = sinon.useFakeTimers({
+              shouldAdvanceTime: true,
+            });
             ${code}
             const { expect } = chai;
             ${test.code}
+            clock.runAll();
+            clock.restore();
           `,
         }),
       );
     });
+    sandboxRef.current?.dispatchEvent(
+      new CustomEvent('exec', {
+        detail: code,
+      }),
+    );
   }, [sandboxRef, console, code, testCases]);
 
   function onMarkdownEditorLoad(this: Editor) {
