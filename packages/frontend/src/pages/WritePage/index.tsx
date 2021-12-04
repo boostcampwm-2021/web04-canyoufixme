@@ -430,10 +430,10 @@ const WritePage = () => {
                 placeholder="제목을 입력해주세요"
               />
               <Editor
-                previewStyle="vertical"
-                height="60%"
-                initialEditType="wysiwyg"
+                previewStyle="tab"
                 hideModeSwitch
+                height="100%"
+                initialEditType="markdown"
                 placeholder="마크다운 문법에 맞춰 값을 입력해주세요."
                 theme="dark"
                 usageStatistics={false}
