@@ -9,7 +9,7 @@ const controllerWidth = 5;
 const FlexWrapper = styled.div`
   display: flex;
   width: 100%;
-  min-height: calc(100vh - 80px);
+  height: calc(100vh - 80px);
 `;
 
 const ColumnWrapper = styled.div`

@@ -117,8 +117,7 @@ const TagButton = styled(Button)`
 
 const ConsoleWrapper = styled.div`
   padding: 20px;
-  height: 100%;
-  flex-basis: 50%;
+  min-height: 300px;
   background: #24262a;
   color: white;
 `;
@@ -431,7 +430,7 @@ const WritePage = () => {
               />
               <Editor
                 previewStyle="vertical"
-                height="60%"
+                height="100%"
                 initialEditType="wysiwyg"
                 hideModeSwitch
                 placeholder="마크다운 문법에 맞춰 값을 입력해주세요."
