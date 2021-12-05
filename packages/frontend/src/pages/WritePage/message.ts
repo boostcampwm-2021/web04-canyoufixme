@@ -24,7 +24,7 @@ export const CODE_VALIDATION_FAIL = `코드 실행 과정에서\n에러가 발�
 export const CODE_VALIDATION_TIMEOUT = `실행시간이 ${TIMEOUT_LIMIT}초를 초과했습니다.\n코드를 다시 한번 확인해주세요.`;
 
 export const SUBMIT_SUCCESS_MESSAGE =
-  '문제 제출에 성공했습니다.\n잠시 후 문제 리스트로 이동합니다.';
+  '문제 제출에 성공했습니다.\n잠시 후 메인 페이지로 이동합니다.';
 
 export const SUBMIT_FAIL_MESSAGE =
   '출제에 실패했습니다.\n담당자에게 문의 바랍니다.';
