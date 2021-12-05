@@ -214,4 +214,4 @@
 
 # 📽️ 데모 영상
 
-[![can you fix me](https://i.ytimg.com/vi/T3ZrmI_XteA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAnY5eFcZ2ngCLjn6HZlye6lS6XwQ)](https://www.youtube.com/watch?v=T3ZrmI_XteA)
+[![can you fix me](https://i.ytimg.com/vi/T3ZrmI_XteA/maxresdefault.jpg)](https://www.youtube.com/watch?v=T3ZrmI_XteA)
