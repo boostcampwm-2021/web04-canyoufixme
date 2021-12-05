@@ -8,8 +8,8 @@ const controllerWidth = 5;
 
 const FlexWrapper = styled.div`
   display: flex;
-  min-width: 100vw;
-  min-height: calc(100vh - 80px);
+  width: 100%;
+  height: calc(100vh - 80px);
 `;
 
 const ColumnWrapper = styled.div`

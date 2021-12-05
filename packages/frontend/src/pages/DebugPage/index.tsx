@@ -45,8 +45,9 @@ import {
 
 const ViewerWrapper = styled.div`
   display: flex;
-  flex-basis: 50%;
   width: 100%;
+  height: 100%;
+  background-color: #2f333c;
   overflow-y: auto;
 `;
 
@@ -56,8 +57,7 @@ const EditorWrapper = styled.div`
 
 const ConsoleWrapper = styled.div`
   padding: 20px;
-  height: 100%;
-  flex-basis: 50%;
+  min-height: 300px;
   background: #24262a;
   color: white;
 `;

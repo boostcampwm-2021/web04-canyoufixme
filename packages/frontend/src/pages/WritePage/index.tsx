@@ -117,8 +117,7 @@ const TagButton = styled(Button)`
 
 const ConsoleWrapper = styled.div`
   padding: 20px;
-  height: 100%;
-  flex-basis: 50%;
+  min-height: 300px;
   background: #24262a;
   color: white;
 `;
@@ -430,10 +429,10 @@ const WritePage = () => {
                 placeholder="제목을 입력해주세요"
               />
               <Editor
-                previewStyle="vertical"
-                height="60%"
-                initialEditType="wysiwyg"
+                previewStyle="tab"
                 hideModeSwitch
+                height="100%"
+                initialEditType="markdown"
                 placeholder="마크다운 문법에 맞춰 값을 입력해주세요."
                 theme="dark"
                 usageStatistics={false}
