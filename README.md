@@ -9,8 +9,13 @@
 
 # ⚓ 배포 링크
 
-[Can you fix me?](http://dev.canyoufix.me/)
+[Can you fix me?](https://canyoufix.me/)
 
+<br>
+
+# 🎞 우리의 Memories
+
+[Can you fix me의 모든 기록](https://www.notion.so/longnh214/Canyoufixme-Notion-df8eb573696145f3af32594ed601248d)
 <br>
 <br>
 
@@ -28,6 +33,8 @@
 
 **👉 [Github Repository](https://github.com/winters0727)**
 
+<br>
+<br>
 <img src="https://github.com/dlckdduq1107.png" width=100 height=100 />
 
 ### 👨🏻‍💼  **J165 이창엽**
@@ -39,6 +46,8 @@
 
 **👉 [Github Repository](https://github.com/dlckdduq1107)**
 
+<br>
+<br>
 <img src="https://github.com/longnh214.png" width=100 height=100 />
 
 ### 👨🏻‍💻  **J205 최낙훈**
@@ -51,6 +60,8 @@
 
 **👉 [Github Repository](https://github.com/longnh214)**
 
+<br>
+<br>
 <img src="https://github.com/xvezda.png" width=100 height=100 />
 
 ### 🤔  **J206 최영근**
@@ -63,6 +74,26 @@
 - [g.dev/vim](https://g.dev/vim)
 
 **👉 [Github Repository](https://github.com/Xvezda)**
+
+<br>
+<br>
+
+# ✅ 슬로건, 마음가짐, 모토
+
+안녕하세요! 저희는 **canyoufixme** 수리공 4명으로 이루어진 경기사천왕입니다. 👑
+저희 팀의 궁극적인 목표는 ✨**소통을 통한 성장**✨인데요.
+
+🔎 중요한 사항을 결정할 때 하루 이상이 걸릴 정도로 **학습하고 토론**했습니다.
+어떤 구조가 좋을지, 어느 기술을 사용할지에 대한 대화를 충분히 나누고, **이유**를 생각해보았습니다. 🤔
+
+💬 말을 하지 않으면 어떤 생각을 하는지 알 수 없습니다.
+**매일 스크럼과 회고**를 진행하면서 모든 팀원이 **동일한 방향**을 바라볼 수 있도록 노력했습니다.
+
+📈 타인과 비교하지 않으며, 어제의 코드보다 더 나은 코드를 작성하는 오늘,
+팀원과 스스로의 발전에 집중하며 **점진적이고 지속적인 성장**을 추구합니다.
+
+✅ "매몰되지 말자."가 팀 내의 슬로건 입니다.
+해결되지 않는 문제를 너무 많이 고민하지 말고 의견교환을 통해 **다양한 관점**에서 솔루션을 찾아가고 있습니다.
 
 <br>
 <br>
@@ -99,13 +130,54 @@
 <br>
 <br>
 
+# 🚀 페이지별 기능
+
+### 🚧 **메인 페이지**
+
+- 서비스에 대한 간단한 소개
+- 전체 문제수, 전체 제출 수, 많이 틀린 문제 등 전반적인 통계 자료 표시
+
+### ⚠️ **문제 리스트 페이지**
+
+- 출제된 문제를 리스트 형태로 확인
+- 무한 스크롤(Intersection Observer API) 기능 적용
+
+### 🔑 **풀이 페이지**
+
+- 작성한 코드 실행 가능
+- 코드 편집기 에디터에 코드작성 가능(prettier 적용)
+- 에디터 크기 조절
+- 제출을 통해 문제 채점
+
+### ⌨️ **출제 페이지**
+
+- 출제 전 코드 실행 가능
+- 마크다운, 코드 에디터를 통해 문제해설과 코드 작성 가능
+- 에디터 크기 조절(3등분)
+- 테스트 코드 작성(`?`를 눌러 가이드라인 확인 가능)
+
+### 🏅 **결과 페이지**
+
+- 제출 결과를 테스트케이스 별로 확인 가능
+
+<br>
+<br>
+
+# 🔨 프로젝트 아키텍쳐 / 구조
+
+![image](https://user-images.githubusercontent.com/67806982/144750653-00c17b64-6b33-4ad7-bddf-a674a4e0f2bb.png)
+
+<br>
+<br>
+
 # 🎯 기술 특장점 소개
 
 ### ⚙️ 백엔드 멀티 스레드
 
     - 서비스가 성장하고 트래픽이 집중될 때에도 사용자 경험을 유지하고 싶었습니다.
     - 이를 위해 JavaScript의 싱글스레드 환경에서 여러 클라이언트에 대한 동시 채점이 가능해야 했습니다.
-    - `workerpool` 모듈을 이용해 일정 스레드 개수 만큼 동시에 채점할 수 있습니다 (with 대기큐)
+    - `worker_thread` 와 `vm2`를 이용해서 백엔드에 악의적인 코드를 방지하였습니다.
+    - 부하 테스트를 통해 현재 동시에 3 건의 채점까지 처리 가능합니다.
 
 ### 🚨 프론트엔드 샌드박스, 웹워커 + 보안
 
@@ -140,30 +212,6 @@
 <br>
 <br>
 
-# 📹 기능 시연 예제
+# 📽️ 데모 영상
 
-## 무한 스크롤
-
-![infinite](https://user-images.githubusercontent.com/56329233/142729939-808e0285-b72c-4f31-b50d-55a48263c8c3.gif)
-
-- 문제 리스트 페이지 입니다.
-- `IntersectionObserver API` 를 이용해서 무한 스크롤을 구현하였습니다.
-
-## 에디터 크기 조절
-
-![layoutmoving](https://user-images.githubusercontent.com/56329233/142729952-414edb75-2137-4782-a542-f9f2bb2a8f69.gif)
-
-- 에디터 크기를 좌우 스크롤을 통해 조절할 수 있습니다.
-- 조절된 크기는 `localStorage`에 저장되어 페이지를 이동하더라도 반영됩니다.
-
-## 답안 제출
-
-![correctanswer](https://user-images.githubusercontent.com/56329233/142729965-5a7c5aff-1922-4d76-a690-837bc4266a05.gif)
-
-- 제출 버튼을 클릭하면 웹 소켓 통신이 이루어지고 채점 결과를 모달창으로 보여줍니다.
-
-## 시간 제한
-
-![timeout](https://user-images.githubusercontent.com/56329233/142729980-989ef3a1-14b2-4766-b2f1-2b3d5e329c86.gif)
-
-- timeout 5초 제한을 두어 무한 루프를 방지했습니다.
+[![can you fix me](https://i.ytimg.com/vi/T3ZrmI_XteA/maxresdefault.jpg)](https://www.youtube.com/watch?v=T3ZrmI_XteA)
