@@ -12,6 +12,11 @@
 [Can you fix me?](https://canyoufix.me/)
 
 <br>
+
+# 🎞 우리의 Memories
+
+[Can you fix me의 모든 기록](https://www.notion.so/longnh214/Canyoufixme-Notion-df8eb573696145f3af32594ed601248d)
+<br>
 <br>
 
 # 👨🏻‍💻 팀원 소개
