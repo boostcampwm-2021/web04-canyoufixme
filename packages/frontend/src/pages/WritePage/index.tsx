@@ -117,8 +117,7 @@ const TagButton = styled(Button)`
 
 const ConsoleWrapper = styled.div`
   padding: 20px;
-  height: 100%;
-  flex-basis: 50%;
+  min-height: 300px;
   background: #24262a;
   color: white;
 `;
