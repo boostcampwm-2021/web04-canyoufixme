@@ -7,11 +7,6 @@
     "build": "craco build",
     "test": "craco test"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app"
-    ]
-  },
   "browserslist": {
     "production": [
       "> 1%",
