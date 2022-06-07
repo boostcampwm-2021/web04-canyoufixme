@@ -50,6 +50,7 @@
     "@typescript-eslint/visitor-keys": "^5.2.0",
     "craco-esbuild": "^0.4.2",
     "eslint-config-react-app": "^6.0.0",
+    "eslint-plugin-jest": "^26.5.3",
     "eslint-plugin-jest-dom": "^4.0.2",
     "eslint-plugin-testing-library": "^5.5.1",
     "terser-webpack-plugin": "4.x",
